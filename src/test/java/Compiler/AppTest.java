@@ -35,4 +35,8 @@ public class AppTest
     {
         assertTrue( true );
     }
+    
+    public void testBlablabla() {
+        assertTrue(true);
+    }
 }
