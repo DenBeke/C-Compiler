@@ -9,7 +9,6 @@ Tests:
 	operators
 */
 
-
 // Some comment
 int *funcA(int a, int b, char* s) {
 	if(a == 5) {
@@ -25,7 +24,7 @@ int *funcA(int a, int b, char* s) {
 
 	return s;
 }
-aa
+
 /*
 	some more comments
 	on multiple lines
