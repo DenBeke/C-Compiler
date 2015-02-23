@@ -1,0 +1,47 @@
+/*
+Tests:
+	comments
+	function declarations
+	if else statements
+	while statements
+	return statements
+	variable declarations
+	operators
+*/
+
+
+// Some comment
+int *funcA(int a, int b, char* s) {
+	if(a == 5) {
+		return 5;
+	}
+
+	if(b == 0) {
+		return "test";
+	} else {
+		int c = 1;
+		return c;
+	}
+
+	return s;
+}
+aa
+/*
+	some more comments
+	on multiple lines
+*/
+void* funcA(char* abc) {
+	int i = 0;
+	while(i != 5) { // While comment
+		i = i + 1; /* i = i + 1 */
+	}
+
+	if(i == 5) {
+		return "test"; // return something
+	} else {
+		/*
+			return something else
+		*/
+		return 'a';
+	}
+}
