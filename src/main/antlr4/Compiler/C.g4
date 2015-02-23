@@ -47,8 +47,8 @@ stmt
 	| 'return' expr ';'
 	| 'while' '(' expr ')' block
 	| 'if' '(' expr ')' block ('else' block)?
-	| 'break'
-	| 'continue'
+	| 'break' ';'
+	| 'continue' ';'
 	;
 
 literal
