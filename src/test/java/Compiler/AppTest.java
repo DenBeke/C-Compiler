@@ -49,6 +49,13 @@ public class AppTest
 			parser.file();
 			assertTrue(parser.getNumberOfSyntaxErrors() == 0);
 			
+			is = new FileInputStream("src/test/input/bad1.c");
+			input = new ANTLRInputStream(is);
+			lexer = new CLexer(input);
+			parser = new CParser(new CommonTokenStream(lexer));
+			parser.file();
+			assertTrue(parser.getNumberOfSyntaxErrors() != 0);
+			
 		} catch(java.io.FileNotFoundException e) {
 			fail(e.getMessage());
 		} catch(java.io.IOException e) {

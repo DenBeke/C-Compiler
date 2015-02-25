@@ -45,8 +45,8 @@ stmt
 	| varDecl
 	| ID '=' expr ';'
 	| 'return' expr ';'
-	| 'while' '(' expr ')' block
-	| 'if' '(' expr ')' block ('else' block)?
+	| 'while' '(' expr ')' stmt
+	| 'if' '(' expr ')' stmt ('else' stmt)?
 	| 'break' ';'
 	| 'continue' ';'
 	;
