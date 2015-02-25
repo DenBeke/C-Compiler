@@ -42,7 +42,7 @@ public class AppTest
     
     public void testLexer() {
 		try {
-			InputStream is = new FileInputStream("src/test/input/test1_ok.txt");
+			InputStream is = new FileInputStream("src/test/input/good1.c");
 			ANTLRInputStream input = new ANTLRInputStream(is);
 			CLexer lexer = new CLexer(input);
 			CParser parser = new CParser(new CommonTokenStream(lexer));

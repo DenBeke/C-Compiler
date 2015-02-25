@@ -31,21 +31,25 @@ expr
 	| expr '+' expr
 	| expr '-' expr
 	| expr '=' expr
+	| type ID ('=' expr)?
 	| expr '==' expr
 	| expr '!=' expr
 	| expr '<' expr
 	| expr '<=' expr
 	| expr '>' expr
 	| expr '>=' expr
+	| expr '++'
+	| expr '--'
+	| ID '(' (expr (',' expr)*)? ')'
 	| literal
 	;
 
 stmt
 	: block
-	| varDecl
-	| ID '=' expr ';'
+	| expr ';'
 	| 'return' expr ';'
 	| 'while' '(' expr ')' stmt
+	| 'for' '(' expr? ';' expr? ';' expr? ')' stmt
 	| 'if' '(' expr ')' stmt ('else' stmt)?
 	| 'break' ';'
 	| 'continue' ';'

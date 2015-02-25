@@ -4,10 +4,12 @@ Tests:
 	function declarations
 	if else statements
 	while statements
+	for statements
 	return statements
 	variable declarations
 	operators
 	continue, break statements
+	function calls
 */
 
 // Some comment
@@ -22,6 +24,12 @@ int *funcA(int a, int b, char* s) {
 		int c = 1;
 		return c;
 	}
+
+	while(1)
+		if(1)
+			a = 5;
+		else
+			b = 1;
 
 	return s;
 }
@@ -46,4 +54,19 @@ void* funcA(char* abc) {
 		break;
 		return 'a';
 	}
+
+	for(int i = 0; i < 10; i++) {
+		continue;
+	}
+
+	for(a = 5;;) {
+		if(1==2)
+			funcB(a);
+		else
+			funcA(a);
+	}
 }
+
+int a = 6;
+int b;
+char* c = 1+2;
