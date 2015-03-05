@@ -27,12 +27,9 @@ public class App
 		try {
 			input = new ANTLRInputStream(System.in);
 			CLexer lexer = new CLexer(input);                           // create a buffer of tokens pulled from the lexer
-	        CommonTokenStream tokens = new CommonTokenStream(lexer);    // create a parser that feeds off the tokens buffer
-	        CParser parser = new CParser(tokens);
-	        CParser.FileContext filecontext = parser.file();
-	        
-	        System.out.println( filecontext.toStringTree() );
-	        
+			CommonTokenStream tokens = new CommonTokenStream(lexer);    // create a parser that feeds off the tokens buffer
+			AstParser parser = new AstParser(tokens);
+			AstParser.FileContext filecontext = parser.file();	        
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

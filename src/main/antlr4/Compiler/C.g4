@@ -1,11 +1,19 @@
 grammar C;
 
+@members {
+	public void handleVarDecl(String id) {};
+	public void handleExpr() {};
+	public void handleInt() {};
+	public void handleAssign() {};
+	public void handleID(String id) {};
+}
+
 file
     : (varDecl | funcDecl)*
     ;
 
 varDecl
-	: type ID ('=' expr)? ';'
+	: type id=ID ('=' expr)? ';' {handleVarDecl($id.text);}
 	;
 
 funcDecl
@@ -26,11 +34,11 @@ block
 
 expr
 	: '(' expr ')'
-	| ID
+	| id=ID {handleID($id.text);}
 	| expr '/' expr
 	| expr '+' expr
 	| expr '-' expr
-	| expr '=' expr
+	| expr '=' expr {handleAssign();}
 	| type ID ('=' expr)?
 	| expr '==' expr
 	| expr '!=' expr
@@ -56,7 +64,7 @@ stmt
 	;
 
 literal
-	: INT
+	: INT {handleInt();}
 	| CHAR
 	| STRING
 	;
