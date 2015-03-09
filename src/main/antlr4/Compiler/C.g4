@@ -3,10 +3,16 @@ grammar C;
 @members {
 	public void handleVarDecl(String id) {};
 	public void handleExpr() {};
-	public void handleInt() {};
+	public void handleInt(String n) {};
 	public void handleAssign() {};
 	public void handleID(String id) {};
+	public void handleFile() {};
+	public void handleBinaryOperator(String operator) {};
 }
+
+start
+	: file {handleFile();}
+	;
 
 file
     : (varDecl | funcDecl)*
@@ -36,10 +42,10 @@ expr
 	: '(' expr ')'
 	| id=ID {handleID($id.text);}
 	| expr '/' expr
-	| expr '+' expr
+	| expr '+' expr {handleBinaryOperator("+");}
 	| expr '-' expr
-	| expr '=' expr {handleAssign();}
-	| type ID ('=' expr)?
+	| expr '=' expr {handleBinaryOperator("=");}
+	| type ID ('=' expr)? 
 	| expr '==' expr
 	| expr '!=' expr
 	| expr '<' expr
@@ -64,7 +70,7 @@ stmt
 	;
 
 literal
-	: INT {handleInt();}
+	: i=INT {handleInt($i.text);}
 	| CHAR
 	| STRING
 	;
