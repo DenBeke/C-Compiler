@@ -58,6 +58,35 @@ public class AstParser extends CParser {
 		}
 	}
 
+	public static class FunctionDeclarationNode extends Node {
+		public String name;
+
+		public String toString(String prefix) {
+			String result = prefix + "FunctionDeclarationNode: " + name + "\n";
+			result += childrenToString(prefix + "\t");
+
+			return result;
+		}
+	}
+
+	public static class FormalParametersNode extends Node {
+		public String toString(String prefix) {
+			String result = prefix + "FormalParametersNode:\n";
+			result += childrenToString(prefix + "\t");
+
+			return result;
+		}
+	}
+
+	public static class FormalParameterNode extends Node {
+		public String id;
+
+		public String toString(String prefix) {
+			String result = prefix + "FormalParameterNode: " + id;
+			return result;
+		}
+	}
+
 	public static class BinaryOperatorNode extends Node {
 		public String operator;
 
@@ -86,6 +115,50 @@ public class AstParser extends CParser {
 		if (queue.size() == 1) {
 			node.children.add(queue.remove());
 		}
+
+		queue.add(node);
+	}
+
+	public void handleFuncDecl(String id) {
+		// System.out.println("handleFuncDecl: " + id);
+
+		FunctionDeclarationNode node = new FunctionDeclarationNode();
+		node.name = id;
+
+		// Add empty formal parameter list if no parameters.
+		if (!(queue.peek() instanceof FormalParametersNode)) {
+			node.children.add(new FormalParametersNode());
+		} else {
+			node.children.add(queue.remove());
+		}
+
+		queue.add(node);
+	}
+
+	public void handleFormalParameters() {
+		// System.out.println("handleFormalParameters: " + id);
+
+		FormalParametersNode node = new FormalParametersNode();
+
+		// Add all Formalparameters to our children
+		Node paramNode;
+		while ((paramNode = queue.peek()) != null) {
+			if (!(paramNode instanceof FormalParameterNode)) {
+				break;
+			}
+
+			queue.remove();
+			node.children.add(paramNode);
+		}
+
+		queue.add(node);
+	}
+
+	public void handleFormalParameter(String id) {
+		// System.out.println("handleFormalParameter: " + id);
+
+		FormalParameterNode node = new FormalParameterNode();
+		node.id = id;
 
 		queue.add(node);
 	}

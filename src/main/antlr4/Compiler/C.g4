@@ -2,6 +2,9 @@ grammar C;
 
 @members {
 	public void handleVarDecl(String id) {};
+	public void handleFuncDecl(String id) {};
+	public void handleFormalParameters() {};
+	public void handleFormalParameter(String id) {};
 	public void handleExpr() {};
 	public void handleInt(String n) {};
 	public void handleAssign() {};
@@ -23,15 +26,15 @@ varDecl
 	;
 
 funcDecl
-	: type ID '(' formalParameters? ')' block
+	: type id=ID '(' formalParameters? ')' block {handleFuncDecl($id.text);}
 	;
 
 formalParameters
-	:	formalParameter (',' formalParameter)*
+	:	formalParameter (',' formalParameter)* {handleFormalParameters();}
 	;
 
 formalParameter
-	: type ID
+	: type id=ID {handleFormalParameter($id.text);}
 	;
 
 block
@@ -41,17 +44,17 @@ block
 expr
 	: '(' expr ')'
 	| id=ID {handleID($id.text);}
-	| expr '/' expr
+	| expr '/' expr {handleBinaryOperator("/");}
 	| expr '+' expr {handleBinaryOperator("+");}
-	| expr '-' expr
+	| expr '-' expr {handleBinaryOperator("-");}
 	| expr '=' expr {handleBinaryOperator("=");}
 	| type ID ('=' expr)? 
-	| expr '==' expr
-	| expr '!=' expr
-	| expr '<' expr
-	| expr '<=' expr
-	| expr '>' expr
-	| expr '>=' expr
+	| expr '==' expr {handleBinaryOperator("==");}
+	| expr '!=' expr {handleBinaryOperator("!=");}
+	| expr '<' expr {handleBinaryOperator("<");}
+	| expr '<=' expr {handleBinaryOperator(">=");}
+	| expr '>' expr {handleBinaryOperator(">");}
+	| expr '>=' expr {handleBinaryOperator(">=");}
 	| expr '++'
 	| expr '--'
 	| ID '(' (expr (',' expr)*)? ')'
