@@ -5,12 +5,17 @@ grammar C;
 	public void handleFuncDecl(String id) {};
 	public void handleFormalParameters() {};
 	public void handleFormalParameter(String id) {};
+	public void handleBlock() {};
 	public void handleExpr() {};
+	public void handleExprStatement() {};
 	public void handleInt(String n) {};
 	public void handleAssign() {};
 	public void handleID(String id) {};
 	public void handleFile() {};
 	public void handleBinaryOperator(String operator) {};
+	public void startScope() {};
+	public void endScope() {};
+	
 }
 
 start
@@ -38,7 +43,7 @@ formalParameter
 	;
 
 block
-	: '{' stmt* '}'
+	: {startScope();} '{' stmt* '}' {endScope(); handleBlock();}
 	;
 
 expr
@@ -48,7 +53,7 @@ expr
 	| expr '+' expr {handleBinaryOperator("+");}
 	| expr '-' expr {handleBinaryOperator("-");}
 	| expr '=' expr {handleBinaryOperator("=");}
-	| type ID ('=' expr)? 
+	| type id=ID ('=' expr)? {handleVarDecl($id.text);}
 	| expr '==' expr {handleBinaryOperator("==");}
 	| expr '!=' expr {handleBinaryOperator("!=");}
 	| expr '<' expr {handleBinaryOperator("<");}
@@ -63,7 +68,7 @@ expr
 
 stmt
 	: block
-	| expr ';'
+	| expr ';' {handleExprStatement();}
 	| 'return' expr ';'
 	| 'while' '(' expr ')' stmt
 	| 'for' '(' expr? ';' expr? ';' expr? ')' stmt

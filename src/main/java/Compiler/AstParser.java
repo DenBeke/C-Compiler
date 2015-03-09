@@ -1,12 +1,13 @@
 package Compiler;
 
-import java.util.ArrayDeque;
+import java.util.LinkedList;
 import java.util.Vector;
 
 import org.antlr.v4.runtime.*;
 
 public class AstParser extends CParser {
 	public static abstract class Node {
+		public int scope;
 		public Vector<Node> children = new Vector<Node>();
 
 		public String childrenToString(String prefix) {
@@ -45,6 +46,15 @@ public class AstParser extends CParser {
 			return result;
 		}
 
+	}
+
+	public static class IdNode extends Node {
+		public String id;
+
+		public String toString(String prefix) {
+			String result = prefix + "IdNode: " + id;
+			return result;
+		}
 	}
 
 	public static class DeclarationNode extends Node {
@@ -87,6 +97,27 @@ public class AstParser extends CParser {
 		}
 	}
 
+	public static abstract class StatementNode extends Node {
+	}
+
+	public static class BlockStatementNode extends StatementNode {
+		public String toString(String prefix) {
+			String result = prefix + "BlockStatementNode:\n";
+			result += childrenToString(prefix + "\t");
+
+			return result;
+		}
+	}
+
+	public static class ExprStatementNode extends StatementNode {
+		public String toString(String prefix) {
+			String result = prefix + "ExprStatementNode: \n";
+			result += childrenToString(prefix + "\t");
+
+			return result;
+		}
+	}
+
 	public static class BinaryOperatorNode extends Node {
 		public String operator;
 
@@ -99,116 +130,167 @@ public class AstParser extends CParser {
 	}
 
 	private Node root;
-	private ArrayDeque<Node> queue;
+	private LinkedList<Node> list;
+	private int scope = 0;
 
 	public AstParser(TokenStream input) {
 		super(input);
 	}
 
 	public void handleVarDecl(String id) {
-		// System.out.println("handleVarDecl: " + id);
+		System.out.println("handleVarDecl: " + id);
 
 		DeclarationNode node = new DeclarationNode();
 		node.variable = id;
 
 		// We have an initializer
-		if (queue.size() == 1) {
-			node.children.add(queue.remove());
+		if (list.size() >= 1) {
+			node.children.add(list.removeFirst());
 		}
 
-		queue.add(node);
+		insertNode(0, node);
 	}
 
 	public void handleFuncDecl(String id) {
-		// System.out.println("handleFuncDecl: " + id);
+		System.out.println("handleFuncDecl: " + id);
 
 		FunctionDeclarationNode node = new FunctionDeclarationNode();
 		node.name = id;
 
 		// Add empty formal parameter list if no parameters.
-		if (!(queue.peek() instanceof FormalParametersNode)) {
+		if (list.size() < 2 || !(list.get(1) instanceof FormalParametersNode)) {
 			node.children.add(new FormalParametersNode());
 		} else {
-			node.children.add(queue.remove());
+			node.children.add(list.remove(1));
 		}
 
-		queue.add(node);
+		// Add block
+		node.children.add(list.removeFirst());
+
+		insertNode(0, node);
 	}
 
 	public void handleFormalParameters() {
-		// System.out.println("handleFormalParameters: " + id);
+		System.out.println("handleFormalParameters");
 
 		FormalParametersNode node = new FormalParametersNode();
 
 		// Add all Formalparameters to our children
 		Node paramNode;
-		while ((paramNode = queue.peek()) != null) {
+		while ((paramNode = list.peekFirst()) != null) {
 			if (!(paramNode instanceof FormalParameterNode)) {
 				break;
 			}
 
-			queue.remove();
-			node.children.add(paramNode);
+			list.removeFirst();
+			node.children.add(0, paramNode);
 		}
 
-		queue.add(node);
+		insertNode(0, node);
 	}
 
 	public void handleFormalParameter(String id) {
-		// System.out.println("handleFormalParameter: " + id);
+		System.out.println("handleFormalParameter: " + id);
 
 		FormalParameterNode node = new FormalParameterNode();
 		node.id = id;
 
-		queue.add(node);
+		insertNode(0, node);
+	}
+
+	public void handleBlock() {
+		System.out.println("handleBlock");
+
+		BlockStatementNode node = new BlockStatementNode();
+
+		// Add all statements in our scope.
+		Node stmtNode;
+		while ((stmtNode = list.peekFirst()) != null) {
+			if (!(stmtNode instanceof StatementNode)
+					|| stmtNode.scope != scope + 1) {
+				break;
+			}
+
+			list.removeFirst();
+			node.children.add(0, stmtNode);
+		}
+
+		insertNode(0, node);
 	}
 
 	public void handleExpr() {
-		// System.out.println("handleExpr");
+		System.out.println("handleExpr");
+	}
+
+	public void handleExprStatement() {
+		System.out.println("handleExprStatement");
+
+		ExprStatementNode node = new ExprStatementNode();
+		node.children.add(list.removeFirst());
+
+		insertNode(0, node);
 	}
 
 	public void handleInt(String n) {
-		// System.out.println("handleInt " + n);
+		System.out.println("handleInt " + n);
 
 		IntNode node = new IntNode();
 		node.value = Integer.parseInt(n);
-		queue.add(node);
+		insertNode(0, node);
 
 	}
 
 	public void handleBinaryOperator(String operator) {
-		// System.out.println("handleBinaryOperator: " + operator);
+		System.out.println("handleBinaryOperator: " + operator);
 
 		BinaryOperatorNode node = new BinaryOperatorNode();
 
 		// There should be atleast 2 operands
-		if (queue.size() < 2) {
+		if (list.size() < 2) {
 			System.out.println("There should atleast be 2 operands on the stack");
 		}
 
 		node.operator = operator;
 
-		node.children.add(queue.remove());
-		node.children.add(queue.remove());
+		node.children.add(0, list.removeFirst());
+		node.children.add(0, list.removeFirst());
 
-		queue.add(node);
+		insertNode(0, node);
 	};
 
 	public void handleID(String id) {
-		// System.out.println("handleID: " + id);
+		System.out.println("handleID: " + id);
+
+		IdNode node = new IdNode();
+		node.id = id;
+
+		insertNode(0, node);
 	}
 
 	public void handleFile() {
-		// System.out.println("handleFile");
+		System.out.println("handleFile");
 
 		FileNode node = new FileNode();
 
-		while (queue.size() != 0) {
-			node.children.add(queue.remove());
+		while (list.size() != 0) {
+			node.children.add(0, list.removeFirst());
 		}
 
-		queue.add(node);
+		insertNode(0, node);
 	};
+
+	public void startScope() {
+		scope += 1;
+	}
+
+	public void endScope() {
+		scope -= 1;
+	}
+
+	private void insertNode(int pos, Node node) {
+		node.scope = scope;
+		list.add(pos, node);
+	}
 
 	/**
 	 * Build the ast
@@ -216,16 +298,16 @@ public class AstParser extends CParser {
 	public void buildAst() {
 		// Reset ast
 		root = null;
-		queue = new ArrayDeque<Node>();
+		list = new LinkedList<Node>();
 
 		// Start the parsing
 		start();
 
 		// FileNode should be the only 1 on the stack
-		if (queue.size() != 1) {
+		if (list.size() != 1) {
 			System.out.println("Stack should contain 1 element");
 		} else {
-			root = queue.remove();
+			root = list.removeFirst();
 			if (!(root instanceof FileNode)) {
 				System.out.println("Root should be a FileNode");
 			}
