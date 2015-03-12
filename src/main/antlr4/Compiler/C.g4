@@ -74,7 +74,7 @@ expr
 stmt
 	: block
 	| expr ';' {handleExprStatement();}
-	| 'return' expr ';' {handleReturnStatement();}
+	| 'return' (expr|nothing) ';' {handleReturnStatement();}
 	| 'while' '(' expr ')' stmt {handleWhileStatement();}
 	| 'for' '(' (expr|nothing) ';' (expr|nothing) ';' (expr|nothing) ')' stmt {handleForStatement();}
 	| 'if' '(' expr ')' stmt ('else' stmt)?
