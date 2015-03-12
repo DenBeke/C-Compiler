@@ -156,6 +156,15 @@ public class AstParser extends CParser {
 		}
 	}
 
+    public static class ReturnStatementNode extends StatementNode {
+        public String toString(String prefix) {
+            String result = prefix + "ReturnStatementNode: \n";
+            result += childrenToString(prefix + "\t");
+
+            return result;
+        }
+    }
+
 	private Node root;
 	private LinkedList<Node> list;
 	private int scope = 0;
@@ -322,6 +331,15 @@ public class AstParser extends CParser {
 
 		insertNode(0, node);
 	}
+
+    public void handleReturnStatement() {
+        System.out.println("handleForStatement");
+
+        ReturnStatementNode node = new ReturnStatementNode();
+        node.children.add(0, list.removeFirst());
+
+        insertNode(0, node);
+    }
 	
 	public void handleNothing() {
 		System.out.println("handleNothing");

@@ -18,6 +18,7 @@ grammar C;
 	public void handleUnaryOperator(String operator) {};
 	public void handleNothing() {};
 	public void handleForStatement() {};
+	public void handleReturnStatement() {};
 }
 
 start
@@ -72,7 +73,7 @@ expr
 stmt
 	: block
 	| expr ';' {handleExprStatement();}
-	| 'return' expr ';'
+	| 'return' expr ';' {handleReturnStatement();}
 	| 'while' '(' expr ')' stmt
 	| 'for' '(' (expr|nothing) ';' (expr|nothing) ';' (expr|nothing) ')' stmt {handleForStatement();}
 	| 'if' '(' expr ')' stmt ('else' stmt)?
