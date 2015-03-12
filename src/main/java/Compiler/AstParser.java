@@ -359,7 +359,7 @@ public class AstParser extends CParser {
 	/**
 	 * Build the ast
 	 */
-	public void buildAst() {
+	public Node buildAst() {
 		// Reset ast
 		root = null;
 		list = new LinkedList<Node>();
@@ -377,6 +377,7 @@ public class AstParser extends CParser {
 			}
 		}
 
-		System.out.println(root.toString());
+		//System.out.println(root.toString());
+		return root;
 	};
 }
