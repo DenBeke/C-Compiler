@@ -58,10 +58,10 @@ public class AstParser extends CParser {
 	}
 
 	public static class DeclarationNode extends Node {
-		public String variable;
+		public String id;
 
 		public String toString(String prefix) {
-			String result = prefix + "DeclarationNode: " + variable + "\n";
+			String result = prefix + "DeclarationNode: " + id + "\n";
 			result += childrenToString(prefix + "\t");
 
 			return result;
@@ -69,10 +69,10 @@ public class AstParser extends CParser {
 	}
 
 	public static class FunctionDeclarationNode extends Node {
-		public String name;
+		public String id;
 
 		public String toString(String prefix) {
-			String result = prefix + "FunctionDeclarationNode: " + name + "\n";
+			String result = prefix + "FunctionDeclarationNode: " + id + "\n";
 			result += childrenToString(prefix + "\t");
 
 			return result;
@@ -189,7 +189,7 @@ public class AstParser extends CParser {
 		System.out.println("handleVarDecl: " + id);
 
 		DeclarationNode node = new DeclarationNode();
-		node.variable = id;
+		node.id = id;
 
 		// We have an initializer
 		if (list.size() >= 1) {
@@ -203,7 +203,7 @@ public class AstParser extends CParser {
 		System.out.println("handleFuncDecl: " + id);
 
 		FunctionDeclarationNode node = new FunctionDeclarationNode();
-		node.name = id;
+		node.id = id;
 
 		// Add empty formal parameter list if no parameters.
 		if (list.size() < 2 || !(list.get(1) instanceof FormalParametersNode)) {
@@ -405,7 +405,7 @@ public class AstParser extends CParser {
 	/**
 	 * Build the ast
 	 */
-	public void buildAst() {
+	public Node buildAst() {
 		// Reset ast
 		root = null;
 		list = new LinkedList<Node>();
@@ -423,6 +423,7 @@ public class AstParser extends CParser {
 			}
 		}
 
-		System.out.println(root.toString());
+		//System.out.println(root.toString());
+		return root;
 	};
 }
