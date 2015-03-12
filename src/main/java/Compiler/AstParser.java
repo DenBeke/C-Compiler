@@ -345,7 +345,7 @@ public class AstParser extends CParser {
 	}
 
     public void handleReturnStatement() {
-        System.out.println("handleForStatement");
+        System.out.println("handleReturnStatement");
 
         ReturnStatementNode node = new ReturnStatementNode();
         node.children.add(0, list.removeFirst());
@@ -354,7 +354,7 @@ public class AstParser extends CParser {
     }
 
     public void handleWhileStatement() {
-        System.out.println("handleForStatement");
+        System.out.println("handleWhileStatement");
 
         WhileStatementNode node = new WhileStatementNode();
 
