@@ -140,6 +140,22 @@ public class AstParser extends CParser {
 		}
 	}
 
+	public static class ForStatementNode extends StatementNode {
+		public String toString(String prefix) {
+			String result = prefix + "ForStatementNode:\n";
+			result += childrenToString(prefix + "\t");
+
+			return result;
+		}
+	}
+
+	public static class NothingNode extends Node {
+		public String toString(String prefix) {
+			String result = prefix + "NothingNode";
+			return result;
+		}
+	}
+
 	private Node root;
 	private LinkedList<Node> list;
 	private int scope = 0;
@@ -291,6 +307,26 @@ public class AstParser extends CParser {
 
 		IdNode node = new IdNode();
 		node.id = id;
+
+		insertNode(0, node);
+	}
+	
+	public void handleForStatement() {
+		System.out.println("handleForStatement");
+
+		ForStatementNode node = new ForStatementNode();
+		node.children.add(0, list.removeFirst());
+		node.children.add(0, list.removeFirst());
+		node.children.add(0, list.removeFirst());
+		node.children.add(0, list.removeFirst());
+
+		insertNode(0, node);
+	}
+	
+	public void handleNothing() {
+		System.out.println("handleNothing");
+
+		NothingNode node = new NothingNode();
 
 		insertNode(0, node);
 	}

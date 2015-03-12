@@ -16,7 +16,8 @@ grammar C;
 	public void startScope() {};
 	public void endScope() {};
 	public void handleUnaryOperator(String operator) {};
-	
+	public void handleNothing() {};
+	public void handleForStatement() {};
 }
 
 start
@@ -51,6 +52,7 @@ expr
 	: '(' expr ')'
 	| id=ID {handleID($id.text);}
 	| expr '/' expr {handleBinaryOperator("/");}
+	| expr '*' expr {handleBinaryOperator("*");}
 	| expr '+' expr {handleBinaryOperator("+");}
 	| expr '-' expr {handleBinaryOperator("-");}
 	| expr '=' expr {handleBinaryOperator("=");}
@@ -66,16 +68,20 @@ expr
 	| ID '(' (expr (',' expr)*)? ')'
 	| literal
 	;
-
+	
 stmt
 	: block
 	| expr ';' {handleExprStatement();}
 	| 'return' expr ';'
 	| 'while' '(' expr ')' stmt
-	| 'for' '(' expr? ';' expr? ';' expr? ')' stmt
+	| 'for' '(' (expr|nothing) ';' (expr|nothing) ';' (expr|nothing) ')' stmt {handleForStatement();}
 	| 'if' '(' expr ')' stmt ('else' stmt)?
 	| 'break' ';'
 	| 'continue' ';'
+	;
+	
+nothing
+	: {handleNothing();}
 	;
 
 literal
