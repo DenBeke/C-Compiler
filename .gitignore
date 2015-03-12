@@ -1,1 +1,7 @@
 target
+.classpath
+.externalToolBuilders/
+.idea/
+.project
+.settings/
+Compiler.iml
