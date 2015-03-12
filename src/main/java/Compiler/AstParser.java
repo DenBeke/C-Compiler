@@ -128,6 +128,33 @@ public class AstParser extends CParser {
 			return result;
 		}
 	}
+	
+	public static class UnaryOperatorNode extends Node {
+		public String operator;
+
+		public String toString(String prefix) {
+			String result = prefix + "UnaryOperatorNode: " + operator + "\n";
+			result += childrenToString(prefix + "\t");
+
+			return result;
+		}
+	}
+
+	public static class ForStatementNode extends StatementNode {
+		public String toString(String prefix) {
+			String result = prefix + "ForStatementNode:\n";
+			result += childrenToString(prefix + "\t");
+
+			return result;
+		}
+	}
+
+	public static class NothingNode extends Node {
+		public String toString(String prefix) {
+			String result = prefix + "NothingNode";
+			return result;
+		}
+	}
 
 	private Node root;
 	private LinkedList<Node> list;
@@ -257,12 +284,49 @@ public class AstParser extends CParser {
 
 		insertNode(0, node);
 	};
+	
+	public void handleUnaryOperator(String operator) {
+		System.out.println("handleUnaryOperator: " + operator);
+
+		UnaryOperatorNode node = new UnaryOperatorNode();
+
+		// There should be atleast 1 operand
+		if (list.size() < 1) {
+			System.out.println("There should atleast be 1 operands on the stack");
+		}
+
+		node.operator = operator;
+
+		node.children.add(0, list.removeFirst());
+		
+		insertNode(0, node);
+	};
 
 	public void handleID(String id) {
 		System.out.println("handleID: " + id);
 
 		IdNode node = new IdNode();
 		node.id = id;
+
+		insertNode(0, node);
+	}
+	
+	public void handleForStatement() {
+		System.out.println("handleForStatement");
+
+		ForStatementNode node = new ForStatementNode();
+		node.children.add(0, list.removeFirst());
+		node.children.add(0, list.removeFirst());
+		node.children.add(0, list.removeFirst());
+		node.children.add(0, list.removeFirst());
+
+		insertNode(0, node);
+	}
+	
+	public void handleNothing() {
+		System.out.println("handleNothing");
+
+		NothingNode node = new NothingNode();
 
 		insertNode(0, node);
 	}
