@@ -19,6 +19,7 @@ grammar C;
 	public void handleNothing() {};
 	public void handleForStatement() {};
 	public void handleReturnStatement() {};
+	public void handleWhileStatement(){};
 }
 
 start
@@ -74,7 +75,7 @@ stmt
 	: block
 	| expr ';' {handleExprStatement();}
 	| 'return' expr ';' {handleReturnStatement();}
-	| 'while' '(' expr ')' stmt
+	| 'while' '(' expr ')' stmt {handleWhileStatement();}
 	| 'for' '(' (expr|nothing) ';' (expr|nothing) ';' (expr|nothing) ')' stmt {handleForStatement();}
 	| 'if' '(' expr ')' stmt ('else' stmt)?
 	| 'break' ';'

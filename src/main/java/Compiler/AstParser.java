@@ -100,6 +100,9 @@ public class AstParser extends CParser {
 	public static abstract class StatementNode extends Node {
 	}
 
+    public static abstract class ExpressionNode extends Node {
+    }
+
 	public static class BlockStatementNode extends StatementNode {
 		public String toString(String prefix) {
 			String result = prefix + "BlockStatementNode:\n";
@@ -118,7 +121,7 @@ public class AstParser extends CParser {
 		}
 	}
 
-	public static class BinaryOperatorNode extends Node {
+	public static class BinaryOperatorNode extends ExpressionNode {
 		public String operator;
 
 		public String toString(String prefix) {
@@ -129,7 +132,7 @@ public class AstParser extends CParser {
 		}
 	}
 	
-	public static class UnaryOperatorNode extends Node {
+	public static class UnaryOperatorNode extends ExpressionNode {
 		public String operator;
 
 		public String toString(String prefix) {
@@ -159,6 +162,15 @@ public class AstParser extends CParser {
     public static class ReturnStatementNode extends StatementNode {
         public String toString(String prefix) {
             String result = prefix + "ReturnStatementNode: \n";
+            result += childrenToString(prefix + "\t");
+
+            return result;
+        }
+    }
+
+    public static class WhileStatementNode extends StatementNode {
+        public String toString(String prefix) {
+            String result = prefix + "WhileStatementNode: \n";
             result += childrenToString(prefix + "\t");
 
             return result;
@@ -340,6 +352,22 @@ public class AstParser extends CParser {
 
         insertNode(0, node);
     }
+
+    public void handleWhileStatement() {
+        System.out.println("handleForStatement");
+
+        WhileStatementNode node = new WhileStatementNode();
+
+        System.out.println(list.peekFirst().toString());
+        Assert.Assert(list.peekFirst() instanceof StatementNode);
+        node.children.add(0, list.removeFirst());
+        System.out.println(list.peekFirst().toString());
+        Assert.Assert(list.peekFirst() instanceof ExpressionNode);
+        node.children.add(0, list.removeFirst());
+
+        insertNode(0, node);
+    }
+
 	
 	public void handleNothing() {
 		System.out.println("handleNothing");
