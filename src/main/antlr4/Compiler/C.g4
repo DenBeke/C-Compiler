@@ -15,6 +15,7 @@ grammar C;
 	public void handleBinaryOperator(String operator) {};
 	public void startScope() {};
 	public void endScope() {};
+	public void handleUnaryOperator(String operator) {};
 	
 }
 
@@ -60,8 +61,8 @@ expr
 	| expr '<=' expr {handleBinaryOperator(">=");}
 	| expr '>' expr {handleBinaryOperator(">");}
 	| expr '>=' expr {handleBinaryOperator(">=");}
-	| expr '++'
-	| expr '--'
+	| expr '++' {handleUnaryOperator("++");}
+	| expr '--' {handleUnaryOperator("--");}
 	| ID '(' (expr (',' expr)*)? ')'
 	| literal
 	;

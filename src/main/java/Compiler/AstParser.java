@@ -128,6 +128,17 @@ public class AstParser extends CParser {
 			return result;
 		}
 	}
+	
+	public static class UnaryOperatorNode extends Node {
+		public String operator;
+
+		public String toString(String prefix) {
+			String result = prefix + "UnaryOperatorNode: " + operator + "\n";
+			result += childrenToString(prefix + "\t");
+
+			return result;
+		}
+	}
 
 	private Node root;
 	private LinkedList<Node> list;
@@ -255,6 +266,23 @@ public class AstParser extends CParser {
 		node.children.add(0, list.removeFirst());
 		node.children.add(0, list.removeFirst());
 
+		insertNode(0, node);
+	};
+	
+	public void handleUnaryOperator(String operator) {
+		System.out.println("handleUnaryOperator: " + operator);
+
+		UnaryOperatorNode node = new UnaryOperatorNode();
+
+		// There should be atleast 1 operand
+		if (list.size() < 1) {
+			System.out.println("There should atleast be 1 operands on the stack");
+		}
+
+		node.operator = operator;
+
+		node.children.add(0, list.removeFirst());
+		
 		insertNode(0, node);
 	};
 
