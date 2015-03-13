@@ -31,46 +31,46 @@ public class AppTest
     {
         return new TestSuite( AppTest.class );
     }
-
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
-    }
     
     public void testLexer() {
 		try {
-			System.out.println("good1.c");
 			InputStream is = new FileInputStream("src/test/input/good1.c");
 			ANTLRInputStream input = new ANTLRInputStream(is);
 			CLexer lexer = new CLexer(input);
 			CParser parser = new CParser(new CommonTokenStream(lexer));
+			// Remove output messages
+			lexer.removeErrorListeners();
+			parser.removeErrorListeners();
 			parser.file();
 			assertTrue(parser.getNumberOfSyntaxErrors() == 0);
 
-			System.out.println("bad1.c");
 			is = new FileInputStream("src/test/input/bad1.c");
 			input = new ANTLRInputStream(is);
 			lexer = new CLexer(input);
 			parser = new CParser(new CommonTokenStream(lexer));
+			// Remove output messages
+			lexer.removeErrorListeners();
+			parser.removeErrorListeners();
 			parser.file();
 			assertTrue(parser.getNumberOfSyntaxErrors() != 0);
 
-			System.out.println("bad2.c");
 			is = new FileInputStream("src/test/input/bad2.c");
 			input = new ANTLRInputStream(is);
 			lexer = new CLexer(input);
 			parser = new CParser(new CommonTokenStream(lexer));
+			// Remove output messages
+			lexer.removeErrorListeners();
+			parser.removeErrorListeners();
 			parser.file();
 			assertTrue(parser.getNumberOfSyntaxErrors() != 0);
 
-			System.out.println("bad3.c");			
 			is = new FileInputStream("src/test/input/bad3.c");
 			input = new ANTLRInputStream(is);
 			lexer = new CLexer(input);
 			parser = new CParser(new CommonTokenStream(lexer));
+			// Remove output messages
+			lexer.removeErrorListeners();
+			parser.removeErrorListeners();
 			parser.file();
 			assertTrue(parser.getNumberOfSyntaxErrors() != 0);
 
