@@ -27,6 +27,9 @@ grammar C;
 	public void handleContinueStatement(){};
 	public void handleParam(){};
 	public void handleFunctionCall(String n) {};
+	public void handleType(String t) {};
+	public void handlePointer() {};
+	public void handleConst() {};
 }
 
 start
@@ -102,11 +105,29 @@ literal
 	;
 
 type
+    //: ('const'|nothing) raw_type (const_type|pointer|nothing)
+    : 'const'? t=raw_type (const_type|pointer)? {handleType($t.text);}
+    ;
+
+raw_type
+    : 'int'
+    | 'char'
+    | 'void'
+    ;
+
+
+pointer : '*' (const_type|pointer|nothing) {handlePointer();};
+
+const_type : 'const' (const_type|pointer|nothing) {handleConst();};
+
+/*
+type
 	: 'int' '*'?
 	| 'char' '*'?
 	| 'void' '*'?
 	| 'const' type
 	;
+*/
 
 NEWLINE : [\r\n]+ -> skip;
 WHITESPACE : [ \t]+ -> skip;

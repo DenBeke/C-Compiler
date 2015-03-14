@@ -38,6 +38,19 @@ public class AstParser extends CParser {
 
 	}
 
+
+    public static class TypeNode extends Node {
+        public String typeName;
+        public Boolean constant;
+
+        public String toString(String prefix) {
+            String result = prefix + "TypeNode: " + typeName + " const:" + constant + "\n";
+            result += childrenToString(prefix + "\t");
+
+            return result;
+        }
+    }
+
     public static abstract class LiteralNode extends Node {
     }
 
@@ -452,6 +465,50 @@ public class AstParser extends CParser {
 
 		insertNode(0, node);
 	}
+
+
+    public void handleType(String t) {
+        System.out.println("handleType: " + t);
+
+        TypeNode node = new TypeNode();
+        node.typeName = t;
+        node.constant = false;
+
+        if(list.peekFirst() instanceof TypeNode) {
+            node.children.add(0, list.removeFirst());
+        }
+
+        insertNode(0, node);
+    }
+
+    public void handleConst() {
+        System.out.println("handleConst");
+
+        TypeNode node = new TypeNode();
+        node.typeName = "const";
+        node.constant = true;
+
+        if(list.peekFirst() instanceof TypeNode) {
+            node.children.add(0, list.removeFirst());
+        }
+
+        insertNode(0, node);
+    }
+
+    public void handlePointer() {
+        System.out.println("handlePointer");
+
+        TypeNode node = new TypeNode();
+        node.typeName = "pointer";
+        node.constant = false;
+
+        if(list.peekFirst() instanceof TypeNode) {
+            node.children.add(0, list.removeFirst());
+        }
+
+        insertNode(0, node);
+    }
+
 	
 	public void handleForStatement() {
 		System.out.println("handleForStatement");
