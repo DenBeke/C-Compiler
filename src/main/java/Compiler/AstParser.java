@@ -120,6 +120,28 @@ public class AstParser extends CParser {
 		}
 	}
 
+
+    public static class ParamNode extends Node {
+        public String toString(String prefix) {
+            String result = prefix + "ParamNode:\n";
+            result += childrenToString(prefix + "\t");
+
+            return result;
+        }
+    }
+
+    public static class FunctionCallNode extends ExpressionNode {
+        public String value;
+
+        public String toString(String prefix) {
+            String result = prefix + "FunctionCallNode: " + String.valueOf(value) + "\n";
+            result += childrenToString(prefix + "\t");
+            return result;
+        }
+
+    }
+
+
 	public static abstract class StatementNode extends Node {
 	}
 
@@ -350,10 +372,38 @@ public class AstParser extends CParser {
     }
 
     public void handleString(String n) {
-        System.out.println("handleChar " + n);
+        System.out.println("handleString " + n);
 
         StringNode node = new StringNode();
         node.value = n.substring(1, n.length()-1);
+        insertNode(0, node);
+
+    }
+
+
+    public void handleParam() {
+        System.out.println("handleParam");
+
+        ParamNode node = new ParamNode();
+
+        Assert.Assert(list.peekFirst() instanceof ExpressionNode);
+        node.children.add(0, list.removeFirst());
+
+        insertNode(0, node);
+
+    }
+
+
+    public void handleFunctionCall(String n) {
+        System.out.println("handleFunctionCall " + n);
+
+        FunctionCallNode node = new FunctionCallNode();
+        node.value = n;
+
+        while (list.peekFirst() instanceof ParamNode) {
+            node.children.add(0, list.removeFirst());
+        }
+
         insertNode(0, node);
 
     }

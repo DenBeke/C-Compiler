@@ -25,6 +25,8 @@ grammar C;
 	public void handleIfStatement(){};
 	public void handleBreakStatement(){};
 	public void handleContinueStatement(){};
+	public void handleParam(){};
+	public void handleFunctionCall(String n) {};
 }
 
 start
@@ -72,10 +74,12 @@ expr
 	| expr '>=' expr {handleBinaryOperator(">=");}
 	| expr '++' {handleUnaryOperator("++");}
 	| expr '--' {handleUnaryOperator("--");}
-	| ID '(' (expr (',' expr)*)? ')'
+	| id=ID '(' (param (',' param)*)? ')' {handleFunctionCall($id.text);}
 	| literal
 	;
-	
+
+param : expr {handleParam();};
+
 stmt
 	: block
 	| expr ';' {handleExprStatement();}
