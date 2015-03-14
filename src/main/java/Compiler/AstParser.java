@@ -350,7 +350,7 @@ public class AstParser extends CParser {
     }
 
     public void handleString(String n) {
-        System.out.println("handleChar " + n);
+        System.out.println("handleString " + n);
 
         StringNode node = new StringNode();
         node.value = n.substring(1, n.length()-1);
@@ -456,7 +456,7 @@ public class AstParser extends CParser {
     }
 
     public void handleIfStatement() {
-        System.out.println("handleWhileStatement");
+        System.out.println("handleIfStatement");
 
         IfStatementNode node = new IfStatementNode();
 
