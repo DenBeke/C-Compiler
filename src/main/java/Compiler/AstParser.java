@@ -177,6 +177,17 @@ public class AstParser extends CParser {
         }
     }
 
+    public static class IfStatementNode extends StatementNode {
+        public String toString(String prefix) {
+            String result = prefix + "IfStatementNode: \n";
+            result += childrenToString(prefix + "\t");
+
+            return result;
+        }
+    }
+
+
+
 	private Node root;
 	private LinkedList<Node> list;
 	private int scope = 0;
@@ -368,6 +379,26 @@ public class AstParser extends CParser {
         insertNode(0, node);
     }
 
+    public void handleIfStatement() {
+        System.out.println("handleWhileStatement");
+
+        IfStatementNode node = new IfStatementNode();
+
+        // else
+        Assert.Assert(list.peekFirst() instanceof StatementNode || list.peekFirst() instanceof NothingNode);
+        node.children.add(0, list.removeFirst());
+
+        // if block/stmt
+        Assert.Assert(list.peekFirst() instanceof StatementNode);
+        node.children.add(0, list.removeFirst());
+
+        // if condition/expr
+        Assert.Assert(list.peekFirst() instanceof ExpressionNode);
+        node.children.add(0, list.removeFirst());
+
+        insertNode(0, node);
+    }
+
 	
 	public void handleNothing() {
 		System.out.println("handleNothing");
@@ -423,7 +454,7 @@ public class AstParser extends CParser {
 			}
 		}
 
-		//System.out.println(root.toString());
+		System.out.println(root.toString());
 		return root;
 	};
 }
