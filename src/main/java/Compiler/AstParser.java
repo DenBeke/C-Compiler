@@ -38,7 +38,10 @@ public class AstParser extends CParser {
 
 	}
 
-	public static class IntNode extends Node {
+    public static abstract class LiteralNode extends Node {
+    }
+
+	public static class IntNode extends LiteralNode {
 		public Integer value;
 
 		public String toString(String prefix) {
@@ -47,6 +50,26 @@ public class AstParser extends CParser {
 		}
 
 	}
+
+    public static class CharNode extends LiteralNode {
+        public String value;
+
+        public String toString(String prefix) {
+            String result = prefix + "CharNode: " + String.valueOf(value);
+            return result;
+        }
+
+    }
+
+    public static class StringNode extends LiteralNode {
+        public String value;
+
+        public String toString(String prefix) {
+            String result = prefix + "StringNode: " + String.valueOf(value);
+            return result;
+        }
+
+    }
 
 	public static class IdNode extends Node {
 		public String id;
@@ -316,6 +339,25 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 
 	}
+
+    public void handleChar(String n) {
+        System.out.println("handleChar " + n);
+
+        CharNode node = new CharNode();
+        node.value = n.substring(1, n.length()-1);
+        insertNode(0, node);
+
+    }
+
+    public void handleString(String n) {
+        System.out.println("handleChar " + n);
+
+        StringNode node = new StringNode();
+        node.value = n.substring(1, n.length()-1);
+        insertNode(0, node);
+
+    }
+
 
 	public void handleBinaryOperator(String operator) {
 		System.out.println("handleBinaryOperator: " + operator);

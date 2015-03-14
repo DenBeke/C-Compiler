@@ -9,6 +9,8 @@ grammar C;
 	public void handleExpr() {};
 	public void handleExprStatement() {};
 	public void handleInt(String n) {};
+	public void handleChar(String n) {};
+	public void handleString(String n) {};
 	public void handleAssign() {};
 	public void handleID(String id) {};
 	public void handleFile() {};
@@ -91,8 +93,8 @@ nothing
 
 literal
 	: i=INT {handleInt($i.text);}
-	| CHAR
-	| STRING
+	| c=CHAR {handleChar($c.text);}
+	| s=STRING {handleString($s.text);}
 	;
 
 type
