@@ -21,6 +21,8 @@ grammar C;
 	public void handleReturnStatement() {};
 	public void handleWhileStatement(){};
 	public void handleIfStatement(){};
+	public void handleBreakStatement(){};
+	public void handleContinueStatement(){};
 }
 
 start
@@ -79,8 +81,8 @@ stmt
 	| 'while' '(' expr ')' stmt {handleWhileStatement();}
 	| 'for' '(' (expr|nothing) ';' (expr|nothing) ';' (expr|nothing) ')' stmt {handleForStatement();}
 	| 'if' '(' expr ')' stmt (('else' stmt)|(nothing)) {handleIfStatement();}
-	| 'break' ';'
-	| 'continue' ';'
+	| 'break' ';' {handleBreakStatement();}
+	| 'continue' ';' {handleContinueStatement();}
 	;
 	
 nothing

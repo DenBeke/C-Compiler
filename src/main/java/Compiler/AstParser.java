@@ -187,6 +187,24 @@ public class AstParser extends CParser {
     }
 
 
+    public static class BreakStatementNode extends StatementNode {
+        public String toString(String prefix) {
+            String result = prefix + "BreakStatementNode: \n";
+            result += childrenToString(prefix + "\t");
+
+            return result;
+        }
+    }
+
+    public static class ContinueStatementNode extends StatementNode {
+        public String toString(String prefix) {
+            String result = prefix + "ContinueStatementNode: \n";
+            result += childrenToString(prefix + "\t");
+
+            return result;
+        }
+    }
+
 
 	private Node root;
 	private LinkedList<Node> list;
@@ -360,6 +378,22 @@ public class AstParser extends CParser {
 
         ReturnStatementNode node = new ReturnStatementNode();
         node.children.add(0, list.removeFirst());
+
+        insertNode(0, node);
+    }
+
+    public void handleBreakStatement() {
+        System.out.println("handleBreakStatement");
+
+        BreakStatementNode node = new BreakStatementNode();
+
+        insertNode(0, node);
+    }
+
+    public void handleContinueStatement() {
+        System.out.println("handleContinueStatement");
+
+        ContinueStatementNode node = new ContinueStatementNode();
 
         insertNode(0, node);
     }
