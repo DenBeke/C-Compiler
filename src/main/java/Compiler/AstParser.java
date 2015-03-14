@@ -506,7 +506,7 @@ public class AstParser extends CParser {
     }
 
     public void handleIfStatement() {
-        System.out.println("handleWhileStatement");
+        System.out.println("handleIfStatement");
 
         IfStatementNode node = new IfStatementNode();
 
