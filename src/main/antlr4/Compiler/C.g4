@@ -118,7 +118,7 @@ raw_type
 
 pointer : '*' (const_type|pointer|nothing) {handlePointer();};
 
-const_type : 'const' (const_type|pointer|nothing) {handleConst();};
+const_type : 'const' (pointer|nothing) {handleConst();};
 
 /*
 type

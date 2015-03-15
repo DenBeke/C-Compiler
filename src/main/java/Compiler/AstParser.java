@@ -6,7 +6,8 @@ import java.util.Vector;
 import org.antlr.v4.runtime.*;
 
 public class AstParser extends CParser {
-	public static abstract class Node {
+
+    public static abstract class Node {
 		public int scope;
 		public Vector<Node> children = new Vector<Node>();
 
@@ -21,8 +22,21 @@ public class AstParser extends CParser {
 		}
 
 		public String toString() {
-			return toString("");
+            return toString("");
 		}
+
+        public Boolean hasChildren() {
+            return children.size() > 0;
+        }
+
+        public void insertLefMostLeaf(Node n) {
+            if(hasChildren()) {
+                children.get(0).insertLefMostLeaf(n);
+            }
+            else {
+                children.add(0, n);
+            }
+        }
 
 		public abstract String toString(String prefix);
 
@@ -44,12 +58,19 @@ public class AstParser extends CParser {
         public Boolean constant;
 
         public String toString(String prefix) {
-            String result = prefix + "TypeNode: " + typeName + " const:" + constant + "\n";
+            String result = prefix + "TypeNode: " + typeName;
+            if(constant) {
+                result += " const\n";
+            } else {
+                result += "\n";
+            }
             result += childrenToString(prefix + "\t");
 
             return result;
         }
     }
+
+    public static class ConstNode extends TypeNode {};
 
     public static abstract class LiteralNode extends Node {
     }
@@ -283,6 +304,10 @@ public class AstParser extends CParser {
 			node.children.add(list.removeFirst());
 		}
 
+        // type
+        Assert.Assert(list.peekFirst() instanceof TypeNode);
+        node.children.add(0, list.removeFirst());
+
 		insertNode(0, node);
 	}
 
@@ -301,6 +326,10 @@ public class AstParser extends CParser {
 
 		// Add block
 		node.children.add(list.removeFirst());
+
+        // Add type
+        Assert.Assert(list.peekFirst() instanceof TypeNode);
+        node.children.add(0, list.removeFirst());
 
 		insertNode(0, node);
 	}
@@ -474,25 +503,35 @@ public class AstParser extends CParser {
         node.typeName = t;
         node.constant = false;
 
-        if(list.peekFirst() instanceof TypeNode) {
-            node.children.add(0, list.removeFirst());
+        if(list.peekFirst() instanceof NothingNode) {
+            list.removeFirst();
         }
 
-        insertNode(0, node);
+        if(list.peekFirst() instanceof ConstNode) {
+            node.constant = true;
+            list.removeFirst();
+        }
+
+        if(list.peekFirst() instanceof TypeNode && ((TypeNode) list.peekFirst()).typeName == "pointer") {
+            list.get(0).insertLefMostLeaf(node);
+        }
+        else {
+            //System.out.println("    Inserting node");
+            insertNode(0, node);
+        }
+
     }
 
     public void handleConst() {
         System.out.println("handleConst");
 
-        TypeNode node = new TypeNode();
-        node.typeName = "const";
-        node.constant = true;
-
-        if(list.peekFirst() instanceof TypeNode) {
-            node.children.add(0, list.removeFirst());
+        if(list.peekFirst() instanceof NothingNode) {
+            list.removeFirst();
         }
 
+        ConstNode node = new ConstNode();
         insertNode(0, node);
+
     }
 
     public void handlePointer() {
@@ -502,11 +541,21 @@ public class AstParser extends CParser {
         node.typeName = "pointer";
         node.constant = false;
 
-        if(list.peekFirst() instanceof TypeNode) {
-            node.children.add(0, list.removeFirst());
+        if(list.peekFirst() instanceof NothingNode) {
+            list.removeFirst();
         }
 
-        insertNode(0, node);
+        if(list.peekFirst() instanceof ConstNode) {
+            node.constant = true;
+            list.removeFirst();
+        }
+
+        if(list.peekFirst() instanceof TypeNode) {
+            list.get(0).insertLefMostLeaf(node);
+        }
+        else {
+            insertNode(0, node);
+        }
     }
 
 	
