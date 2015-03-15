@@ -27,7 +27,7 @@ grammar C;
 	public void handleContinueStatement(){};
 	public void handleParam(){};
 	public void handleFunctionCall(String n) {};
-	public void handleType(String t) {};
+	public void handleType(String t, String c) {};
 	public void handlePointer() {};
 	public void handleConst() {};
 }
@@ -106,7 +106,7 @@ literal
 
 type
     //: ('const'|nothing) raw_type (const_type|pointer|nothing)
-    : 'const'? t=raw_type (const_type|pointer)? {handleType($t.text);}
+    : c='const'? t=raw_type (const_type|pointer)? {handleType($t.text, $c.text);}
     ;
 
 raw_type

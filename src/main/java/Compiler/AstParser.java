@@ -322,7 +322,7 @@ public class AstParser extends CParser {
 		FunctionDeclarationNode node = new FunctionDeclarationNode();
 		node.id = id;
 
-        System.out.println(list);
+        //System.out.println(list);
 
 		// Add empty formal parameter list if no parameters.
 		if (list.size() < 2 || !(list.get(1) instanceof FormalParametersNode)) {
@@ -503,13 +503,20 @@ public class AstParser extends CParser {
 	}
 
 
-    public void handleType(String t) {
-        System.out.println("handleType: " + t);
+    public void handleType(String t, String c) {
+        System.out.println("handleType: " + t + " c=" + c);
 
         TypeNode node = new TypeNode();
         node.typeName = t;
         node.constant = false;
         node.topLevel = false;
+
+        if(c != null) {
+            if(c.equals("const")) {
+                node.constant = true;
+            }
+        }
+
 
         if(list.peekFirst() instanceof NothingNode) {
             list.removeFirst();
@@ -520,6 +527,13 @@ public class AstParser extends CParser {
         if(list.peekFirst() instanceof ConstNode) {
             node.constant = true;
             list.removeFirst();
+
+            // check again if it wasn't the last type on the stack
+            if(list.peekFirst() instanceof NothingNode) {
+                list.removeFirst();
+                insertNode(0, node);
+                return;
+            }
         }
 
         if(list.peekFirst() instanceof TypeNode && ((TypeNode) list.peekFirst()).typeName.equals("pointer") && !((TypeNode) list.peekFirst()).topLevel) {
