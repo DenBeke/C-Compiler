@@ -6,7 +6,8 @@ import java.util.Vector;
 import org.antlr.v4.runtime.*;
 
 public class AstParser extends CParser {
-	public static abstract class Node {
+
+    public static abstract class Node {
 		public int scope;
 		public Vector<Node> children = new Vector<Node>();
 
@@ -21,8 +22,23 @@ public class AstParser extends CParser {
 		}
 
 		public String toString() {
-			return toString("");
+            return toString("");
 		}
+
+        public Boolean hasChildren() {
+            return children.size() > 0;
+        }
+
+        public void insertLefMostLeaf(Node n) {
+            Assert.Assert(this instanceof TypeNode);
+            Assert.Assert( ((TypeNode) this).typeName.equals("pointer") );
+            if(hasChildren()) {
+                children.get(0).insertLefMostLeaf(n);
+            }
+            else {
+                children.add(0, n);
+            }
+        }
 
 		public abstract String toString(String prefix);
 
@@ -37,6 +53,28 @@ public class AstParser extends CParser {
 		}
 
 	}
+
+
+    public static class TypeNode extends Node {
+        public String typeName;
+        public Boolean constant;
+        public Boolean topLevel;
+
+        public String toString(String prefix) {
+            String result = prefix + "TypeNode: " + typeName;
+            if(constant) {
+                result += " const";
+            }
+
+            result += "\n";
+
+            result += childrenToString(prefix + "\t");
+
+            return result;
+        }
+    }
+
+    public static class ConstNode extends TypeNode {};
 
     public static abstract class LiteralNode extends Node {
     }
@@ -265,10 +303,15 @@ public class AstParser extends CParser {
 		DeclarationNode node = new DeclarationNode();
 		node.id = id;
 
+
 		// We have an initializer
-		if (list.size() >= 1) {
+		if (list.size() >= 1 && !(list.peekFirst() instanceof TypeNode)) {
 			node.children.add(list.removeFirst());
 		}
+
+        // type
+        Assert.Assert(list.peekFirst() instanceof TypeNode);
+        node.children.add(0, list.removeFirst());
 
 		insertNode(0, node);
 	}
@@ -279,6 +322,8 @@ public class AstParser extends CParser {
 		FunctionDeclarationNode node = new FunctionDeclarationNode();
 		node.id = id;
 
+        //System.out.println(list);
+
 		// Add empty formal parameter list if no parameters.
 		if (list.size() < 2 || !(list.get(1) instanceof FormalParametersNode)) {
 			node.children.add(new FormalParametersNode());
@@ -288,6 +333,10 @@ public class AstParser extends CParser {
 
 		// Add block
 		node.children.add(list.removeFirst());
+
+        // Add type
+        Assert.Assert(list.peekFirst() instanceof TypeNode);
+        node.children.add(0, list.removeFirst());
 
 		insertNode(0, node);
 	}
@@ -452,6 +501,100 @@ public class AstParser extends CParser {
 
 		insertNode(0, node);
 	}
+
+
+    public void handleType(String t, String c) {
+        System.out.println("handleType: " + t + " c=" + c);
+
+        TypeNode node = new TypeNode();
+        node.typeName = t;
+        node.constant = false;
+        node.topLevel = false;
+
+        if(c != null) {
+            if(c.equals("const")) {
+                node.constant = true;
+            }
+        }
+
+
+        if(list.peekFirst() instanceof NothingNode) {
+            list.removeFirst();
+            insertNode(0, node);
+            return;
+        }
+
+        if(list.peekFirst() instanceof ConstNode) {
+            node.constant = true;
+            list.removeFirst();
+
+            // check again if it wasn't the last type on the stack
+            if(list.peekFirst() instanceof NothingNode) {
+                list.removeFirst();
+                insertNode(0, node);
+                return;
+            }
+        }
+
+        if(list.peekFirst() instanceof TypeNode && ((TypeNode) list.peekFirst()).typeName.equals("pointer") && !((TypeNode) list.peekFirst()).topLevel) {
+            list.get(0).insertLefMostLeaf(node);
+            ( (TypeNode) list.get(0)).topLevel = true;
+        }
+        else {
+            //System.out.println("    Inserting node");
+            insertNode(0, node);
+        }
+
+    }
+
+    public void handleConst() {
+        System.out.println("handleConst");
+
+        if(list.peekFirst() instanceof NothingNode) {
+            //list.removeFirst();
+        }
+
+        ConstNode node = new ConstNode();
+        insertNode(0, node);
+
+    }
+
+    public void handlePointer() {
+        System.out.println("handlePointer");
+
+        TypeNode node = new TypeNode();
+        node.typeName = "pointer";
+        node.constant = false;
+        node.topLevel = false;
+
+        // just insert the node if it's the last pointer on the stack
+        if(list.peekFirst() instanceof NothingNode) {
+            list.removeFirst();
+            insertNode(0, node);
+            return;
+        }
+
+        // check if it is constant
+        if(list.peekFirst() instanceof ConstNode) {
+            node.constant = true;
+            list.removeFirst();
+
+            // check again if it wasn't the last pointer on the stack
+            if(list.peekFirst() instanceof NothingNode) {
+                list.removeFirst();
+                insertNode(0, node);
+                return;
+            }
+        }
+
+        if(list.peekFirst() instanceof TypeNode && ((TypeNode) list.peekFirst()).typeName.equals("pointer")) {
+            list.get(0).insertLefMostLeaf(node);
+        }
+        else {
+            insertNode(0, node);
+        }
+    }
+
 	
 	public void handleForStatement() {
 		System.out.println("handleForStatement");
