@@ -12,6 +12,7 @@ import junit.framework.TestSuite;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.TestRig;
 
+import Compiler.Ast.*;
 import Compiler.AstParser.*;
 
 /**
@@ -19,7 +20,7 @@ import Compiler.AstParser.*;
  */
 public class AstTest extends TestCase
 {
-	private AstParser.Node ast1;
+	private Node ast1;
 	
     public AstTest(String testName) {
         super(testName);
@@ -51,40 +52,40 @@ public class AstTest extends TestCase
     		System.out.println("testFile");
 			
 			assertTrue("Should have 3 children", ast1.children.size() == 3);
-			assertTrue("Should be variable declaration", ast1.children.get(0) instanceof AstParser.DeclarationNode);
-			assertTrue("Should be function declaration", ast1.children.get(1) instanceof AstParser.FunctionDeclarationNode);
-			assertTrue("Should be variable declaration", ast1.children.get(2) instanceof AstParser.DeclarationNode);
+			assertTrue("Should be variable declaration", ast1.children.get(0) instanceof Ast.DeclarationNode);
+			assertTrue("Should be function declaration", ast1.children.get(1) instanceof Ast.FunctionDeclarationNode);
+			assertTrue("Should be variable declaration", ast1.children.get(2) instanceof Ast.DeclarationNode);
     }
 		
   
     public void testFunctionDeclaration1() {
     	System.out.println("testFunctionDeclaration");
     	
-    	assertTrue("Should be function", ast1.children.get(1) instanceof AstParser.FunctionDeclarationNode);	
-    	AstParser.FunctionDeclarationNode func = (AstParser.FunctionDeclarationNode)ast1.children.get(1);
+    	assertTrue("Should be function", ast1.children.get(1) instanceof Ast.FunctionDeclarationNode);	
+    	Ast.FunctionDeclarationNode func = (Ast.FunctionDeclarationNode)ast1.children.get(1);
     	assertTrue("Name should be main", func.id.equals(new String("main")));
-    	assertTrue("Should have formal parameters node", func.children.get(1) instanceof AstParser.FormalParametersNode);
+    	assertTrue("Should have formal parameters node", func.children.get(1) instanceof Ast.FormalParametersNode);
     	assertTrue("Should have no parameters", func.children.get(1).children.size() == 0);
-    	assertTrue("Should block statement node", func.children.get(2) instanceof AstParser.BlockStatementNode);
+    	assertTrue("Should block statement node", func.children.get(2) instanceof Ast.BlockStatementNode);
     	assertTrue("Should have 3 children in block", func.children.get(2).children.size() == 3);
     }
     
     public void testVariableDeclaration1() {
     	System.out.println("testVariableDeclaration1");
     	
-    	assertTrue("Should be variable declaration", ast1.children.get(0) instanceof AstParser.DeclarationNode);
-    	AstParser.DeclarationNode decl1 = (AstParser.DeclarationNode)ast1.children.get(0);
+    	assertTrue("Should be variable declaration", ast1.children.get(0) instanceof Ast.DeclarationNode);
+    	Ast.DeclarationNode decl1 = (Ast.DeclarationNode)ast1.children.get(0);
     	assertTrue("Id should be 'c'", decl1.id.equals(new String("c")));
-    	assertTrue("Declaration should be assigned with int", decl1.children.get(1) instanceof AstParser.IntNode);
-    	assertTrue("Declaration should be assigned with value 123", ((AstParser.IntNode)decl1.children.get(1)).value == 123);
+    	assertTrue("Declaration should be assigned with int", decl1.children.get(1) instanceof Ast.IntNode);
+    	assertTrue("Declaration should be assigned with value 123", ((Ast.IntNode)decl1.children.get(1)).value == 123);
     	
  
-    	assertTrue("Should be variable declaration", ast1.children.get(2) instanceof AstParser.DeclarationNode);
-    	AstParser.DeclarationNode decl2 = (AstParser.DeclarationNode)ast1.children.get(2);
+    	assertTrue("Should be variable declaration", ast1.children.get(2) instanceof Ast.DeclarationNode);
+    	Ast.DeclarationNode decl2 = (Ast.DeclarationNode)ast1.children.get(2);
     	assertTrue("Id should be 'a'", decl2.id.equals(new String("a")));
         assertTrue("Declaration should have TypeNode", decl2.children.get(0) instanceof TypeNode);
         assertTrue("Declaration type should be 'int'", ((TypeNode) decl2.children.get(0)).typeName.equals("int"));
-    	assertTrue("Declaration should be assigned with int", decl2.children.get(1) instanceof AstParser.IntNode);
-    	assertTrue("Declaration should be assigned with value 2", ((AstParser.IntNode)decl2.children.get(1)).value == 2);
+    	assertTrue("Declaration should be assigned with int", decl2.children.get(1) instanceof Ast.IntNode);
+    	assertTrue("Declaration should be assigned with value 2", ((Ast.IntNode)decl2.children.get(1)).value == 2);
     }
 }
