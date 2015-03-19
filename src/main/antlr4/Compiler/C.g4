@@ -30,6 +30,7 @@ grammar C;
 	public void handleType(String t, String c) {};
 	public void handlePointer() {};
 	public void handleConst() {};
+	public void handleStaticArray(String n) {};
 }
 
 start
@@ -37,11 +38,15 @@ start
 	;
 
 file
-    : (varDecl | funcDecl)*
+    : (varDecl ';' | funcDecl)*
     ;
 
 varDecl
-	: type id=ID ('=' expr)? ';' {handleVarDecl($id.text);}
+	: type id=ID static_array? ('=' expr)? {handleVarDecl($id.text);}
+	;
+
+static_array
+	: '[' n=INT ']' {handleStaticArray($n.text);}
 	;
 
 funcDecl
@@ -68,7 +73,7 @@ expr
 	| expr '+' expr {handleBinaryOperator("+");}
 	| expr '-' expr {handleBinaryOperator("-");}
 	| expr '=' expr {handleBinaryOperator("=");}
-	| type id=ID ('=' expr)? {handleVarDecl($id.text);}
+	| varDecl
 	| expr '==' expr {handleBinaryOperator("==");}
 	| expr '!=' expr {handleBinaryOperator("!=");}
 	| expr '<' expr {handleBinaryOperator("<");}

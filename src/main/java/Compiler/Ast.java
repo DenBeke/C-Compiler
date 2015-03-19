@@ -27,8 +27,7 @@ public class Ast {
         }
 
         public void insertLefMostLeaf(Node n) {
-            Assert.Assert(this instanceof TypeNode);
-            Assert.Assert( ((TypeNode) this).typeName.equals("pointer") );
+            Assert.Assert(this instanceof PointerTypeNode);
             if(hasChildren()) {
                 children.get(0).insertLefMostLeaf(n);
             }
@@ -53,12 +52,11 @@ public class Ast {
 
 
     public static class TypeNode extends Node {
-        public String typeName;
-        public Boolean constant;
-        public Boolean topLevel;
+        public Boolean constant = false;
+        public Boolean topLevel = false;
 
         public String toString(String prefix) {
-            String result = prefix + "TypeNode: " + typeName;
+            String result = prefix + "TypeNode: " + getClass().getSimpleName();
             if(constant) {
                 result += " const";
             }
@@ -71,7 +69,19 @@ public class Ast {
         }
     }
 
-    public static class ConstNode extends TypeNode {};
+    public static class ConstTypeNode extends TypeNode {}
+
+    public static class PointerTypeNode extends TypeNode {}
+
+    public static class IntTypeNode extends TypeNode {}
+
+    public static class CharTypeNode extends TypeNode {}
+
+    public static class VoidTypeNode extends TypeNode {}
+
+    public static class StaticArrayTypeNode extends TypeNode {
+        public Integer size = 0;
+    }
 
     public static abstract class LiteralNode extends Node {
     }

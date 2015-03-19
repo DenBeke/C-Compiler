@@ -83,8 +83,7 @@ public class AstTest extends TestCase
     	assertTrue("Should be variable declaration", ast1.children.get(2) instanceof Ast.DeclarationNode);
     	Ast.DeclarationNode decl2 = (Ast.DeclarationNode)ast1.children.get(2);
     	assertTrue("Id should be 'a'", decl2.id.equals(new String("a")));
-        assertTrue("Declaration should have TypeNode", decl2.children.get(0) instanceof TypeNode);
-        assertTrue("Declaration type should be 'int'", ((TypeNode) decl2.children.get(0)).typeName.equals("int"));
+        assertTrue("Declaration should have IntTypeNode", decl2.children.get(0) instanceof IntTypeNode);
     	assertTrue("Declaration should be assigned with int", decl2.children.get(1) instanceof Ast.IntNode);
     	assertTrue("Declaration should be assigned with value 2", ((Ast.IntNode)decl2.children.get(1)).value == 2);
     }

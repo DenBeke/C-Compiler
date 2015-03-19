@@ -231,9 +231,23 @@ public class AstParser extends CParser {
         log.log(Level.INFO, "handleType: " + t + " c=" + c);
 
         TypeNode node = new TypeNode();
-        node.typeName = t;
-        node.constant = false;
-        node.topLevel = false;
+
+	switch(t.toLowerCase()) {
+		case "int":
+			node = new IntTypeNode();
+			break;
+		case "char":
+			node = new CharTypeNode();
+			break;
+		case "void":
+			node = new VoidTypeNode();
+			break;
+		default:
+			Assert.Assert(false);
+	}
+
+	node.constant = false;
+	node.topLevel = false;
 
         if(c != null) {
             if(c.equals("const")) {
@@ -248,7 +262,7 @@ public class AstParser extends CParser {
             return;
         }
 
-        if(list.peekFirst() instanceof ConstNode) {
+        if(list.peekFirst() instanceof ConstTypeNode) {
             node.constant = true;
             list.removeFirst();
 
@@ -260,7 +274,7 @@ public class AstParser extends CParser {
             }
         }
 
-        if(list.peekFirst() instanceof TypeNode && ((TypeNode) list.peekFirst()).typeName.equals("pointer") && !((TypeNode) list.peekFirst()).topLevel) {
+        if(list.peekFirst() instanceof PointerTypeNode && !((TypeNode) list.peekFirst()).topLevel) {
             list.get(0).insertLefMostLeaf(node);
             ( (TypeNode) list.get(0)).topLevel = true;
         }
@@ -268,8 +282,20 @@ public class AstParser extends CParser {
             //log.log(Level.INFO, "    Inserting node");
             insertNode(0, node);
         }
-
     }
+
+	public void handleStaticArray(String n) {
+		log.log(Level.INFO, "handleStaticArray: " + n);
+
+		StaticArrayTypeNode node = new StaticArrayTypeNode();
+		node.size = Integer.parseInt(n);
+		node.topLevel = true;
+
+		Assert.Assert(list.peekFirst() instanceof TypeNode);
+		node.children.add(0, list.removeFirst());
+
+		insertNode(0, node);
+	}
 
     public void handleConst() {
         log.log(Level.INFO, "handleConst");
@@ -278,7 +304,7 @@ public class AstParser extends CParser {
             //list.removeFirst();
         }
 
-        ConstNode node = new ConstNode();
+        ConstTypeNode node = new ConstTypeNode();
         insertNode(0, node);
 
     }
@@ -286,8 +312,7 @@ public class AstParser extends CParser {
     public void handlePointer() {
         log.log(Level.INFO, "handlePointer");
 
-        TypeNode node = new TypeNode();
-        node.typeName = "pointer";
+        PointerTypeNode node = new PointerTypeNode();
         node.constant = false;
         node.topLevel = false;
 
@@ -299,7 +324,7 @@ public class AstParser extends CParser {
         }
 
         // check if it is constant
-        if(list.peekFirst() instanceof ConstNode) {
+        if(list.peekFirst() instanceof ConstTypeNode) {
             node.constant = true;
             list.removeFirst();
 
@@ -311,7 +336,7 @@ public class AstParser extends CParser {
             }
         }
 
-        if(list.peekFirst() instanceof TypeNode && ((TypeNode) list.peekFirst()).typeName.equals("pointer")) {
+        if(list.peekFirst() instanceof PointerTypeNode) {
             list.get(0).insertLefMostLeaf(node);
         }
         else {
