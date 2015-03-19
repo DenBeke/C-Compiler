@@ -26,15 +26,14 @@ public class AstParser extends CParser {
 		DeclarationNode node = new DeclarationNode();
 		node.id = id;
 
-
 		// We have an initializer
 		if (list.size() >= 1 && !(list.peekFirst() instanceof TypeNode)) {
 			node.children.add(list.removeFirst());
 		}
 
-        // type
-        Assert.Assert(list.peekFirst() instanceof TypeNode);
-        node.children.add(0, list.removeFirst());
+		// type
+		Assert.Assert(list.peekFirst() instanceof TypeNode);
+		node.children.add(0, list.removeFirst());
 
 		insertNode(0, node);
 	}
@@ -45,7 +44,7 @@ public class AstParser extends CParser {
 		FunctionDeclarationNode node = new FunctionDeclarationNode();
 		node.id = id;
 
-        //log.log(Level.INFO, list);
+		// log.log(Level.INFO, list);
 
 		// Add empty formal parameter list if no parameters.
 		if (list.size() < 2 || !(list.get(1) instanceof FormalParametersNode)) {
@@ -57,9 +56,9 @@ public class AstParser extends CParser {
 		// Add block
 		node.children.add(list.removeFirst());
 
-        // Add type
-        Assert.Assert(list.peekFirst() instanceof TypeNode);
-        node.children.add(0, list.removeFirst());
+		// Add type
+		Assert.Assert(list.peekFirst() instanceof TypeNode);
+		node.children.add(0, list.removeFirst());
 
 		insertNode(0, node);
 	}
@@ -134,52 +133,49 @@ public class AstParser extends CParser {
 
 	}
 
-    public void handleChar(String n) {
-        log.log(Level.INFO, "handleChar " + n);
+	public void handleChar(String n) {
+		log.log(Level.INFO, "handleChar " + n);
 
-        CharNode node = new CharNode();
-        node.value = n.substring(1, n.length()-1);
-        insertNode(0, node);
+		CharNode node = new CharNode();
+		node.value = n.substring(1, n.length() - 1);
+		insertNode(0, node);
 
-    }
+	}
 
-    public void handleString(String n) {
-        log.log(Level.INFO, "handleString " + n);
+	public void handleString(String n) {
+		log.log(Level.INFO, "handleString " + n);
 
-        StringNode node = new StringNode();
-        node.value = n.substring(1, n.length()-1);
-        insertNode(0, node);
+		StringNode node = new StringNode();
+		node.value = n.substring(1, n.length() - 1);
+		insertNode(0, node);
 
-    }
+	}
 
+	public void handleParam() {
+		log.log(Level.INFO, "handleParam");
 
-    public void handleParam() {
-        log.log(Level.INFO, "handleParam");
+		ParamNode node = new ParamNode();
 
-        ParamNode node = new ParamNode();
+		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
+		node.children.add(0, list.removeFirst());
 
-        Assert.Assert(list.peekFirst() instanceof ExpressionNode);
-        node.children.add(0, list.removeFirst());
+		insertNode(0, node);
 
-        insertNode(0, node);
+	}
 
-    }
+	public void handleFunctionCall(String n) {
+		log.log(Level.INFO, "handleFunctionCall " + n);
 
+		FunctionCallNode node = new FunctionCallNode();
+		node.value = n;
 
-    public void handleFunctionCall(String n) {
-        log.log(Level.INFO, "handleFunctionCall " + n);
-        
-        FunctionCallNode node = new FunctionCallNode();
-        node.value = n;
+		while (list.peekFirst() instanceof ParamNode) {
+			node.children.add(0, list.removeFirst());
+		}
 
-        while (list.peekFirst() instanceof ParamNode) {
-            node.children.add(0, list.removeFirst());
-        }
+		insertNode(0, node);
 
-        insertNode(0, node);
-
-    }
-
+	}
 
 	public void handleBinaryOperator(String operator) {
 		log.log(Level.INFO, "handleBinaryOperator: " + operator);
@@ -188,7 +184,8 @@ public class AstParser extends CParser {
 
 		// There should be atleast 2 operands
 		if (list.size() < 2) {
-			log.log(Level.INFO, "There should atleast be 2 operands on the stack");
+			log.log(Level.INFO,
+					"There should atleast be 2 operands on the stack");
 		}
 
 		node.operator = operator;
@@ -198,7 +195,7 @@ public class AstParser extends CParser {
 
 		insertNode(0, node);
 	};
-	
+
 	public void handleUnaryOperator(String operator) {
 		log.log(Level.INFO, "handleUnaryOperator: " + operator);
 
@@ -206,13 +203,14 @@ public class AstParser extends CParser {
 
 		// There should be atleast 1 operand
 		if (list.size() < 1) {
-			log.log(Level.INFO, "There should atleast be 1 operands on the stack");
+			log.log(Level.INFO,
+					"There should atleast be 1 operands on the stack");
 		}
 
 		node.operator = operator;
 
 		node.children.add(0, list.removeFirst());
-		
+
 		insertNode(0, node);
 	};
 
@@ -225,13 +223,12 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+	public void handleType(String t, String c) {
+		log.log(Level.INFO, "handleType: " + t + " c=" + c);
 
-    public void handleType(String t, String c) {
-        log.log(Level.INFO, "handleType: " + t + " c=" + c);
+		TypeNode node = null;
 
-        TypeNode node = null;
-
-	switch(t.toLowerCase()) {
+		switch (t.toLowerCase()) {
 		case "int":
 			node = new IntTypeNode();
 			break;
@@ -243,45 +240,44 @@ public class AstParser extends CParser {
 			break;
 		default:
 			Assert.Assert(false);
+		}
+
+		node.constant = false;
+		node.topLevel = false;
+
+		if (c != null) {
+			if (c.equals("const")) {
+				node.constant = true;
+			}
+		}
+
+		if (list.peekFirst() instanceof NothingNode) {
+			list.removeFirst();
+			insertNode(0, node);
+			return;
+		}
+
+		if (list.peekFirst() instanceof ConstTypeNode) {
+			node.constant = true;
+			list.removeFirst();
+
+			// check again if it wasn't the last type on the stack
+			if (list.peekFirst() instanceof NothingNode) {
+				list.removeFirst();
+				insertNode(0, node);
+				return;
+			}
+		}
+
+		if (list.peekFirst() instanceof PointerTypeNode
+				&& !((TypeNode) list.peekFirst()).topLevel) {
+			list.get(0).insertLefMostLeaf(node);
+			((TypeNode) list.get(0)).topLevel = true;
+		} else {
+			// log.log(Level.INFO, "    Inserting node");
+			insertNode(0, node);
+		}
 	}
-
-	node.constant = false;
-	node.topLevel = false;
-
-        if(c != null) {
-            if(c.equals("const")) {
-                node.constant = true;
-            }
-        }
-
-
-        if(list.peekFirst() instanceof NothingNode) {
-            list.removeFirst();
-            insertNode(0, node);
-            return;
-        }
-
-        if(list.peekFirst() instanceof ConstTypeNode) {
-            node.constant = true;
-            list.removeFirst();
-
-            // check again if it wasn't the last type on the stack
-            if(list.peekFirst() instanceof NothingNode) {
-                list.removeFirst();
-                insertNode(0, node);
-                return;
-            }
-        }
-
-        if(list.peekFirst() instanceof PointerTypeNode && !((TypeNode) list.peekFirst()).topLevel) {
-            list.get(0).insertLefMostLeaf(node);
-            ( (TypeNode) list.get(0)).topLevel = true;
-        }
-        else {
-            //log.log(Level.INFO, "    Inserting node");
-            insertNode(0, node);
-        }
-    }
 
 	public void handleStaticArray(String n) {
 		log.log(Level.INFO, "handleStaticArray: " + n);
@@ -296,54 +292,52 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
-    public void handleConst() {
-        log.log(Level.INFO, "handleConst");
+	public void handleConst() {
+		log.log(Level.INFO, "handleConst");
 
-        if(list.peekFirst() instanceof NothingNode) {
-            //list.removeFirst();
-        }
+		if (list.peekFirst() instanceof NothingNode) {
+			// list.removeFirst();
+		}
 
-        ConstTypeNode node = new ConstTypeNode();
-        insertNode(0, node);
+		ConstTypeNode node = new ConstTypeNode();
+		insertNode(0, node);
 
-    }
+	}
 
-    public void handlePointer() {
-        log.log(Level.INFO, "handlePointer");
+	public void handlePointer() {
+		log.log(Level.INFO, "handlePointer");
 
-        PointerTypeNode node = new PointerTypeNode();
-        node.constant = false;
-        node.topLevel = false;
+		PointerTypeNode node = new PointerTypeNode();
+		node.constant = false;
+		node.topLevel = false;
 
-        // just insert the node if it's the last pointer on the stack
-        if(list.peekFirst() instanceof NothingNode) {
-            list.removeFirst();
-            insertNode(0, node);
-            return;
-        }
+		// just insert the node if it's the last pointer on the stack
+		if (list.peekFirst() instanceof NothingNode) {
+			list.removeFirst();
+			insertNode(0, node);
+			return;
+		}
 
-        // check if it is constant
-        if(list.peekFirst() instanceof ConstTypeNode) {
-            node.constant = true;
-            list.removeFirst();
+		// check if it is constant
+		if (list.peekFirst() instanceof ConstTypeNode) {
+			node.constant = true;
+			list.removeFirst();
 
-            // check again if it wasn't the last pointer on the stack
-            if(list.peekFirst() instanceof NothingNode) {
-                list.removeFirst();
-                insertNode(0, node);
-                return;
-            }
-        }
+			// check again if it wasn't the last pointer on the stack
+			if (list.peekFirst() instanceof NothingNode) {
+				list.removeFirst();
+				insertNode(0, node);
+				return;
+			}
+		}
 
-        if(list.peekFirst() instanceof PointerTypeNode) {
-            list.get(0).insertLefMostLeaf(node);
-        }
-        else {
-            insertNode(0, node);
-        }
-    }
+		if (list.peekFirst() instanceof PointerTypeNode) {
+			list.get(0).insertLefMostLeaf(node);
+		} else {
+			insertNode(0, node);
+		}
+	}
 
-	
 	public void handleForStatement() {
 		log.log(Level.INFO, "handleForStatement");
 
@@ -356,67 +350,67 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
-    public void handleReturnStatement() {
-        log.log(Level.INFO, "handleReturnStatement");
+	public void handleReturnStatement() {
+		log.log(Level.INFO, "handleReturnStatement");
 
-        ReturnStatementNode node = new ReturnStatementNode();
-        node.children.add(0, list.removeFirst());
+		ReturnStatementNode node = new ReturnStatementNode();
+		node.children.add(0, list.removeFirst());
 
-        insertNode(0, node);
-    }
+		insertNode(0, node);
+	}
 
-    public void handleBreakStatement() {
-        log.log(Level.INFO, "handleBreakStatement");
+	public void handleBreakStatement() {
+		log.log(Level.INFO, "handleBreakStatement");
 
-        BreakStatementNode node = new BreakStatementNode();
+		BreakStatementNode node = new BreakStatementNode();
 
-        insertNode(0, node);
-    }
+		insertNode(0, node);
+	}
 
-    public void handleContinueStatement() {
-        log.log(Level.INFO, "handleContinueStatement");
+	public void handleContinueStatement() {
+		log.log(Level.INFO, "handleContinueStatement");
 
-        ContinueStatementNode node = new ContinueStatementNode();
+		ContinueStatementNode node = new ContinueStatementNode();
 
-        insertNode(0, node);
-    }
+		insertNode(0, node);
+	}
 
-    public void handleWhileStatement() {
-        log.log(Level.INFO, "handleWhileStatement");
+	public void handleWhileStatement() {
+		log.log(Level.INFO, "handleWhileStatement");
 
-        WhileStatementNode node = new WhileStatementNode();
+		WhileStatementNode node = new WhileStatementNode();
 
-        log.log(Level.INFO, list.peekFirst().toString());
-        Assert.Assert(list.peekFirst() instanceof StatementNode);
-        node.children.add(0, list.removeFirst());
-        log.log(Level.INFO, list.peekFirst().toString());
-        Assert.Assert(list.peekFirst() instanceof ExpressionNode);
-        node.children.add(0, list.removeFirst());
+		log.log(Level.INFO, list.peekFirst().toString());
+		Assert.Assert(list.peekFirst() instanceof StatementNode);
+		node.children.add(0, list.removeFirst());
+		log.log(Level.INFO, list.peekFirst().toString());
+		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
+		node.children.add(0, list.removeFirst());
 
-        insertNode(0, node);
-    }
+		insertNode(0, node);
+	}
 
-    public void handleIfStatement() {
-        log.log(Level.INFO, "handleIfStatement");
+	public void handleIfStatement() {
+		log.log(Level.INFO, "handleIfStatement");
 
-        IfStatementNode node = new IfStatementNode();
+		IfStatementNode node = new IfStatementNode();
 
-        // else
-        Assert.Assert(list.peekFirst() instanceof StatementNode || list.peekFirst() instanceof NothingNode);
-        node.children.add(0, list.removeFirst());
+		// else
+		Assert.Assert(list.peekFirst() instanceof StatementNode
+				|| list.peekFirst() instanceof NothingNode);
+		node.children.add(0, list.removeFirst());
 
-        // if block/stmt
-        Assert.Assert(list.peekFirst() instanceof StatementNode);
-        node.children.add(0, list.removeFirst());
+		// if block/stmt
+		Assert.Assert(list.peekFirst() instanceof StatementNode);
+		node.children.add(0, list.removeFirst());
 
-        // if condition/expr
-        Assert.Assert(list.peekFirst() instanceof ExpressionNode);
-        node.children.add(0, list.removeFirst());
+		// if condition/expr
+		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
+		node.children.add(0, list.removeFirst());
 
-        insertNode(0, node);
-    }
+		insertNode(0, node);
+	}
 
-	
 	public void handleNothing() {
 		log.log(Level.INFO, "handleNothing");
 
