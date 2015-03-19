@@ -70,9 +70,9 @@ public class AppTest extends TestCase {
 			parser.file();
 			assertTrue(parser.getNumberOfSyntaxErrors() != 0);
 
-		} catch (java.io.FileNotFoundException e) {
+		} catch(java.io.FileNotFoundException e) {
 			fail(e.getMessage());
-		} catch (java.io.IOException e) {
+		} catch(java.io.IOException e) {
 			fail(e.getMessage());
 		}
 	}

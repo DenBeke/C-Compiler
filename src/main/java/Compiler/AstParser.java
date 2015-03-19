@@ -27,7 +27,7 @@ public class AstParser extends CParser {
 		node.id = id;
 
 		// We have an initializer
-		if (list.size() >= 1 && !(list.peekFirst() instanceof TypeNode)) {
+		if(list.size() >= 1 && !(list.peekFirst() instanceof TypeNode)) {
 			node.children.add(list.removeFirst());
 		}
 
@@ -47,7 +47,7 @@ public class AstParser extends CParser {
 		// log.log(Level.INFO, list);
 
 		// Add empty formal parameter list if no parameters.
-		if (list.size() < 2 || !(list.get(1) instanceof FormalParametersNode)) {
+		if(list.size() < 2 || !(list.get(1) instanceof FormalParametersNode)) {
 			node.children.add(new FormalParametersNode());
 		} else {
 			node.children.add(list.remove(1));
@@ -70,8 +70,8 @@ public class AstParser extends CParser {
 
 		// Add all Formalparameters to our children
 		Node paramNode;
-		while ((paramNode = list.peekFirst()) != null) {
-			if (!(paramNode instanceof FormalParameterNode)) {
+		while((paramNode = list.peekFirst()) != null) {
+			if(!(paramNode instanceof FormalParameterNode)) {
 				break;
 			}
 
@@ -98,8 +98,8 @@ public class AstParser extends CParser {
 
 		// Add all statements in our scope.
 		Node stmtNode;
-		while ((stmtNode = list.peekFirst()) != null) {
-			if (!(stmtNode instanceof StatementNode)
+		while((stmtNode = list.peekFirst()) != null) {
+			if(!(stmtNode instanceof StatementNode)
 					|| stmtNode.scope != scope + 1) {
 				break;
 			}
@@ -169,7 +169,7 @@ public class AstParser extends CParser {
 		FunctionCallNode node = new FunctionCallNode();
 		node.value = n;
 
-		while (list.peekFirst() instanceof ParamNode) {
+		while(list.peekFirst() instanceof ParamNode) {
 			node.children.add(0, list.removeFirst());
 		}
 
@@ -183,7 +183,7 @@ public class AstParser extends CParser {
 		BinaryOperatorNode node = new BinaryOperatorNode();
 
 		// There should be atleast 2 operands
-		if (list.size() < 2) {
+		if(list.size() < 2) {
 			log.log(Level.INFO,
 					"There should atleast be 2 operands on the stack");
 		}
@@ -202,7 +202,7 @@ public class AstParser extends CParser {
 		UnaryOperatorNode node = new UnaryOperatorNode();
 
 		// There should be atleast 1 operand
-		if (list.size() < 1) {
+		if(list.size() < 1) {
 			log.log(Level.INFO,
 					"There should atleast be 1 operands on the stack");
 		}
@@ -228,7 +228,7 @@ public class AstParser extends CParser {
 
 		TypeNode node = null;
 
-		switch (t.toLowerCase()) {
+		switch(t.toLowerCase()) {
 		case "int":
 			node = new IntTypeNode();
 			break;
@@ -245,31 +245,31 @@ public class AstParser extends CParser {
 		node.constant = false;
 		node.topLevel = false;
 
-		if (c != null) {
-			if (c.equals("const")) {
+		if(c != null) {
+			if(c.equals("const")) {
 				node.constant = true;
 			}
 		}
 
-		if (list.peekFirst() instanceof NothingNode) {
+		if(list.peekFirst() instanceof NothingNode) {
 			list.removeFirst();
 			insertNode(0, node);
 			return;
 		}
 
-		if (list.peekFirst() instanceof ConstTypeNode) {
+		if(list.peekFirst() instanceof ConstTypeNode) {
 			node.constant = true;
 			list.removeFirst();
 
 			// check again if it wasn't the last type on the stack
-			if (list.peekFirst() instanceof NothingNode) {
+			if(list.peekFirst() instanceof NothingNode) {
 				list.removeFirst();
 				insertNode(0, node);
 				return;
 			}
 		}
 
-		if (list.peekFirst() instanceof PointerTypeNode
+		if(list.peekFirst() instanceof PointerTypeNode
 				&& !((TypeNode) list.peekFirst()).topLevel) {
 			list.get(0).insertLefMostLeaf(node);
 			((TypeNode) list.get(0)).topLevel = true;
@@ -295,7 +295,7 @@ public class AstParser extends CParser {
 	public void handleConst() {
 		log.log(Level.INFO, "handleConst");
 
-		if (list.peekFirst() instanceof NothingNode) {
+		if(list.peekFirst() instanceof NothingNode) {
 			// list.removeFirst();
 		}
 
@@ -312,26 +312,26 @@ public class AstParser extends CParser {
 		node.topLevel = false;
 
 		// just insert the node if it's the last pointer on the stack
-		if (list.peekFirst() instanceof NothingNode) {
+		if(list.peekFirst() instanceof NothingNode) {
 			list.removeFirst();
 			insertNode(0, node);
 			return;
 		}
 
 		// check if it is constant
-		if (list.peekFirst() instanceof ConstTypeNode) {
+		if(list.peekFirst() instanceof ConstTypeNode) {
 			node.constant = true;
 			list.removeFirst();
 
 			// check again if it wasn't the last pointer on the stack
-			if (list.peekFirst() instanceof NothingNode) {
+			if(list.peekFirst() instanceof NothingNode) {
 				list.removeFirst();
 				insertNode(0, node);
 				return;
 			}
 		}
 
-		if (list.peekFirst() instanceof PointerTypeNode) {
+		if(list.peekFirst() instanceof PointerTypeNode) {
 			list.get(0).insertLefMostLeaf(node);
 		} else {
 			insertNode(0, node);
@@ -424,7 +424,7 @@ public class AstParser extends CParser {
 
 		FileNode node = new FileNode();
 
-		while (list.size() != 0) {
+		while(list.size() != 0) {
 			node.children.add(0, list.removeFirst());
 		}
 
@@ -456,11 +456,11 @@ public class AstParser extends CParser {
 		start();
 
 		// FileNode should be the only 1 on the stack
-		if (list.size() != 1) {
+		if(list.size() != 1) {
 			log.log(Level.INFO, "Stack should contain 1 element");
 		} else {
 			root = list.removeFirst();
-			if (!(root instanceof FileNode)) {
+			if(!(root instanceof FileNode)) {
 				log.log(Level.INFO, "Root should be a FileNode");
 			}
 		}

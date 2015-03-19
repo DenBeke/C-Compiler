@@ -14,7 +14,7 @@ public class App {
 			Ast.Node root = parser.buildAst();
 			Visitor visitor = new SymbolTableVisitor();
 			visitor.visit(root);
-		} catch (Exception e) {
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}

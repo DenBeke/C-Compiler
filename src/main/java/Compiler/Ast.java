@@ -12,7 +12,7 @@ public class Ast {
 		public String childrenToString(String prefix) {
 			String result = "";
 
-			for (int i = 0; i < children.size(); i++) {
+			for(int i = 0; i < children.size(); i++) {
 				result += children.get(i).toString(prefix) + "\n";
 			}
 
@@ -29,7 +29,7 @@ public class Ast {
 
 		public void insertLefMostLeaf(Node n) {
 			Assert.Assert(this instanceof PointerTypeNode);
-			if (hasChildren()) {
+			if(hasChildren()) {
 				children.get(0).insertLefMostLeaf(n);
 			} else {
 				children.add(0, n);
@@ -37,7 +37,6 @@ public class Ast {
 		}
 
 		public abstract String toString(String prefix);
-
 	}
 
 	public static class FileNode extends Node {
@@ -61,7 +60,7 @@ public class Ast {
 
 		public String toString(String prefix) {
 			String result = prefix + "TypeNode: " + getClass().getSimpleName();
-			if (constant) {
+			if(constant) {
 				result += " const";
 			}
 

@@ -25,14 +25,14 @@ public class AstTest extends TestCase {
 		InputStream is;
 		try {
 			is = new FileInputStream("src/test/input/ast/test1_ok.c");
-		} catch (FileNotFoundException e) {
+		} catch(FileNotFoundException e) {
 			fail("Could not load input file");
 			return;
 		}
 		ANTLRInputStream input;
 		try {
 			input = new ANTLRInputStream(is);
-		} catch (IOException e) {
+		} catch(IOException e) {
 			fail("Could not load input file");
 			return;
 		}
