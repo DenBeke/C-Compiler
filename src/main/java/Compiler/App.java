@@ -11,7 +11,9 @@ public class App {
 			CLexer lexer = new CLexer(input);
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			AstParser parser = new AstParser(tokens);
-			parser.buildAst();
+			Ast.Node root = parser.buildAst();
+			Visitor visitor = new SymbolTableVisitor();
+			visitor.visit(root);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

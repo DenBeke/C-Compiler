@@ -8,6 +8,8 @@ public class Ast {
 		public int scope;
 		public Vector<Node> children = new Vector<Node>();
 
+		public abstract void visit(Visitor visitor);
+		
 		public String childrenToString(String prefix) {
 			String result = "";
 
@@ -48,10 +50,15 @@ public class Ast {
 			return result;
 		}
 
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
+
 	}
 
 
-    public static class TypeNode extends Node {
+    public static abstract class TypeNode extends Node {
         public Boolean constant = false;
         public Boolean topLevel = false;
 
@@ -69,18 +76,48 @@ public class Ast {
         }
     }
 
-    public static class ConstTypeNode extends TypeNode {}
+    public static class ConstTypeNode extends TypeNode {
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
+    }
 
-    public static class PointerTypeNode extends TypeNode {}
+    public static class PointerTypeNode extends TypeNode {
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
+    }
 
-    public static class IntTypeNode extends TypeNode {}
+    public static class IntTypeNode extends TypeNode {
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
+    }
 
-    public static class CharTypeNode extends TypeNode {}
+    public static class CharTypeNode extends TypeNode {
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
+    }
 
-    public static class VoidTypeNode extends TypeNode {}
+    public static class VoidTypeNode extends TypeNode {
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
+    }
 
     public static class StaticArrayTypeNode extends TypeNode {
         public Integer size = 0;
+        
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
     }
 
     public static abstract class LiteralNode extends Node {
@@ -93,6 +130,11 @@ public class Ast {
 			String result = prefix + "IntNode: " + String.valueOf(value);
 			return result;
 		}
+		
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
 
 	}
 
@@ -103,6 +145,11 @@ public class Ast {
             String result = prefix + "CharNode: " + String.valueOf(value);
             return result;
         }
+        
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
 
     }
 
@@ -114,6 +161,10 @@ public class Ast {
             return result;
         }
 
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
     }
 
 	public static class IdNode extends Node {
@@ -122,6 +173,11 @@ public class Ast {
 		public String toString(String prefix) {
 			String result = prefix + "IdNode: " + id;
 			return result;
+		}
+		
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
 		}
 	}
 
@@ -134,6 +190,11 @@ public class Ast {
 
 			return result;
 		}
+		
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
 	}
 
 	public static class FunctionDeclarationNode extends Node {
@@ -145,6 +206,11 @@ public class Ast {
 
 			return result;
 		}
+		
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
 	}
 
 	public static class FormalParametersNode extends Node {
@@ -154,6 +220,11 @@ public class Ast {
 
 			return result;
 		}
+		
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
 	}
 
 	public static class FormalParameterNode extends Node {
@@ -162,6 +233,11 @@ public class Ast {
 		public String toString(String prefix) {
 			String result = prefix + "FormalParameterNode: " + id;
 			return result;
+		}
+		
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
 		}
 	}
 
@@ -173,6 +249,11 @@ public class Ast {
 
             return result;
         }
+        
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
     }
 
     public static class FunctionCallNode extends ExpressionNode {
@@ -183,6 +264,11 @@ public class Ast {
             result += childrenToString(prefix + "\t");
             return result;
         }
+        
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
 
     }
 
@@ -200,6 +286,11 @@ public class Ast {
 
 			return result;
 		}
+		
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
 	}
 
 	public static class ExprStatementNode extends StatementNode {
@@ -208,6 +299,11 @@ public class Ast {
 			result += childrenToString(prefix + "\t");
 
 			return result;
+		}
+		
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
 		}
 	}
 
@@ -220,6 +316,11 @@ public class Ast {
 
 			return result;
 		}
+		
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
 	}
 	
 	public static class UnaryOperatorNode extends ExpressionNode {
@@ -231,6 +332,11 @@ public class Ast {
 
 			return result;
 		}
+		
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
 	}
 
 	public static class ForStatementNode extends StatementNode {
@@ -240,12 +346,22 @@ public class Ast {
 
 			return result;
 		}
+		
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
 	}
 
 	public static class NothingNode extends Node {
 		public String toString(String prefix) {
 			String result = prefix + "NothingNode";
 			return result;
+		}
+		
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
 		}
 	}
 
@@ -256,6 +372,11 @@ public class Ast {
 
             return result;
         }
+        
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
     }
 
     public static class WhileStatementNode extends StatementNode {
@@ -265,6 +386,11 @@ public class Ast {
 
             return result;
         }
+        
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
     }
 
     public static class IfStatementNode extends StatementNode {
@@ -274,6 +400,11 @@ public class Ast {
 
             return result;
         }
+        
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
     }
 
 
@@ -284,6 +415,11 @@ public class Ast {
 
             return result;
         }
+        
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
     }
 
     public static class ContinueStatementNode extends StatementNode {
@@ -293,6 +429,11 @@ public class Ast {
 
             return result;
         }
+        
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
     }
 
 

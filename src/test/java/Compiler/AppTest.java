@@ -6,7 +6,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.misc.TestRig;
 
 /**
  * Unit test for simple App.

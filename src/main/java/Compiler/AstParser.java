@@ -1,7 +1,6 @@
 package Compiler;
 
 import java.util.LinkedList;
-import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -230,7 +229,7 @@ public class AstParser extends CParser {
     public void handleType(String t, String c) {
         log.log(Level.INFO, "handleType: " + t + " c=" + c);
 
-        TypeNode node = new TypeNode();
+        TypeNode node = null;
 
 	switch(t.toLowerCase()) {
 		case "int":

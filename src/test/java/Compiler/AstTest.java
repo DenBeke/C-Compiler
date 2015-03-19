@@ -10,10 +10,8 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.misc.TestRig;
 
 import Compiler.Ast.*;
-import Compiler.AstParser.*;
 
 /**
  * Unit test for ast.
