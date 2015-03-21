@@ -18,27 +18,30 @@ import Compiler.Ast.*;
  */
 public class AstTest extends TestCase {
 	private Node ast1;
-
+	private Node ast2;
+	
 	public AstTest(String testName) {
 		super(testName);
 
-		InputStream is;
 		try {
-			is = new FileInputStream("src/test/input/ast/test1_ok.c");
+			InputStream is = new FileInputStream("src/test/input/ast/test1_ok.c");
+			ANTLRInputStream input = new ANTLRInputStream(is);
+			CLexer lexer = new CLexer(input);
+			AstParser parser = new AstParser(new CommonTokenStream(lexer));
+			ast1 = parser.buildAst();
+			
+			is = new FileInputStream("src/test/input/ast/test2_ok.c");
+			input = new ANTLRInputStream(is);
+			lexer = new CLexer(input);
+			parser = new AstParser(new CommonTokenStream(lexer));
+			ast2 = parser.buildAst();
 		} catch(FileNotFoundException e) {
 			fail("Could not load input file");
 			return;
-		}
-		ANTLRInputStream input;
-		try {
-			input = new ANTLRInputStream(is);
 		} catch(IOException e) {
 			fail("Could not load input file");
 			return;
 		}
-		CLexer lexer = new CLexer(input);
-		AstParser parser = new AstParser(new CommonTokenStream(lexer));
-		ast1 = parser.buildAst();
 	}
 
 	public static Test suite() {
@@ -46,7 +49,7 @@ public class AstTest extends TestCase {
 	}
 
 	public void testFile1() {
-		System.out.println("testFile");
+		System.out.println("testFile1");
 
 		assertTrue("Should have 3 children", ast1.children.size() == 3);
 		assertTrue("Should be variable declaration",
@@ -58,7 +61,7 @@ public class AstTest extends TestCase {
 	}
 
 	public void testFunctionDeclaration1() {
-		System.out.println("testFunctionDeclaration");
+		System.out.println("testFunctionDeclaration1");
 
 		assertTrue("Should be function",
 				ast1.children.get(1) instanceof Ast.FunctionDeclarationNode);
@@ -98,4 +101,78 @@ public class AstTest extends TestCase {
 		assertTrue("Declaration should be assigned with value 2",
 				((Ast.IntNode) decl2.children.get(1)).value == 2);
 	}
+
+
+	public void testFile2() {
+		System.out.println("testFile2");
+
+		assertTrue("Should have 3 children", ast2.children.size() == 3);
+		assertTrue("Should be variable declaration",
+				ast2.children.get(0) instanceof Ast.DeclarationNode);
+		assertTrue("Should be function declaration",
+				ast2.children.get(1) instanceof Ast.FunctionDeclarationNode);
+		assertTrue("Should be variable declaration",
+				ast2.children.get(2) instanceof Ast.DeclarationNode);
+	}
+
+	public void testFunctionDeclaration2() {
+		System.out.println("testFunctionDeclaration2");
+
+		assertTrue("Should be function",
+				ast2.children.get(1) instanceof Ast.FunctionDeclarationNode);
+		Ast.FunctionDeclarationNode func = (Ast.FunctionDeclarationNode) ast2.children
+				.get(1);
+		assertTrue("Name should be main", func.id.equals(new String("main")));
+		assertTrue("Should have formal parameters node",
+				func.children.get(1) instanceof Ast.FormalParametersNode);
+		assertTrue("Should have 1 parameter",
+				func.children.get(1).children.size() == 1);
+		assertTrue("Should be FormalParameterNode", func.children.get(1).children.get(0) instanceof FormalParameterNode);
+		FormalParameterNode fpn = (FormalParameterNode)func.children.get(1).children.get(0);
+		assertTrue("Name should be d", fpn.id.equals(new String("d")));
+		assertTrue("Should be int*", fpn.children.get(0) instanceof PointerTypeNode
+				   && fpn.children.get(0).children.get(0) instanceof IntTypeNode);
+		assertTrue("Should block statement node",
+				func.children.get(2) instanceof Ast.BlockStatementNode);
+		assertTrue("Should have 1 child in block",
+				func.children.get(2).children.size() == 1);
+
+		assertTrue("Should be declaration", func.children.get(2).children.get(0).children.get(0) instanceof Ast.DeclarationNode);
+		Ast.DeclarationNode decl = (Ast.DeclarationNode)func.children.get(2).children.get(0).children.get(0);
+		assertTrue("Should be const pointer", decl.children.get(0) instanceof PointerTypeNode
+				   && ((PointerTypeNode)decl.children.get(0)).constant == true);
+		assertTrue("Should be const pointer to const int", decl.children.get(0).children.get(0) instanceof IntTypeNode
+				   && ((IntTypeNode)decl.children.get(0).children.get(0)).constant == true);
+	}
+
+	public void testVariableDeclaration2() {
+		System.out.println("testVariableDeclaration2");
+
+		assertTrue("Should be variable declaration",
+				ast2.children.get(0) instanceof Ast.DeclarationNode);
+		Ast.DeclarationNode decl1 = (Ast.DeclarationNode) ast2.children.get(0);
+		assertTrue("Id should be 'c'", decl1.id.equals(new String("c")));
+		assertTrue("Should have IntTypeNode", decl1.children.get(0) instanceof IntTypeNode);
+		assertTrue("Should be constant", ((IntTypeNode)decl1.children.get(0)).constant == true);
+		assertTrue("Declaration should be assigned with int",
+				decl1.children.get(1) instanceof Ast.IntNode);
+		assertTrue("Declaration should be assigned with value 123",
+				((Ast.IntNode) decl1.children.get(1)).value == 123);
+
+		assertTrue("Should be variable declaration",
+				ast2.children.get(2) instanceof Ast.DeclarationNode);
+		Ast.DeclarationNode decl2 = (Ast.DeclarationNode) ast2.children.get(2);
+		assertTrue("Id should be 'a'", decl2.id.equals(new String("a")));
+		assertTrue("Should have PointerTypeNode",
+				decl2.children.get(0) instanceof PointerTypeNode);
+		assertTrue("Should have PointerTypeNode",
+				decl2.children.get(0).children.get(0) instanceof PointerTypeNode);
+		assertTrue("Should have IntTypeNode",
+				decl2.children.get(0).children.get(0).children.get(0) instanceof IntTypeNode);
+		assertTrue("Declaration should be assigned with int",
+				decl2.children.get(1) instanceof Ast.IntNode);
+		assertTrue("Declaration should be assigned with value 2",
+				((Ast.IntNode) decl2.children.get(1)).value == 2);
+	}
+
 }
