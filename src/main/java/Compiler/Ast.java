@@ -227,7 +227,8 @@ public class Ast {
 		public String id;
 
 		public String toString(String prefix) {
-			String result = prefix + "FormalParameterNode: " + id;
+			String result = prefix + "FormalParameterNode: " + id + "\n";
+			result += childrenToString(prefix + "\t");
 			return result;
 		}
 

@@ -87,6 +87,8 @@ public class AstParser extends CParser {
 
 		FormalParameterNode node = new FormalParameterNode();
 		node.id = id;
+		Assert.Assert(list.peekFirst() instanceof TypeNode);
+		node.children.add(0, list.removeFirst());
 
 		insertNode(0, node);
 	}
