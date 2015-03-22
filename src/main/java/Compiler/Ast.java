@@ -116,7 +116,7 @@ public class Ast {
 		}
 	}
 
-	public static abstract class LiteralNode extends Node {
+	public static abstract class LiteralNode extends ExpressionNode {
 	}
 
 	public static class IntNode extends LiteralNode {
@@ -163,7 +163,7 @@ public class Ast {
 		}
 	}
 
-	public static class IdNode extends Node {
+	public static class IdNode extends ExpressionNode {
 		public String id;
 
 		public String toString(String prefix) {
@@ -186,7 +186,9 @@ public class Ast {
 
 			return result;
 		}
-
+		
+		
+		
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -253,11 +255,11 @@ public class Ast {
 	}
 
 	public static class FunctionCallNode extends ExpressionNode {
-		public String value;
+		public String id;
 
 		public String toString(String prefix) {
 			String result = prefix + "FunctionCallNode: "
-					+ String.valueOf(value) + "\n";
+					+ String.valueOf(id) + "\n";
 			result += childrenToString(prefix + "\t");
 			return result;
 		}

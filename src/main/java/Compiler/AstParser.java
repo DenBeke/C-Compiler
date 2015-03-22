@@ -26,10 +26,9 @@ public class AstParser extends CParser {
 		DeclarationNode node = new DeclarationNode();
 		node.id = id;
 
-		// We have an initializer
-		if(list.size() >= 1 && !(list.peekFirst() instanceof TypeNode)) {
-			node.children.add(list.removeFirst());
-		}
+		// Initializer
+		Assert.Assert(list.peekFirst() instanceof NothingNode || list.peekFirst() instanceof ExpressionNode);
+		node.children.add(0, list.removeFirst());
 
 		// type
 		Assert.Assert(list.peekFirst() instanceof TypeNode);
@@ -169,7 +168,7 @@ public class AstParser extends CParser {
 		log.log(Level.INFO, "handleFunctionCall " + n);
 
 		FunctionCallNode node = new FunctionCallNode();
-		node.value = n;
+		node.id = n;
 
 		while(list.peekFirst() instanceof ParamNode) {
 			node.children.add(0, list.removeFirst());

@@ -42,7 +42,7 @@ file
     ;
 
 varDecl
-	: type id=ID static_array? ('=' expr)? {handleVarDecl($id.text);}
+	: type id=ID static_array? (('=' expr) | nothing) {handleVarDecl($id.text);}
 	;
 
 static_array
