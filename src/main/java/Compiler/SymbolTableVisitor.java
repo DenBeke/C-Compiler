@@ -73,13 +73,13 @@ public class SymbolTableVisitor extends Visitor {
 		
 		// Check for multiple declarations
 		if(symbolTableStack.peek().hasSymbol(node.id)) {
-			System.out.println("Multiple declaration: " + node.id);
+            Log.fatal("Symbol '" + node.id + "' previously declared (on line " + symbolTableStack.peek().symbols.get(node.id).type.line  +")", node.line);
 		}
 
 		
 		Symbol symbol = new Symbol();
 		symbol.id = node.id;
-		Assert.Assert(node.children.get(0) instanceof Ast.TypeNode);
+        Assert.Assert(node.children.get(0) instanceof Ast.TypeNode);
 		symbol.type = (Ast.TypeNode)node.children.get(0);
 		symbolTableStack.peek().symbols.put(node.id, symbol);
 
@@ -89,7 +89,7 @@ public class SymbolTableVisitor extends Visitor {
 	public void visit(Ast.IdNode node) {
 		Symbol symbol = findSymbol(node.id);
 		if(symbol == null) {
-			System.out.println("Use of " + node.id + " before declaration");
+            Log.fatal("Use of undeclared '" + node.id + "'", node.line);
 		}
 
 		node.symbol = symbol;
@@ -114,7 +114,7 @@ public class SymbolTableVisitor extends Visitor {
 		
 		// Check for multiple declarations
 		if(symbolTableStack.peek().hasSymbol(node.id)) {
-			System.out.println("Parameter with name: " + node.id + " already exists");
+            Log.fatal("Parameter with name '" + node.id + "' already exists", node.line);
 		}
 
 		Symbol symbol = new Symbol();

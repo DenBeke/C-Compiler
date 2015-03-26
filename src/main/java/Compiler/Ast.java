@@ -6,6 +6,7 @@ import Compiler.SymbolTableVisitor.*;
 public class Ast {
 	public static abstract class Node {
 		public int scope;
+        public int line = -1;
 		public Vector<Node> children = new Vector<Node>();
 
 		public abstract void visit(Visitor visitor);

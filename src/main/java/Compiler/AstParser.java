@@ -442,6 +442,7 @@ public class AstParser extends CParser {
 
 	private void insertNode(int pos, Node node) {
 		node.scope = scope;
+		node.line = getCurrentToken().getLine();
 		list.add(pos, node);
 	}
 
