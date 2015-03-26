@@ -4,11 +4,23 @@ import java.util.Vector;
 import Compiler.SymbolTableVisitor.*;
 
 public class Ast {
+
+
+    /**
+     * Abstract base class of Node
+     */
 	public static abstract class Node {
-		public int scope;
+
+        public int scope;
         public int line = -1;
 		public Vector<Node> children = new Vector<Node>();
 
+
+        /**
+         * Abstract visitor node
+         *
+         * @param visitor
+         */
 		public abstract void visit(Visitor visitor);
 
 		public String childrenToString(String prefix) {
@@ -25,10 +37,23 @@ public class Ast {
 			return toString("");
 		}
 
+
+        /**
+         * Check if the Node has children
+         *
+         * @return has children
+         */
 		public Boolean hasChildren() {
 			return children.size() > 0;
 		}
 
+
+        /**
+         * Insert a type to the left most leaf
+         *
+         * @requires node instanceof PointerTypeNode
+         * @param n
+         */
 		public void insertLefMostLeaf(Node n) {
 			Assert.Assert(this instanceof PointerTypeNode);
 			if(hasChildren()) {

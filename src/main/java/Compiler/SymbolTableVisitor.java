@@ -1,17 +1,28 @@
 package Compiler;
 
-import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.Stack;
 
 public class SymbolTableVisitor extends Visitor {
-	public static class Symbol {
+
+
+    /**
+     * Class representing a Symbol
+     *
+     * A symbol has an identifier and a TypeNode
+     */
+    public static class Symbol {
 		public String id;
 		public Ast.TypeNode type;
 	}
 
+
+    /**
+     * Class representing a Symbol Table
+     *
+     * A symbol table has a map of identifiers to symbols
+     */
 	public static class SymbolTable {
 		public Map<String, Symbol> symbols;
 		
@@ -24,10 +35,10 @@ public class SymbolTableVisitor extends Visitor {
 		}
 		
 		
-		/*
+		/**
 		 * Check if this table contains the symbol
 		 * 
-		 * @param symbol The symbol to check
+		 * @param The symbol to check
 		 */
 		boolean hasSymbol(String symbol) {
 			if(symbols.containsKey(symbol)) {
@@ -37,9 +48,13 @@ public class SymbolTableVisitor extends Visitor {
 			return false;
 		}
 	}
-	
-	private Stack<SymbolTable> symbolTableStack = new Stack<SymbolTable>();
 
+
+    /**
+     * Check if a symbol exists in any symbol table on the stack
+     * @param id
+     * @return symbol
+     */
 	private Symbol findSymbol(String id) {
 		for(int i = 0; i < symbolTableStack.size(); i++) {
 			if(symbolTableStack.get(i).hasSymbol(id)) {
@@ -49,17 +64,13 @@ public class SymbolTableVisitor extends Visitor {
 
 		return null;
 	}
-	
-	private void enterNewScope() {
-		System.out.println(">");
-		symbolTableStack.push(new SymbolTable());
-	}
-	
-	private void leaveScope() {
-		System.out.println("<");
-		symbolTableStack.pop();
-	}
-	
+
+
+    /**
+     * Visit FileNode
+     *
+     * @param node
+     */
 	public void visit(Ast.FileNode node) {
 		System.out.println("file");
 		
@@ -67,7 +78,13 @@ public class SymbolTableVisitor extends Visitor {
 		visitChildren(node);
 		leaveScope();
 	}
-	
+
+
+    /**
+     * Visit DeclarationNode
+     *
+     * @param node
+     */
 	public void visit(Ast.DeclarationNode node) {
 		System.out.println("var declaration");
 		
@@ -75,7 +92,6 @@ public class SymbolTableVisitor extends Visitor {
 		if(symbolTableStack.peek().hasSymbol(node.id)) {
             Log.fatal("Symbol '" + node.id + "' previously declared (on line " + symbolTableStack.peek().symbols.get(node.id).type.line  +")", node.line);
 		}
-
 		
 		Symbol symbol = new Symbol();
 		symbol.id = node.id;
@@ -86,6 +102,11 @@ public class SymbolTableVisitor extends Visitor {
 		visitChildren(node);
 	}
 
+    /**
+     * Visit IdNode
+     *
+     * @param node
+     */
 	public void visit(Ast.IdNode node) {
 		Symbol symbol = findSymbol(node.id);
 		if(symbol == null) {
@@ -97,18 +118,36 @@ public class SymbolTableVisitor extends Visitor {
 		visitChildren(node);
 	}
 
+
+    /**
+     * Visit BlockStatementNode
+     *
+     * @param node
+     */
 	public void visit(Ast.BlockStatementNode node) {
 		enterNewScope();
 		visitChildren(node);
 		leaveScope();
 	}
 
+
+    /**
+     * Visit FunctionDeclarationNode
+     *
+     * @param node
+     */
 	public void visit(Ast.FunctionDeclarationNode node) {
 		enterNewScope();
 		visitChildren(node);
 		leaveScope();
 	}
 
+
+    /**
+     * Visit FormalParameterNode
+     *
+     * @param node
+     */
 	public void visit(Ast.FormalParameterNode node) {
 		System.out.println("formal parameter");
 		
@@ -125,4 +164,20 @@ public class SymbolTableVisitor extends Visitor {
 
 		visitChildren(node);
 	}
+
+
+
+
+    private Stack<SymbolTable> symbolTableStack = new Stack<SymbolTable>();
+
+    private void enterNewScope() {
+        System.out.println(">");
+        symbolTableStack.push(new SymbolTable());
+    }
+
+    private void leaveScope() {
+        System.out.println("<");
+        symbolTableStack.pop();
+    }
+
 }

@@ -9,7 +9,8 @@ import org.antlr.v4.runtime.*;
 import Compiler.Ast.*;
 
 public class AstParser extends CParser {
-	private Node root;
+
+    private Node root;
 	private LinkedList<Node> list;
 	private int scope = 0;
 	private static Logger log;
@@ -20,6 +21,12 @@ public class AstParser extends CParser {
 		log.setLevel(Level.OFF);
 	}
 
+
+    /**
+     * Handle variable declaration
+     *
+     * @param id
+     */
 	public void handleVarDecl(String id) {
 		log.log(Level.INFO, "handleVarDecl: " + id);
 
@@ -37,6 +44,12 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+
+    /**
+     * Handle function declaration
+     *
+     * @param id
+     */
 	public void handleFuncDecl(String id) {
 		log.log(Level.INFO, "handleFuncDecl: " + id);
 
@@ -62,6 +75,11 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+
+    /**
+     * Handle formal parameters
+     * (of a function declaration)
+     */
 	public void handleFormalParameters() {
 		log.log(Level.INFO, "handleFormalParameters");
 
@@ -81,6 +99,12 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+
+    /**
+     * Handle one single formal parameter
+     *
+     * @param id
+     */
 	public void handleFormalParameter(String id) {
 		log.log(Level.INFO, "handleFormalParameter: " + id);
 
@@ -92,6 +116,10 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+
+    /**
+     * Handle block
+     */
 	public void handleBlock() {
 		log.log(Level.INFO, "handleBlock");
 
@@ -112,10 +140,18 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+
+    /**
+     * Handle expression
+     */
 	public void handleExpr() {
 		log.log(Level.INFO, "handleExpr");
 	}
 
+
+    /**
+     * Handle expression statement
+     */
 	public void handleExprStatement() {
 		log.log(Level.INFO, "handleExprStatement");
 
@@ -125,6 +161,12 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+
+    /**
+     * Handle int literal
+     *
+     * @param n
+     */
 	public void handleInt(String n) {
 		log.log(Level.INFO, "handleInt " + n);
 
@@ -134,6 +176,12 @@ public class AstParser extends CParser {
 
 	}
 
+
+    /**
+     * Handle char literal
+     *
+     * @param n
+     */
 	public void handleChar(String n) {
 		log.log(Level.INFO, "handleChar " + n);
 
@@ -143,6 +191,12 @@ public class AstParser extends CParser {
 
 	}
 
+
+    /**
+     * Handle string literal
+     *
+     * @param n
+     */
 	public void handleString(String n) {
 		log.log(Level.INFO, "handleString " + n);
 
@@ -152,6 +206,10 @@ public class AstParser extends CParser {
 
 	}
 
+
+    /**
+     * Handle function parameter
+     */
 	public void handleParam() {
 		log.log(Level.INFO, "handleParam");
 
@@ -164,6 +222,12 @@ public class AstParser extends CParser {
 
 	}
 
+
+    /**
+     * Handle function call
+     *
+     * @param n
+     */
 	public void handleFunctionCall(String n) {
 		log.log(Level.INFO, "handleFunctionCall " + n);
 
@@ -178,6 +242,12 @@ public class AstParser extends CParser {
 
 	}
 
+
+    /**
+     * Handle binary operator
+     *
+     * @param operator
+     */
 	public void handleBinaryOperator(String operator) {
 		log.log(Level.INFO, "handleBinaryOperator: " + operator);
 
@@ -195,8 +265,14 @@ public class AstParser extends CParser {
 		node.children.add(0, list.removeFirst());
 
 		insertNode(0, node);
-	};
+	}
 
+
+    /**
+     * Handle unary operator
+     *
+     * @param operator
+     */
 	public void handleUnaryOperator(String operator) {
 		log.log(Level.INFO, "handleUnaryOperator: " + operator);
 
@@ -213,8 +289,14 @@ public class AstParser extends CParser {
 		node.children.add(0, list.removeFirst());
 
 		insertNode(0, node);
-	};
+	}
 
+
+    /**
+     * Handle identifier
+     *
+     * @param id
+     */
 	public void handleID(String id) {
 		log.log(Level.INFO, "handleID: " + id);
 
@@ -224,6 +306,13 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+
+    /**
+     * Handle type
+     *
+     * @param t: type name
+     * @param c: const
+     */
 	public void handleType(String t, String c) {
 		log.log(Level.INFO, "handleType: " + t + " c=" + c);
 
@@ -280,6 +369,12 @@ public class AstParser extends CParser {
 		}
 	}
 
+
+    /**
+     * Handle static array
+     *
+     * @param n
+     */
 	public void handleStaticArray(String n) {
 		log.log(Level.INFO, "handleStaticArray: " + n);
 
@@ -293,6 +388,10 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+
+    /**
+     * Handle const keyword in type
+     */
 	public void handleConst() {
 		log.log(Level.INFO, "handleConst");
 
@@ -305,6 +404,10 @@ public class AstParser extends CParser {
 
 	}
 
+
+    /**
+     * Handle pointer in type
+     */
 	public void handlePointer() {
 		log.log(Level.INFO, "handlePointer");
 
@@ -339,6 +442,10 @@ public class AstParser extends CParser {
 		}
 	}
 
+
+    /**
+     * Handle for statement
+     */
 	public void handleForStatement() {
 		log.log(Level.INFO, "handleForStatement");
 
@@ -351,6 +458,10 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+
+    /**
+     * Handle return statement
+     */
 	public void handleReturnStatement() {
 		log.log(Level.INFO, "handleReturnStatement");
 
@@ -360,6 +471,10 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+
+    /**
+     * Handle break statement
+     */
 	public void handleBreakStatement() {
 		log.log(Level.INFO, "handleBreakStatement");
 
@@ -368,6 +483,10 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+
+    /**
+     * Handle continue statement
+     */
 	public void handleContinueStatement() {
 		log.log(Level.INFO, "handleContinueStatement");
 
@@ -376,6 +495,10 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+
+    /**
+     * Handle while statement
+     */
 	public void handleWhileStatement() {
 		log.log(Level.INFO, "handleWhileStatement");
 
@@ -391,6 +514,10 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+
+    /**
+     * Handle if statement
+     */
 	public void handleIfStatement() {
 		log.log(Level.INFO, "handleIfStatement");
 
@@ -412,6 +539,10 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+
+    /**
+     * Handle 'nothing'
+     */
 	public void handleNothing() {
 		log.log(Level.INFO, "handleNothing");
 
@@ -420,6 +551,10 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+
+    /**
+     * Handle file
+     */
 	public void handleFile() {
 		log.log(Level.INFO, "handleFile");
 
@@ -430,7 +565,7 @@ public class AstParser extends CParser {
 		}
 
 		insertNode(0, node);
-	};
+	}
 
 	public void startScope() {
 		scope += 1;
@@ -446,8 +581,9 @@ public class AstParser extends CParser {
 		list.add(pos, node);
 	}
 
+
 	/**
-	 * Build the ast
+	 * Build the AST
 	 */
 	public Node buildAst() {
 		// Reset ast
