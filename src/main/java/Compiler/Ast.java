@@ -1,6 +1,7 @@
 package Compiler;
 
 import java.util.Vector;
+import Compiler.SymbolTableVisitor.*;
 
 public class Ast {
 	public static abstract class Node {
@@ -165,6 +166,7 @@ public class Ast {
 
 	public static class IdNode extends ExpressionNode {
 		public String id;
+		public Symbol symbol;
 
 		public String toString(String prefix) {
 			String result = prefix + "IdNode: " + id;
