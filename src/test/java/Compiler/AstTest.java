@@ -22,6 +22,7 @@ public class AstTest extends TestCase {
 	
 	public AstTest(String testName) {
 		super(testName);
+        Log.debug = false;
 
 		try {
 			InputStream is = new FileInputStream("src/test/input/ast/test1_ok.c");
@@ -49,7 +50,7 @@ public class AstTest extends TestCase {
 	}
 
 	public void testFile1() {
-		System.out.println("testFile1");
+		Log.debug("testFile1");
 
 		assertTrue("Should have 3 children", ast1.children.size() == 3);
 		assertTrue("Should be variable declaration",
@@ -61,7 +62,7 @@ public class AstTest extends TestCase {
 	}
 
 	public void testFunctionDeclaration1() {
-		System.out.println("testFunctionDeclaration1");
+		Log.debug("testFunctionDeclaration1");
 
 		assertTrue("Should be function",
 				ast1.children.get(1) instanceof Ast.FunctionDeclarationNode);
@@ -79,7 +80,7 @@ public class AstTest extends TestCase {
 	}
 
 	public void testVariableDeclaration1() {
-		System.out.println("testVariableDeclaration1");
+		Log.debug("testVariableDeclaration1");
 
 		assertTrue("Should be variable declaration",
 				ast1.children.get(0) instanceof Ast.DeclarationNode);
@@ -104,7 +105,7 @@ public class AstTest extends TestCase {
 
 
 	public void testFile2() {
-		System.out.println("testFile2");
+		Log.debug("testFile2");
 
 		assertTrue("Should have 3 children", ast2.children.size() == 3);
 		assertTrue("Should be variable declaration",
@@ -116,7 +117,7 @@ public class AstTest extends TestCase {
 	}
 
 	public void testFunctionDeclaration2() {
-		System.out.println("testFunctionDeclaration2");
+		Log.debug("testFunctionDeclaration2");
 
 		assertTrue("Should be function",
 				ast2.children.get(1) instanceof Ast.FunctionDeclarationNode);
@@ -146,7 +147,7 @@ public class AstTest extends TestCase {
 	}
 
 	public void testVariableDeclaration2() {
-		System.out.println("testVariableDeclaration2");
+		Log.debug("testVariableDeclaration2");
 
 		assertTrue("Should be variable declaration",
 				ast2.children.get(0) instanceof Ast.DeclarationNode);

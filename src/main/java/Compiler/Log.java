@@ -15,7 +15,8 @@ package Compiler;
  */
 public class Log {
 
-    public static String level       = new String("ALL"); // NONE, ALL, ERROR, WARNING, NOTICE
+    public static String level  = new String("ALL"); // NONE, ALL, ERROR, WARNING, NOTICE
+    public static boolean debug = true;
 
 
     /**
@@ -58,6 +59,18 @@ public class Log {
     public static void notice(String message, int line) {
         if(!level.equals("NONE") && !level.equals("ERROR") && !level.equals("WARNING")) {
             System.out.println("[NOTICE] line " + line + ": " + message);
+        }
+    }
+
+
+    /**
+     * Debug notice
+     *
+     * @param message
+     */
+    public static void debug(String message) {
+        if(debug) {
+            System.out.println("[DEBUG] " + message);
         }
     }
 

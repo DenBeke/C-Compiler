@@ -1,9 +1,6 @@
 package Compiler;
 
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.antlr.v4.runtime.*;
 
 import Compiler.Ast.*;
@@ -13,12 +10,9 @@ public class AstParser extends CParser {
     private Node root;
 	private LinkedList<Node> list;
 	private int scope = 0;
-	private static Logger log;
 
 	public AstParser(TokenStream input) {
 		super(input);
-		log = Logger.getLogger(AstParser.class.getName());
-		log.setLevel(Level.ALL);
 	}
 
 
@@ -28,7 +22,7 @@ public class AstParser extends CParser {
      * @param id
      */
 	public void handleVarDecl(String id) {
-		log.log(Level.INFO, "handleVarDecl: " + id);
+		Log.debug("handleVarDecl: " + id);
 
 		// Initializer
 		Ast.Node initializer =  list.removeFirst();
@@ -48,7 +42,7 @@ public class AstParser extends CParser {
      * @param id
      */
 	public void handleFuncDecl(String id) {
-		log.log(Level.INFO, "handleFuncDecl: " + id);
+		Log.debug("handleFuncDecl: " + id);
 
 		FormalParametersNode params = null;
 		// Add empty formal parameter list if no parameters.
@@ -77,7 +71,7 @@ public class AstParser extends CParser {
      * (of a function declaration)
      */
 	public void handleFormalParameters() {
-		log.log(Level.INFO, "handleFormalParameters");
+		Log.debug("handleFormalParameters");
 
 		FormalParametersNode node = new FormalParametersNode();
 
@@ -102,7 +96,7 @@ public class AstParser extends CParser {
      * @param id
      */
 	public void handleFormalParameter(String id) {
-		log.log(Level.INFO, "handleFormalParameter: " + id);
+		Log.debug("handleFormalParameter: " + id);
 
 		Assert.Assert(list.peekFirst() instanceof TypeNode);
 		TypeNode type = (TypeNode)list.removeFirst();
@@ -117,7 +111,7 @@ public class AstParser extends CParser {
      * Handle block
      */
 	public void handleBlock() {
-		log.log(Level.INFO, "handleBlock");
+		Log.debug("handleBlock");
 
 		BlockStatementNode node = new BlockStatementNode();
 
@@ -140,7 +134,7 @@ public class AstParser extends CParser {
      * Handle expression
      */
 	public void handleExpr() {
-		log.log(Level.INFO, "handleExpr");
+		Log.debug("handleExpr");
 	}
 
 
@@ -148,7 +142,7 @@ public class AstParser extends CParser {
      * Handle expression statement
      */
 	public void handleExprStatement() {
-		log.log(Level.INFO, "handleExprStatement");
+		Log.debug("handleExprStatement");
 
 		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
 		ExprStatementNode node = new ExprStatementNode((ExpressionNode)list.removeFirst());
@@ -163,7 +157,7 @@ public class AstParser extends CParser {
      * @param n
      */
 	public void handleInt(String n) {
-		log.log(Level.INFO, "handleInt " + n);
+		Log.debug("handleInt " + n);
 
 		IntNode node = new IntNode(Integer.parseInt(n));
 		insertNode(0, node);
@@ -176,7 +170,7 @@ public class AstParser extends CParser {
      * @param n
      */
 	public void handleChar(String n) {
-		log.log(Level.INFO, "handleChar " + n);
+		Log.debug("handleChar " + n);
 
 		CharNode node = new CharNode(n.charAt(0));
 		insertNode(0, node);
@@ -189,7 +183,7 @@ public class AstParser extends CParser {
      * @param n
      */
 	public void handleString(String n) {
-		log.log(Level.INFO, "handleString " + n);
+		Log.debug("handleString " + n);
 
 		StringNode node = new StringNode(n.substring(1, n.length() - 1));
 		insertNode(0, node);
@@ -200,7 +194,7 @@ public class AstParser extends CParser {
      * Handle function parameter
      */
 	public void handleParam() {
-		log.log(Level.INFO, "handleParam");
+		Log.debug("handleParam");
 
 		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
 		ParamNode node = new ParamNode((ExpressionNode)list.removeFirst());
@@ -215,7 +209,7 @@ public class AstParser extends CParser {
      * @param n
      */
 	public void handleFunctionCall(String n) {
-		log.log(Level.INFO, "handleFunctionCall " + n);
+		Log.debug("handleFunctionCall " + n);
 
 		FunctionCallNode node = new FunctionCallNode(n);
 
@@ -234,7 +228,7 @@ public class AstParser extends CParser {
      * @param operator
      */
 	public void handleBinaryOperator(String operator) {
-		log.log(Level.INFO, "handleBinaryOperator: " + operator);
+		Log.debug("handleBinaryOperator: " + operator);
 
 		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
 		ExpressionNode left = (ExpressionNode)list.removeFirst();
@@ -253,7 +247,7 @@ public class AstParser extends CParser {
      * @param operator
      */
 	public void handleUnaryOperator(String operator) {
-		log.log(Level.INFO, "handleUnaryOperator: " + operator);
+		Log.debug("handleUnaryOperator: " + operator);
 
 		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
 		UnaryOperatorNode node = new UnaryOperatorNode(operator, (ExpressionNode)list.removeFirst());
@@ -268,7 +262,7 @@ public class AstParser extends CParser {
      * @param id
      */
 	public void handleID(String id) {
-		log.log(Level.INFO, "handleID: " + id);
+		Log.debug("handleID: " + id);
 
 		IdNode node = new IdNode(id);
 
@@ -283,7 +277,7 @@ public class AstParser extends CParser {
      * @param c: const
      */
 	public void handleType(String t, String c) {
-		log.log(Level.INFO, "handleType: " + t + " c=" + c);
+		Log.debug("handleType: " + t + " c=" + c);
 
 		TypeNode node = null;
 
@@ -333,7 +327,7 @@ public class AstParser extends CParser {
 			list.get(0).insertLefMostLeaf(node);
 			((TypeNode) list.get(0)).topLevel = true;
 		} else {
-			// log.log(Level.INFO, "    Inserting node");
+			// Log.debug("    Inserting node");
 			insertNode(0, node);
 		}
 	}
@@ -345,7 +339,7 @@ public class AstParser extends CParser {
      * @param n
      */
 	public void handleStaticArray(String n) {
-		log.log(Level.INFO, "handleStaticArray: " + n);
+		Log.debug("handleStaticArray: " + n);
 
 		Assert.Assert(list.peekFirst() instanceof TypeNode);
 		StaticArrayTypeNode node = new StaticArrayTypeNode(Integer.parseInt(n), (TypeNode)list.removeFirst());
@@ -359,7 +353,7 @@ public class AstParser extends CParser {
      * Handle const keyword in type
      */
 	public void handleConst() {
-		log.log(Level.INFO, "handleConst");
+		Log.debug("handleConst");
 
 		ConstTypeNode node = new ConstTypeNode();
 		insertNode(0, node);
@@ -370,7 +364,7 @@ public class AstParser extends CParser {
      * Handle pointer in type
      */
 	public void handlePointer() {
-		log.log(Level.INFO, "handlePointer");
+		Log.debug("handlePointer");
 
 		PointerTypeNode node = new PointerTypeNode();
 		node.constant = false;
@@ -408,7 +402,7 @@ public class AstParser extends CParser {
      * Handle for statement
      */
 	public void handleForStatement() {
-		log.log(Level.INFO, "handleForStatement");
+		Log.debug("handleForStatement");
 
 		Assert.Assert(list.peekFirst() instanceof StatementNode);
 		StatementNode body = (StatementNode)list.removeFirst();
@@ -425,7 +419,7 @@ public class AstParser extends CParser {
      * Handle return statement
      */
 	public void handleReturnStatement() {
-		log.log(Level.INFO, "handleReturnStatement");
+		Log.debug("handleReturnStatement");
 
 		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
 		ReturnStatementNode node = new ReturnStatementNode((ExpressionNode)list.removeFirst());
@@ -438,7 +432,7 @@ public class AstParser extends CParser {
      * Handle break statement
      */
 	public void handleBreakStatement() {
-		log.log(Level.INFO, "handleBreakStatement");
+		Log.debug("handleBreakStatement");
 
 		BreakStatementNode node = new BreakStatementNode();
 
@@ -450,7 +444,7 @@ public class AstParser extends CParser {
      * Handle continue statement
      */
 	public void handleContinueStatement() {
-		log.log(Level.INFO, "handleContinueStatement");
+		Log.debug("handleContinueStatement");
 
 		ContinueStatementNode node = new ContinueStatementNode();
 
@@ -462,7 +456,7 @@ public class AstParser extends CParser {
      * Handle while statement
      */
 	public void handleWhileStatement() {
-		log.log(Level.INFO, "handleWhileStatement");
+		Log.debug("handleWhileStatement");
 
 		Assert.Assert(list.peekFirst() instanceof StatementNode);
 		StatementNode body = (StatementNode)list.removeFirst();
@@ -479,7 +473,7 @@ public class AstParser extends CParser {
      * Handle if statement
      */
 	public void handleIfStatement() {
-		log.log(Level.INFO, "handleIfStatement");
+		Log.debug("handleIfStatement");
 
 		Node elseBody = list.removeFirst();
 		Assert.Assert(list.peekFirst() instanceof StatementNode);
@@ -497,7 +491,7 @@ public class AstParser extends CParser {
      * Handle 'nothing'
      */
 	public void handleNothing() {
-		log.log(Level.INFO, "handleNothing");
+		Log.debug("handleNothing");
 
 		NothingNode node = new NothingNode();
 
@@ -509,7 +503,7 @@ public class AstParser extends CParser {
      * Handle file
      */
 	public void handleFile() {
-		log.log(Level.INFO, "handleFile");
+		Log.debug("handleFile");
 
 		FileNode node = new FileNode();
 
@@ -548,11 +542,11 @@ public class AstParser extends CParser {
 
 		// FileNode should be the only 1 on the stack
 		if(list.size() != 1) {
-			log.log(Level.INFO, "Stack should contain 1 element");
+			Log.debug("Stack should contain 1 element");
 		} else {
 			root = list.removeFirst();
 			if(!(root instanceof FileNode)) {
-				log.log(Level.INFO, "Root should be a FileNode");
+				Log.debug("Root should be a FileNode");
 			}
 		}
 
