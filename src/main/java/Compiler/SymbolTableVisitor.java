@@ -9,7 +9,7 @@ public class SymbolTableVisitor extends Visitor {
 
 
     /**
-     * Class representing a Symbol
+     * @brief Class representing a Symbol
      *
      * A symbol has an identifier and a TypeNode
      */
@@ -20,13 +20,13 @@ public class SymbolTableVisitor extends Visitor {
 
 
     /**
-     * Class representing a Symbol for a variable
+     * @brief Class representing a Symbol for a variable
      */
     public static class VarSymbol extends Symbol {}
 
 
     /**
-     * Class representing a Symbol for a function
+     * @brief Class representing a Symbol for a function
      *
      * - id
      * - type (= return type)
@@ -59,7 +59,7 @@ public class SymbolTableVisitor extends Visitor {
 
 
     /**
-     * Class representing a Symbol Table
+     * @brief Class representing a Symbol Table
      *
      * A symbol table has a map of identifiers to symbols
      */
