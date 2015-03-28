@@ -3,6 +3,7 @@ package Compiler;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Stack;
+import java.util.Vector;
 
 public class SymbolTableVisitor extends Visitor {
 
@@ -19,34 +20,89 @@ public class SymbolTableVisitor extends Visitor {
 
 
     /**
+     * Class representing a Symbol for a variable
+     */
+    public static class VarSymbol extends Symbol {}
+
+
+    /**
+     * Class representing a Symbol for a function
+     *
+     * - id
+     * - type (= return type)
+     * - paramTypes
+     */
+    public static class FuncSymbol extends Symbol {
+
+        public Vector<Ast.TypeNode> paramTypes = new Vector<>();
+
+
+        /**
+         * Add new parameter type node to the function symbol
+         * @param node: TypeNode
+         */
+        public void addParamType(Ast.TypeNode node) {
+            paramTypes.add(node);
+        }
+
+
+        /**
+         * Add new parameter type node to the function symbol
+         * @param node: TypeNode
+         * @pre node instanceof Ast.TypeNode
+         */
+        public void addParamType(Ast.Node node) {
+            Assert.Assert(node instanceof Ast.TypeNode);
+            paramTypes.add((Ast.TypeNode) node);
+        }
+    }
+
+
+    /**
      * Class representing a Symbol Table
      *
      * A symbol table has a map of identifiers to symbols
      */
 	public static class SymbolTable {
-		public Map<String, Symbol> symbols;
+		private Map<String, Symbol> symbols;
 		
 		public SymbolTable() {
 			symbols = new TreeMap<String, Symbol>();
-		}
-		
-		public String toString() {
-			return "";
 		}
 		
 		
 		/**
 		 * Check if this table contains the symbol
 		 * 
-		 * @param The symbol to check
+		 * @param symbol: The symbol to check
 		 */
-		boolean hasSymbol(String symbol) {
+		public boolean hasSymbol(String symbol) {
 			if(symbols.containsKey(symbol)) {
 				return true;
 			}
 			
 			return false;
 		}
+
+
+        /**
+         * Get symbol from the symbol table
+         * @param id: identifier
+         * @return Symbol
+         */
+        public Symbol getSymbol(String id) {
+            return symbols.get(id);
+        }
+
+
+        /**
+         * Add new symbol to symbol table
+         * @param symbol: symbol to add
+         */
+        public void addSymbol(Symbol symbol) {
+            symbols.put(symbol.id, symbol);
+        }
+
 	}
 
 
@@ -58,7 +114,7 @@ public class SymbolTableVisitor extends Visitor {
 	private Symbol findSymbol(String id) {
 		for(int i = 0; i < symbolTableStack.size(); i++) {
 			if(symbolTableStack.get(i).hasSymbol(id)) {
-				return symbolTableStack.get(i).symbols.get(id);
+				return symbolTableStack.get(i).getSymbol(id);
 			}
 		}
 
@@ -90,14 +146,14 @@ public class SymbolTableVisitor extends Visitor {
 		
 		// Check for multiple declarations
 		if(symbolTableStack.peek().hasSymbol(node.id)) {
-            Log.fatal("Symbol '" + node.id + "' previously declared (on line " + symbolTableStack.peek().symbols.get(node.id).type.line  +")", node.line);
+            Log.fatal("Symbol '" + node.id + "' previously declared (on line " + symbolTableStack.peek().getSymbol(node.id).type.line  +")", node.line);
 		}
 		
 		Symbol symbol = new Symbol();
 		symbol.id = node.id;
         Assert.Assert(node.children.get(0) instanceof Ast.TypeNode);
 		symbol.type = (Ast.TypeNode)node.children.get(0);
-		symbolTableStack.peek().symbols.put(node.id, symbol);
+		symbolTableStack.peek().addSymbol(symbol);
 
 		visitChildren(node);
 	}
@@ -125,10 +181,26 @@ public class SymbolTableVisitor extends Visitor {
      * @param node
      */
 	public void visit(Ast.BlockStatementNode node) {
-		enterNewScope();
+        enterNewScope();
 		visitChildren(node);
 		leaveScope();
 	}
+
+
+    /**
+     * Visit BlockStatementNode
+     *
+     * @param node
+     * @param newScope: bool indicating if block must have a new scope
+     */
+    public void visit(Ast.BlockStatementNode node, boolean newScope) {
+        if(newScope) {
+            visit(node, false);
+        }
+        else {
+            visitChildren(node);
+        }
+    }
 
 
     /**
@@ -138,8 +210,37 @@ public class SymbolTableVisitor extends Visitor {
      */
 	public void visit(Ast.FunctionDeclarationNode node) {
 		enterNewScope();
-		visitChildren(node);
-		leaveScope();
+
+        Assert.Assert(node.children.get(0) instanceof Ast.TypeNode);
+        Assert.Assert(node.children.get(1) instanceof Ast.FormalParametersNode);
+
+        FuncSymbol symbol = new FuncSymbol();
+
+        // set id
+        symbol.id = node.id;
+
+        // set return type
+        symbol.type = (Ast.TypeNode) node.children.get(0);
+
+        // add param types
+        for(int i = 0; i < node.children.get(1).children.size(); i++) {
+            Assert.Assert(node.children.get(1).children.get(i).children.get(0) instanceof Ast.TypeNode);
+            symbol.addParamType(node.children.get(1).children.get(i).children.get(0));
+        }
+
+        symbolTableStack.peek().addSymbol(symbol);
+
+        // visit params
+        for(int i = 0; i < node.children.get(1).children.size(); i++) {
+            Assert.Assert(node.children.get(1).children.get(i) instanceof Ast.FormalParameterNode);
+            visit(node.children.get(1).children.get(i));
+        }
+
+        // visit block
+        Assert.Assert(node.children.get(2) instanceof Ast.BlockStatementNode);
+        visit((Ast.BlockStatementNode) node.children.get(2), false);
+
+        leaveScope();
 	}
 
 
@@ -160,7 +261,7 @@ public class SymbolTableVisitor extends Visitor {
 		symbol.id = node.id;
 		Assert.Assert(node.children.get(0) instanceof Ast.TypeNode);
 		symbol.type = (Ast.TypeNode)node.children.get(0);
-		symbolTableStack.peek().symbols.put(node.id, symbol);
+		symbolTableStack.peek().addSymbol(symbol);
 
 		visitChildren(node);
 	}
