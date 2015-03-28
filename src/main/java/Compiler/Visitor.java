@@ -46,9 +46,6 @@ public abstract class Visitor {
 	 * @param node The node who's children to visit.
 	 */
 	public void visitChildren(Ast.Node node) {
-		for(int i = 0; i < node.children.size(); i++) {
-			node.children.get(i).visit(this);
-		}
 	}
 
 }
