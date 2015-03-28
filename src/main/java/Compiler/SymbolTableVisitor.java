@@ -73,7 +73,7 @@ public class SymbolTableVisitor extends Visitor {
 		
 		/**
 		 * Check if this table contains the symbol
-		 * 
+		 *
 		 * @param symbol: The symbol to check
 		 */
 		public boolean hasSymbol(String symbol) {
@@ -128,7 +128,7 @@ public class SymbolTableVisitor extends Visitor {
      * @param node
      */
 	public void visit(Ast.FileNode node) {
-		System.out.println("file");
+		Log.debug("file");
 		
 		enterNewScope();
 		visitChildren(node);
@@ -142,7 +142,7 @@ public class SymbolTableVisitor extends Visitor {
      * @param node
      */
 	public void visit(Ast.DeclarationNode node) {
-		System.out.println("var declaration");
+		Log.debug("var declaration");
 		
 		// Check for multiple declarations
 		if(symbolTableStack.peek().hasSymbol(node.id)) {
@@ -250,7 +250,7 @@ public class SymbolTableVisitor extends Visitor {
      * @param node
      */
 	public void visit(Ast.FormalParameterNode node) {
-		System.out.println("formal parameter");
+		Log.debug("formal parameter");
 		
 		// Check for multiple declarations
 		if(symbolTableStack.peek().hasSymbol(node.id)) {
@@ -272,12 +272,12 @@ public class SymbolTableVisitor extends Visitor {
     private Stack<SymbolTable> symbolTableStack = new Stack<SymbolTable>();
 
     private void enterNewScope() {
-        System.out.println(">");
+        Log.debug(">");
         symbolTableStack.push(new SymbolTable());
     }
 
     private void leaveScope() {
-        System.out.println("<");
+        Log.debug("<");
         symbolTableStack.pop();
     }
 
