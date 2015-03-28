@@ -52,7 +52,7 @@ public class SymbolTableVisitor extends Visitor {
          * @pre node instanceof Ast.TypeNode
          */
         public void addParamType(Ast.Node node) {
-            Assert.Assert(node instanceof Ast.TypeNode);
+            Assert.Assert(node instanceof Ast.TypeNode, "Expected TypeNode");
             paramTypes.add((Ast.TypeNode) node);
         }
     }
@@ -151,7 +151,7 @@ public class SymbolTableVisitor extends Visitor {
 		
 		Symbol symbol = new Symbol();
 		symbol.id = node.id;
-        Assert.Assert(node.children.get(0) instanceof Ast.TypeNode);
+        Assert.Assert(node.children.get(0) instanceof Ast.TypeNode, "Expected TypeNode");
 		symbol.type = (Ast.TypeNode)node.children.get(0);
 		symbolTableStack.peek().addSymbol(symbol);
 
@@ -211,8 +211,8 @@ public class SymbolTableVisitor extends Visitor {
 	public void visit(Ast.FunctionDeclarationNode node) {
 		enterNewScope();
 
-        Assert.Assert(node.children.get(0) instanceof Ast.TypeNode);
-        Assert.Assert(node.children.get(1) instanceof Ast.FormalParametersNode);
+        Assert.Assert(node.children.get(0) instanceof Ast.TypeNode, "Expected TypeNode");
+        Assert.Assert(node.children.get(1) instanceof Ast.FormalParametersNode, "Expected FormalParametersNode");
 
         FuncSymbol symbol = new FuncSymbol();
 
@@ -224,7 +224,7 @@ public class SymbolTableVisitor extends Visitor {
 
         // add param types
         for(int i = 0; i < node.children.get(1).children.size(); i++) {
-            Assert.Assert(node.children.get(1).children.get(i).children.get(0) instanceof Ast.TypeNode);
+            Assert.Assert(node.children.get(1).children.get(i).children.get(0) instanceof Ast.TypeNode, "Expected TypeNode");
             symbol.addParamType(node.children.get(1).children.get(i).children.get(0));
         }
 
@@ -232,12 +232,12 @@ public class SymbolTableVisitor extends Visitor {
 
         // visit params
         for(int i = 0; i < node.children.get(1).children.size(); i++) {
-            Assert.Assert(node.children.get(1).children.get(i) instanceof Ast.FormalParameterNode);
+            Assert.Assert(node.children.get(1).children.get(i) instanceof Ast.FormalParameterNode, "Expected FormalParameterNode");
             visit(node.children.get(1).children.get(i));
         }
 
         // visit block
-        Assert.Assert(node.children.get(2) instanceof Ast.BlockStatementNode);
+        Assert.Assert(node.children.get(2) instanceof Ast.BlockStatementNode, "Expected BlockStatementNode");
         visit((Ast.BlockStatementNode) node.children.get(2), false);
 
         leaveScope();
@@ -259,7 +259,7 @@ public class SymbolTableVisitor extends Visitor {
 
 		Symbol symbol = new Symbol();
 		symbol.id = node.id;
-		Assert.Assert(node.children.get(0) instanceof Ast.TypeNode);
+		Assert.Assert(node.children.get(0) instanceof Ast.TypeNode, "Expected TypeNode");
 		symbol.type = (Ast.TypeNode)node.children.get(0);
 		symbolTableStack.peek().addSymbol(symbol);
 
