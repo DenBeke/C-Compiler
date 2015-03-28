@@ -1,6 +1,12 @@
 package Compiler;
 
+
+/**
+ * @brief Visitor for Ast
+ */
 public abstract class Visitor {
+
+
 	/*
 	 * Visit a generic node. Will use double dispatch to call the correct
 	 * method. If there is no overridden method for this node, it will lead in infinite recursion.

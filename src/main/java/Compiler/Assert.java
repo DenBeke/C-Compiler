@@ -1,7 +1,7 @@
 package Compiler;
 
 /**
- * Assert wrapper
+ * @brief Assert wrapper
  */
 public class Assert {
 

@@ -7,7 +7,7 @@ public class Ast {
 
 
     /**
-     * Abstract base class of Node
+     * @brief Abstract base class of Node
      */
 	public static abstract class Node {
 
@@ -45,6 +45,12 @@ public class Ast {
 			return result;
 		}
 
+
+        /**
+         * Convert node to string
+         * @param prefix
+         * @return
+         */
 		public String toString(String prefix) {
 			String result = prefix + getClass().getSimpleName() + "\n";
 			result += childrenToString(prefix + "\t");

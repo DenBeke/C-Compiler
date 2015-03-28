@@ -2,6 +2,10 @@ package Compiler;
 
 import org.antlr.v4.runtime.*;
 
+
+/**
+ * @brief Main
+ */
 public class App {
 	public static void main(String[] args) {
 
