@@ -66,11 +66,6 @@ public class Ast {
 			children.add(pos, declaration);
 		}
 		
-		public String toString(String prefix) {
-			String result = prefix + "FileNode\n";
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -81,15 +76,6 @@ public class Ast {
 	public static abstract class TypeNode extends Node {
 		public Boolean constant = false;
 		public Boolean topLevel = false;
-
-		public String toString(String prefix) {
-			String result = prefix + "TypeNode: " + getClass().getSimpleName();
-			if(constant) {
-				result += " const";
-			}
-			result += "\n";
-			return result;
-		}
 	}
 
 	public static class ConstTypeNode extends TypeNode {
@@ -154,11 +140,6 @@ public class Ast {
 			this.value = value;
 		}
 		
-		public String toString(String prefix) {
-			String result = prefix + "IntNode: " + String.valueOf(value);
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -173,11 +154,6 @@ public class Ast {
 			this.value = value;
 		}
 		
-		public String toString(String prefix) {
-			String result = prefix + "CharNode: " + String.valueOf(value);
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -192,11 +168,6 @@ public class Ast {
 			this.value = value;
 		}
 		
-		public String toString(String prefix) {
-			String result = prefix + "StringNode: " + String.valueOf(value);
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -211,11 +182,6 @@ public class Ast {
 
 		public IdNode(String id) {
 			this.id = id;
-		}
-
-		public String toString(String prefix) {
-			String result = prefix + "IdNode: " + id;
-			return result;
 		}
 
 		@Override
@@ -240,13 +206,6 @@ public class Ast {
 			children.add(0, type);
 		}
 		
-		public String toString(String prefix) {
-			String result = prefix + "DeclarationNode: " + id + "\n";
-			return result;
-		}
-		
-		
-		
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -270,11 +229,6 @@ public class Ast {
 			children.add(0, returnType);
 		}
 
-		public String toString(String prefix) {
-			String result = prefix + "FunctionDeclarationNode: " + id + "\n";
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -289,11 +243,6 @@ public class Ast {
 			children.add(pos, param);
 		}
 		
-		public String toString(String prefix) {
-			String result = prefix + "FormalParametersNode:\n";
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -311,11 +260,6 @@ public class Ast {
 			children.add(0, type);
 		}
 		
-		public String toString(String prefix) {
-			String result = prefix + "FormalParameterNode: " + id + "\n";
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -331,11 +275,6 @@ public class Ast {
 			children.add(0, param);
 		}
 		
-		public String toString(String prefix) {
-			String result = prefix + "ParamNode:\n";
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -356,12 +295,6 @@ public class Ast {
 			children.add(pos, param);
 		}
 		
-		public String toString(String prefix) {
-			String result = prefix + "FunctionCallNode: "
-					+ String.valueOf(id) + "\n";
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -384,11 +317,6 @@ public class Ast {
 			children.add(pos, statement);
 		}
 		
-		public String toString(String prefix) {
-			String result = prefix + "BlockStatementNode:\n";
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -404,11 +332,6 @@ public class Ast {
 			children.add(0, expression);
 		}
 		
-		public String toString(String prefix) {
-			String result = prefix + "ExprStatementNode: \n";
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -429,11 +352,6 @@ public class Ast {
 			children.add(0, left);
 		}
 
-		public String toString(String prefix) {
-			String result = prefix + "BinaryOperatorNode: " + operator + "\n";
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -449,11 +367,6 @@ public class Ast {
 			this.expression = expression;
 
 			children.add(0, expression);
-		}
-
-		public String toString(String prefix) {
-			String result = prefix + "UnaryOperatorNode: " + operator + "\n";
-			return result;
 		}
 
 		@Override
@@ -484,11 +397,6 @@ public class Ast {
 			children.add(0, first);
 		}
 		
-		public String toString(String prefix) {
-			String result = prefix + "ForStatementNode:\n";
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -496,11 +404,6 @@ public class Ast {
 	}
 
 	public static class NothingNode extends Node {
-		public String toString(String prefix) {
-			String result = prefix + "NothingNode";
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -516,11 +419,6 @@ public class Ast {
 			children.add(0, expression);
 		}
 		
-		public String toString(String prefix) {
-			String result = prefix + "ReturnStatementNode: \n";
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -539,11 +437,6 @@ public class Ast {
 			children.add(0, condition);
 		}
 		
-		public String toString(String prefix) {
-			String result = prefix + "WhileStatementNode: \n";
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -567,11 +460,6 @@ public class Ast {
 			children.add(0, condition);
 		}
 		
-		public String toString(String prefix) {
-			String result = prefix + "IfStatementNode: \n";
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -579,11 +467,6 @@ public class Ast {
 	}
 
 	public static class BreakStatementNode extends StatementNode {
-		public String toString(String prefix) {
-			String result = prefix + "BreakStatementNode: \n";
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -591,11 +474,6 @@ public class Ast {
 	}
 
 	public static class ContinueStatementNode extends StatementNode {
-		public String toString(String prefix) {
-			String result = prefix + "ContinueStatementNode: \n";
-			return result;
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
