@@ -556,7 +556,6 @@ public class AstParser extends CParser {
 			}
 		}
 
-		System.out.println(root.toString());
 		return root;
 	};
 }

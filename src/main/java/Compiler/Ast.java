@@ -35,6 +35,26 @@ public class Ast {
 			}
 		}
 
+		public String childrenToString(String prefix) {
+			String result = "";
+
+			for(int i = 0; i < children.size(); i++) {
+				result += children.get(i).toString(prefix) + "\n";
+			}
+
+			return result;
+		}
+
+		public String toString(String prefix) {
+			String result = prefix + getClass().getSimpleName() + "\n";
+			result += childrenToString(prefix + "\t");
+
+			return result;
+		}
+		
+		public String toString() {
+			return toString("");
+		}
 	}
 
 	public static class FileNode extends Node {

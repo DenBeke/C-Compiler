@@ -12,6 +12,10 @@ public class App {
 			CommonTokenStream tokens = new CommonTokenStream(lexer);
 			AstParser parser = new AstParser(tokens);
 			Ast.Node root = parser.buildAst();
+			Visitor visitor = new SymbolTableVisitor();
+			visitor.visit(root);
+			System.out.println(root.toString());
+
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
