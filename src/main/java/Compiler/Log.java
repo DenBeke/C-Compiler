@@ -15,9 +15,15 @@ package Compiler;
  */
 public class Log {
 
-    public static String level  = new String("ALL"); // NONE, ALL, ERROR, WARNING, NOTICE
-    public static boolean debug = true;
+    public static String level      = new String("ALL"); // NONE, ALL, ERROR, WARNING, NOTICE
+    public static boolean debug     = true;
+    public static boolean exception = false;
 
+    public static class FatalException extends RuntimeException {
+        public FatalException(String msg) {
+            super(msg);
+        }
+    }
 
     /**
      * Log fatal error (program will be killed)
@@ -26,6 +32,9 @@ public class Log {
      * @param line
      */
     public static void fatal(String message, int line) {
+        if(exception) {
+            throw new FatalException(line + ": " + message);
+        }
         if(!level.equals("NONE")) {
             System.out.println((char) 27 + "[31m"
                     + "[ERROR] line " + line + ": "
