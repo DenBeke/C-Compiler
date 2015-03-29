@@ -58,7 +58,7 @@ formalParameters
 	;
 
 formalParameter
-	: type id=ID {handleFormalParameter($id.text);}
+	: type (id=ID)? {handleFormalParameter($id.text);}
 	;
 
 block
