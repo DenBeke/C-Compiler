@@ -16,3 +16,8 @@ void main() {
 }
 
 int a = 2;
+
+char a[123];
+
+const char* test[12];
+char const test[12];

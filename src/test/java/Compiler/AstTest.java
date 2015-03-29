@@ -53,13 +53,17 @@ public class AstTest extends TestCase {
 	public void testFile1() {
 		Log.debug("testFile1");
 
-		assertTrue("Should have 3 children", ast1.children.size() == 3);
+		assertTrue("Should have 6 children", ast1.children.size() == 6);
 		assertTrue("Should be variable declaration",
 				ast1.children.get(0) instanceof Ast.DeclarationNode);
 		assertTrue("Should be function declaration",
 				ast1.children.get(1) instanceof Ast.FunctionDeclarationNode);
 		assertTrue("Should be variable declaration",
 				ast1.children.get(2) instanceof Ast.DeclarationNode);
+		assertTrue("Should be variable declaration",
+				ast1.children.get(3) instanceof Ast.DeclarationNode);
+		assertTrue("Should be variable declaration",
+				ast1.children.get(4) instanceof Ast.DeclarationNode);
 	}
 
 	public void testFunctionDeclaration1() {
@@ -102,6 +106,32 @@ public class AstTest extends TestCase {
 				decl2.children.get(1) instanceof Ast.IntNode);
 		assertTrue("Declaration should be assigned with value 2",
 				((Ast.IntNode) decl2.children.get(1)).value == 2);
+	}
+	
+	public void testArrayDeclaration1() {
+		Log.debug("testArrayDeclaration1");
+
+		Ast.DeclarationNode decl1 = (Ast.DeclarationNode)ast1.children.get(3);
+		assertTrue("Should not be constant", !decl1.type.constant);
+		assertTrue("Id should be 'a'", decl1.id.equals("a"));
+		assertTrue("Should be StaticArrayTypeNode", decl1.type instanceof Ast.StaticArrayTypeNode);
+		assertTrue("Size should be 123", ((Ast.StaticArrayTypeNode)decl1.type).size.equals(123));
+		assertTrue("Should be CharTypeNode", decl1.type.children.get(0) instanceof Ast.CharTypeNode);
+		
+		Ast.DeclarationNode decl2 = (Ast.DeclarationNode)ast1.children.get(4);
+		assertTrue("Id should be 'test'", decl2.id.equals("test"));
+		assertTrue("Should be StaticArrayTypeNode", decl2.type instanceof Ast.StaticArrayTypeNode);
+		assertTrue("Size should be 12", ((Ast.StaticArrayTypeNode)decl2.type).size.equals(12));
+		assertTrue("Should be PointerTypeNode", decl2.type.children.get(0) instanceof Ast.PointerTypeNode);
+		assertTrue("Should be CharTypeNode", decl2.type.children.get(0).children.get(0) instanceof Ast.CharTypeNode);
+		assertTrue("Should be constant",  ((Ast.TypeNode)decl2.type.children.get(0).children.get(0)).constant.equals(true));
+		
+		Ast.DeclarationNode decl3 = (Ast.DeclarationNode)ast1.children.get(5);
+		assertTrue("Id should be 'test'", decl3.id.equals("test"));
+		assertTrue("Should be StaticArrayTypeNode", decl3.type instanceof Ast.StaticArrayTypeNode);
+		assertTrue("Size should be 12", ((Ast.StaticArrayTypeNode)decl3.type).size.equals(12));
+		assertTrue("Should be CharTypeNode", decl3.type.children.get(0) instanceof Ast.CharTypeNode);
+		assertTrue("Should be constant",  ((Ast.TypeNode)decl3.type.children.get(0)).constant.equals(true));
 	}
 
 	public void testFile2() {
