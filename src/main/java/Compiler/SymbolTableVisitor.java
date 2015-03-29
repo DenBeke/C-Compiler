@@ -98,7 +98,7 @@ public class SymbolTableVisitor extends Visitor {
 		 * @param symbol
 		 *            : symbol to add
 		 */
-		public void addSymbol(Symbol symbol) {
+		public void addSymbol(Symbol symbol) {		
 			symbols.put(symbol.id, symbol);
 		}
 
@@ -262,6 +262,12 @@ public class SymbolTableVisitor extends Visitor {
 	@Override
 	public void visit(Ast.FormalParameterNode node) {
 		Log.debug("formal parameter");
+		
+		// Skip anonymous parameters (with no id)
+		if(node.id == null) {
+			visitChildren(node);
+			return;
+		}
 
 		// Check for multiple declarations
 		if(symbolTableStack.peek().hasSymbol(node.id)) {

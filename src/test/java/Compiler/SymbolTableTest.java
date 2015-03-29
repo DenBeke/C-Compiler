@@ -56,7 +56,7 @@ public class SymbolTableTest extends TestCase {
 				// OK if no exception was thrown
 				assertTrue(true);
 
-				is = new FileInputStream("src/test/input/good1.c");
+				is = new FileInputStream("src/test/input/symboltable/good1.c");
 				input = new ANTLRInputStream(is);
 				lexer = new CLexer(input);
 				parser = new AstParser(new CommonTokenStream(lexer));
