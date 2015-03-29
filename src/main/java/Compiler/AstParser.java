@@ -1,9 +1,41 @@
 package Compiler;
 
 import java.util.LinkedList;
-import org.antlr.v4.runtime.*;
 
-import Compiler.Ast.*;
+import org.antlr.v4.runtime.TokenStream;
+
+import Compiler.Ast.BinaryOperatorNode;
+import Compiler.Ast.BlockStatementNode;
+import Compiler.Ast.BreakStatementNode;
+import Compiler.Ast.CharNode;
+import Compiler.Ast.CharTypeNode;
+import Compiler.Ast.ConstTypeNode;
+import Compiler.Ast.ContinueStatementNode;
+import Compiler.Ast.DeclarationNode;
+import Compiler.Ast.ExprStatementNode;
+import Compiler.Ast.ExpressionNode;
+import Compiler.Ast.FileNode;
+import Compiler.Ast.ForStatementNode;
+import Compiler.Ast.FormalParameterNode;
+import Compiler.Ast.FormalParametersNode;
+import Compiler.Ast.FunctionCallNode;
+import Compiler.Ast.FunctionDeclarationNode;
+import Compiler.Ast.IdNode;
+import Compiler.Ast.IfStatementNode;
+import Compiler.Ast.IntNode;
+import Compiler.Ast.IntTypeNode;
+import Compiler.Ast.Node;
+import Compiler.Ast.NothingNode;
+import Compiler.Ast.ParamNode;
+import Compiler.Ast.PointerTypeNode;
+import Compiler.Ast.ReturnStatementNode;
+import Compiler.Ast.StatementNode;
+import Compiler.Ast.StaticArrayTypeNode;
+import Compiler.Ast.StringNode;
+import Compiler.Ast.TypeNode;
+import Compiler.Ast.UnaryOperatorNode;
+import Compiler.Ast.VoidTypeNode;
+import Compiler.Ast.WhileStatementNode;
 
 public class AstParser extends CParser {
 
@@ -20,6 +52,7 @@ public class AstParser extends CParser {
 	 *
 	 * @param id
 	 */
+	@Override
 	public void handleVarDecl(String id) {
 		Log.debug("handleVarDecl: " + id);
 
@@ -39,6 +72,7 @@ public class AstParser extends CParser {
 	 *
 	 * @param id
 	 */
+	@Override
 	public void handleFuncDecl(String id) {
 		Log.debug("handleFuncDecl: " + id);
 
@@ -67,6 +101,7 @@ public class AstParser extends CParser {
 	/**
 	 * Handle formal parameters (of a function declaration)
 	 */
+	@Override
 	public void handleFormalParameters() {
 		Log.debug("handleFormalParameters");
 
@@ -92,6 +127,7 @@ public class AstParser extends CParser {
 	 *
 	 * @param id
 	 */
+	@Override
 	public void handleFormalParameter(String id) {
 		Log.debug("handleFormalParameter: " + id);
 
@@ -106,6 +142,7 @@ public class AstParser extends CParser {
 	/**
 	 * Handle block
 	 */
+	@Override
 	public void handleBlock() {
 		Log.debug("handleBlock");
 
@@ -128,6 +165,7 @@ public class AstParser extends CParser {
 	/**
 	 * Handle expression
 	 */
+	@Override
 	public void handleExpr() {
 		Log.debug("handleExpr");
 	}
@@ -135,6 +173,7 @@ public class AstParser extends CParser {
 	/**
 	 * Handle expression statement
 	 */
+	@Override
 	public void handleExprStatement() {
 		Log.debug("handleExprStatement");
 
@@ -150,6 +189,7 @@ public class AstParser extends CParser {
 	 *
 	 * @param n
 	 */
+	@Override
 	public void handleInt(String n) {
 		Log.debug("handleInt " + n);
 
@@ -162,6 +202,7 @@ public class AstParser extends CParser {
 	 *
 	 * @param n
 	 */
+	@Override
 	public void handleChar(String n) {
 		Log.debug("handleChar " + n);
 
@@ -174,6 +215,7 @@ public class AstParser extends CParser {
 	 *
 	 * @param n
 	 */
+	@Override
 	public void handleString(String n) {
 		Log.debug("handleString " + n);
 
@@ -184,6 +226,7 @@ public class AstParser extends CParser {
 	/**
 	 * Handle function parameter
 	 */
+	@Override
 	public void handleParam() {
 		Log.debug("handleParam");
 
@@ -198,6 +241,7 @@ public class AstParser extends CParser {
 	 *
 	 * @param n
 	 */
+	@Override
 	public void handleFunctionCall(String n) {
 		Log.debug("handleFunctionCall " + n);
 
@@ -216,6 +260,7 @@ public class AstParser extends CParser {
 	 *
 	 * @param operator
 	 */
+	@Override
 	public void handleBinaryOperator(String operator) {
 		Log.debug("handleBinaryOperator: " + operator);
 
@@ -234,6 +279,7 @@ public class AstParser extends CParser {
 	 *
 	 * @param operator
 	 */
+	@Override
 	public void handleUnaryOperator(String operator) {
 		Log.debug("handleUnaryOperator: " + operator);
 
@@ -249,6 +295,7 @@ public class AstParser extends CParser {
 	 *
 	 * @param id
 	 */
+	@Override
 	public void handleID(String id) {
 		Log.debug("handleID: " + id);
 
@@ -265,6 +312,7 @@ public class AstParser extends CParser {
 	 * @param c
 	 *            : const
 	 */
+	@Override
 	public void handleType(String t, String c) {
 		Log.debug("handleType: " + t + " c=" + c);
 
@@ -326,6 +374,7 @@ public class AstParser extends CParser {
 	 *
 	 * @param n
 	 */
+	@Override
 	public void handleStaticArray(String n) {
 		Log.debug("handleStaticArray: " + n);
 
@@ -340,6 +389,7 @@ public class AstParser extends CParser {
 	/**
 	 * Handle const keyword in type
 	 */
+	@Override
 	public void handleConst() {
 		Log.debug("handleConst");
 
@@ -350,6 +400,7 @@ public class AstParser extends CParser {
 	/**
 	 * Handle pointer in type
 	 */
+	@Override
 	public void handlePointer() {
 		Log.debug("handlePointer");
 
@@ -387,6 +438,7 @@ public class AstParser extends CParser {
 	/**
 	 * Handle for statement
 	 */
+	@Override
 	public void handleForStatement() {
 		Log.debug("handleForStatement");
 
@@ -403,6 +455,7 @@ public class AstParser extends CParser {
 	/**
 	 * Handle return statement
 	 */
+	@Override
 	public void handleReturnStatement() {
 		Log.debug("handleReturnStatement");
 
@@ -416,6 +469,7 @@ public class AstParser extends CParser {
 	/**
 	 * Handle break statement
 	 */
+	@Override
 	public void handleBreakStatement() {
 		Log.debug("handleBreakStatement");
 
@@ -427,6 +481,7 @@ public class AstParser extends CParser {
 	/**
 	 * Handle continue statement
 	 */
+	@Override
 	public void handleContinueStatement() {
 		Log.debug("handleContinueStatement");
 
@@ -438,6 +493,7 @@ public class AstParser extends CParser {
 	/**
 	 * Handle while statement
 	 */
+	@Override
 	public void handleWhileStatement() {
 		Log.debug("handleWhileStatement");
 
@@ -454,6 +510,7 @@ public class AstParser extends CParser {
 	/**
 	 * Handle if statement
 	 */
+	@Override
 	public void handleIfStatement() {
 		Log.debug("handleIfStatement");
 
@@ -471,6 +528,7 @@ public class AstParser extends CParser {
 	/**
 	 * Handle 'nothing'
 	 */
+	@Override
 	public void handleNothing() {
 		Log.debug("handleNothing");
 
@@ -482,6 +540,7 @@ public class AstParser extends CParser {
 	/**
 	 * Handle file
 	 */
+	@Override
 	public void handleFile() {
 		Log.debug("handleFile");
 
@@ -494,10 +553,12 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+	@Override
 	public void startScope() {
 		scope += 1;
 	}
 
+	@Override
 	public void endScope() {
 		scope -= 1;
 	}

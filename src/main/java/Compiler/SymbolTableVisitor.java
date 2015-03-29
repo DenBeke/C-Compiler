@@ -1,8 +1,8 @@
 package Compiler;
 
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Stack;
+import java.util.TreeMap;
 import java.util.Vector;
 
 public class SymbolTableVisitor extends Visitor {
@@ -125,6 +125,7 @@ public class SymbolTableVisitor extends Visitor {
 	 *
 	 * @param node
 	 */
+	@Override
 	public void visit(Ast.FileNode node) {
 		Log.debug("file");
 
@@ -138,6 +139,7 @@ public class SymbolTableVisitor extends Visitor {
 	 *
 	 * @param node
 	 */
+	@Override
 	public void visit(Ast.DeclarationNode node) {
 		Log.debug("var declaration");
 
@@ -163,6 +165,7 @@ public class SymbolTableVisitor extends Visitor {
 	 *
 	 * @param node
 	 */
+	@Override
 	public void visit(Ast.IdNode node) {
 		Symbol symbol = findSymbol(node.id);
 		if(symbol == null) {
@@ -179,6 +182,7 @@ public class SymbolTableVisitor extends Visitor {
 	 *
 	 * @param node
 	 */
+	@Override
 	public void visit(Ast.BlockStatementNode node) {
 		enterNewScope();
 		visitChildren(node);
@@ -205,6 +209,7 @@ public class SymbolTableVisitor extends Visitor {
 	 *
 	 * @param node
 	 */
+	@Override
 	public void visit(Ast.FunctionDeclarationNode node) {
 
 		Assert.Assert(node.children.get(0) instanceof Ast.TypeNode,
@@ -254,6 +259,7 @@ public class SymbolTableVisitor extends Visitor {
 	 *
 	 * @param node
 	 */
+	@Override
 	public void visit(Ast.FormalParameterNode node) {
 		Log.debug("formal parameter");
 

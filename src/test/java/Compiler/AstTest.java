@@ -9,9 +9,13 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
 
-import Compiler.Ast.*;
+import Compiler.Ast.FormalParameterNode;
+import Compiler.Ast.IntTypeNode;
+import Compiler.Ast.Node;
+import Compiler.Ast.PointerTypeNode;
 
 /**
  * Unit test for ast.
