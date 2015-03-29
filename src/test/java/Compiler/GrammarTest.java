@@ -35,7 +35,7 @@ public class GrammarTest extends TestCase {
 
 	public void testLexer() {
 		try {
-			InputStream is = new FileInputStream("src/test/input/good1.c");
+			InputStream is = new FileInputStream("src/test/input/grammar/good1.c");
 			ANTLRInputStream input = new ANTLRInputStream(is);
 			CLexer lexer = new CLexer(input);
 			CParser parser = new CParser(new CommonTokenStream(lexer));
@@ -45,7 +45,7 @@ public class GrammarTest extends TestCase {
 			parser.file();
 			assertTrue(parser.getNumberOfSyntaxErrors() == 0);
 
-			is = new FileInputStream("src/test/input/bad1.c");
+			is = new FileInputStream("src/test/input/grammar/bad1.c");
 			input = new ANTLRInputStream(is);
 			lexer = new CLexer(input);
 			parser = new CParser(new CommonTokenStream(lexer));
@@ -55,7 +55,7 @@ public class GrammarTest extends TestCase {
 			parser.file();
 			assertTrue(parser.getNumberOfSyntaxErrors() != 0);
 
-			is = new FileInputStream("src/test/input/bad2.c");
+			is = new FileInputStream("src/test/input/grammar/bad2.c");
 			input = new ANTLRInputStream(is);
 			lexer = new CLexer(input);
 			parser = new CParser(new CommonTokenStream(lexer));
@@ -65,7 +65,7 @@ public class GrammarTest extends TestCase {
 			parser.file();
 			assertTrue(parser.getNumberOfSyntaxErrors() != 0);
 
-			is = new FileInputStream("src/test/input/bad3.c");
+			is = new FileInputStream("src/test/input/grammar/bad3.c");
 			input = new ANTLRInputStream(is);
 			lexer = new CLexer(input);
 			parser = new CParser(new CommonTokenStream(lexer));
