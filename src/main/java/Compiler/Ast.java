@@ -10,6 +10,7 @@ public class Ast {
 	 */
 	public static abstract class Node {
 
+		// handleBlock() uses this to know which nodes should be added to the block.
 		public int scope;
 		public int line = -1;
 
