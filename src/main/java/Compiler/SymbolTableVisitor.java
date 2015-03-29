@@ -195,7 +195,7 @@ public class SymbolTableVisitor extends Visitor {
      */
     public void visit(Ast.BlockStatementNode node, boolean newScope) {
         if(newScope) {
-            visit(node, false);
+            visit(node);
         }
         else {
             visitChildren(node);
@@ -209,7 +209,6 @@ public class SymbolTableVisitor extends Visitor {
      * @param node
      */
 	public void visit(Ast.FunctionDeclarationNode node) {
-		enterNewScope();
 
         Assert.Assert(node.children.get(0) instanceof Ast.TypeNode, "Expected TypeNode");
         Assert.Assert(node.children.get(1) instanceof Ast.FormalParametersNode, "Expected FormalParametersNode");
@@ -229,6 +228,8 @@ public class SymbolTableVisitor extends Visitor {
         }
 
         symbolTableStack.peek().addSymbol(symbol);
+
+        enterNewScope();
 
         // visit params
         for(int i = 0; i < node.children.get(1).children.size(); i++) {
@@ -250,7 +251,7 @@ public class SymbolTableVisitor extends Visitor {
      * @param node
      */
 	public void visit(Ast.FormalParameterNode node) {
-		Log.debug("formal parameter");
+        Log.debug("formal parameter");
 		
 		// Check for multiple declarations
 		if(symbolTableStack.peek().hasSymbol(node.id)) {

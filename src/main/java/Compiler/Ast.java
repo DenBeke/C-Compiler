@@ -39,6 +39,7 @@ public class Ast {
 			String result = "";
 
 			for(int i = 0; i < children.size(); i++) {
+                Assert.Assert(children.get(i) != null, "children.get(i) cannot be null");
 				result += children.get(i).toString(prefix) + "\n";
 			}
 
@@ -454,7 +455,7 @@ public class Ast {
 		private StatementNode body;
 		private Node elseBody;
 
-		public IfStatementNode(ExpressionNode conditoin, StatementNode body, Node elseBody) {
+		public IfStatementNode(ExpressionNode condition, StatementNode body, Node elseBody) {
 			Assert.Assert(elseBody instanceof NothingNode || elseBody instanceof StatementNode);
 			
 			this.condition = condition;

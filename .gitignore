@@ -1,4 +1,7 @@
 target
+a.out
+test.c
+documentation/
 .classpath
 .externalToolBuilders/
 .idea/

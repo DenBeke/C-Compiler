@@ -55,10 +55,10 @@ void* funcA(char* abc) {
 		return 'a';
 	}
 
-	for(int i = 0; i < 10; i++) {
+	for(i = 0; i < 10; i++) {
 		continue;
 	}
-
+	int a = 0;
 	for(a = 5;;) {
 		if(1==2)
 			funcB(a);

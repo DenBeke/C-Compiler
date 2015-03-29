@@ -52,7 +52,9 @@ public abstract class Visitor {
 	 * @param node The node who's children to visit.
 	 */
 	public void visitChildren(Ast.Node node) {
+        Assert.Assert(node.children != null, "node.children cannot be null?!");
 		for(int i = 0; i < node.children.size(); i++) {
+            Assert.Assert(node.children.get(i) != null, "node.children.get(i) cannot be null?!");
 			node.children.get(i).visit(this);
 		}
 	}
