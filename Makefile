@@ -6,7 +6,7 @@ build:
 run:
 	mvn exec:java -Dexec.mainClass="Compiler.App"
 
-test-all:
+test:
 	mvn test
 
 test-ast:
