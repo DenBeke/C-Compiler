@@ -5,27 +5,27 @@ import Compiler.SymbolTableVisitor.*;
 
 public class Ast {
 
-
-    /**
-     * @brief Abstract base class of Node
-     */
+	/**
+	 * @brief Abstract base class of Node
+	 */
 	public static abstract class Node {
 
-        public int scope;
-        public int line = -1;
+		public int scope;
+		public int line = -1;
 
-        /**
-         * Abstract visitor node
-         *
-         * @param visitor
-         */
+		/**
+		 * Abstract visitor node
+		 *
+		 * @param visitor
+		 */
 		public abstract void visit(Visitor visitor);
 
 		public Vector<Node> children = new Vector<Node>();
+
 		public Boolean hasChildren() {
 			return children.size() > 0;
 		}
-		
+
 		public void insertLefMostLeaf(Node n) {
 			Assert.Assert(this instanceof PointerTypeNode);
 			if(hasChildren()) {
@@ -39,26 +39,27 @@ public class Ast {
 			String result = "";
 
 			for(int i = 0; i < children.size(); i++) {
-                Assert.Assert(children.get(i) != null, "children.get(i) cannot be null");
+				Assert.Assert(children.get(i) != null,
+						"children.get(i) cannot be null");
 				result += children.get(i).toString(prefix) + "\n";
 			}
 
 			return result;
 		}
 
-
-        /**
-         * Convert node to string
-         * @param prefix
-         * @return
-         */
+		/**
+		 * Convert node to string
+		 * 
+		 * @param prefix
+		 * @return
+		 */
 		public String toString(String prefix) {
 			String result = prefix + getClass().getSimpleName() + "\n";
 			result += childrenToString(prefix + "\t");
 
 			return result;
 		}
-		
+
 		public String toString() {
 			return toString("");
 		}
@@ -68,11 +69,12 @@ public class Ast {
 		private Vector<Node> declarations = new Vector<Node>();
 
 		public void addDeclaration(int pos, Node declaration) {
-			Assert.Assert(declaration instanceof DeclarationNode || declaration instanceof FunctionDeclarationNode);
+			Assert.Assert(declaration instanceof DeclarationNode
+					|| declaration instanceof FunctionDeclarationNode);
 			declarations.add(pos, declaration);
 			children.add(pos, declaration);
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -130,7 +132,7 @@ public class Ast {
 
 			children.add(0, type);
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -146,7 +148,7 @@ public class Ast {
 		public IntNode(Integer value) {
 			this.value = value;
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -160,7 +162,7 @@ public class Ast {
 		public CharNode(Character value) {
 			this.value = value;
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -174,7 +176,7 @@ public class Ast {
 		public StringNode(String value) {
 			this.value = value;
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -203,8 +205,10 @@ public class Ast {
 		// Nothing or Expression
 		public Node initializer;
 
-		public DeclarationNode(String id, Ast.TypeNode type, Ast.Node initializer) {
-			Assert.Assert(initializer instanceof NothingNode || initializer instanceof ExpressionNode);
+		public DeclarationNode(String id, Ast.TypeNode type,
+				Ast.Node initializer) {
+			Assert.Assert(initializer instanceof NothingNode
+					|| initializer instanceof ExpressionNode);
 			this.id = id;
 			this.type = type;
 			this.initializer = initializer;
@@ -212,7 +216,7 @@ public class Ast {
 			children.add(0, initializer);
 			children.add(0, type);
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -225,7 +229,8 @@ public class Ast {
 		public FormalParametersNode params;
 		public BlockStatementNode block;
 
-		public FunctionDeclarationNode(String id, TypeNode returnType, FormalParametersNode params, BlockStatementNode block) {
+		public FunctionDeclarationNode(String id, TypeNode returnType,
+				FormalParametersNode params, BlockStatementNode block) {
 			this.id = id;
 			this.returnType = returnType;
 			this.params = params;
@@ -249,7 +254,7 @@ public class Ast {
 			params.add(pos, param);
 			children.add(pos, param);
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -266,7 +271,7 @@ public class Ast {
 
 			children.add(0, type);
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -281,7 +286,7 @@ public class Ast {
 
 			children.add(0, param);
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -301,7 +306,7 @@ public class Ast {
 
 			children.add(pos, param);
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -323,7 +328,7 @@ public class Ast {
 
 			children.add(pos, statement);
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -338,7 +343,7 @@ public class Ast {
 
 			children.add(0, expression);
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -350,7 +355,8 @@ public class Ast {
 		private ExpressionNode left;
 		private ExpressionNode right;
 
-		public BinaryOperatorNode(String operator, ExpressionNode left, ExpressionNode right) {
+		public BinaryOperatorNode(String operator, ExpressionNode left,
+				ExpressionNode right) {
 			this.operator = operator;
 			this.left = left;
 			this.right = right;
@@ -388,10 +394,14 @@ public class Ast {
 		private Node third;
 		private StatementNode body;
 
-		public ForStatementNode(Node first, Node second, Node third, StatementNode body) {
-			Assert.Assert(first instanceof NothingNode || first instanceof ExpressionNode);
-			Assert.Assert(second instanceof NothingNode || second instanceof ExpressionNode);
-			Assert.Assert(third instanceof NothingNode || third instanceof ExpressionNode);
+		public ForStatementNode(Node first, Node second, Node third,
+				StatementNode body) {
+			Assert.Assert(first instanceof NothingNode
+					|| first instanceof ExpressionNode);
+			Assert.Assert(second instanceof NothingNode
+					|| second instanceof ExpressionNode);
+			Assert.Assert(third instanceof NothingNode
+					|| third instanceof ExpressionNode);
 
 			this.first = first;
 			this.second = second;
@@ -403,7 +413,7 @@ public class Ast {
 			children.add(0, second);
 			children.add(0, first);
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -425,7 +435,7 @@ public class Ast {
 
 			children.add(0, expression);
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -443,7 +453,7 @@ public class Ast {
 			children.add(0, body);
 			children.add(0, condition);
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -455,9 +465,11 @@ public class Ast {
 		private StatementNode body;
 		private Node elseBody;
 
-		public IfStatementNode(ExpressionNode condition, StatementNode body, Node elseBody) {
-			Assert.Assert(elseBody instanceof NothingNode || elseBody instanceof StatementNode);
-			
+		public IfStatementNode(ExpressionNode condition, StatementNode body,
+				Node elseBody) {
+			Assert.Assert(elseBody instanceof NothingNode
+					|| elseBody instanceof StatementNode);
+
 			this.condition = condition;
 			this.body = body;
 			this.elseBody = elseBody;
@@ -466,7 +478,7 @@ public class Ast {
 			children.add(0, body);
 			children.add(0, condition);
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);

@@ -7,7 +7,7 @@ import Compiler.Ast.*;
 
 public class AstParser extends CParser {
 
-    private Node root;
+	private Node root;
 	private LinkedList<Node> list;
 	private int scope = 0;
 
@@ -15,32 +15,30 @@ public class AstParser extends CParser {
 		super(input);
 	}
 
-
-    /**
-     * Handle variable declaration
-     *
-     * @param id
-     */
+	/**
+	 * Handle variable declaration
+	 *
+	 * @param id
+	 */
 	public void handleVarDecl(String id) {
 		Log.debug("handleVarDecl: " + id);
 
 		// Initializer
-		Ast.Node initializer =  list.removeFirst();
+		Ast.Node initializer = list.removeFirst();
 
 		// type
 		Assert.Assert(list.peekFirst() instanceof TypeNode);
-		TypeNode type = (TypeNode)list.removeFirst();
-		
+		TypeNode type = (TypeNode) list.removeFirst();
+
 		DeclarationNode node = new DeclarationNode(id, type, initializer);
 		insertNode(0, node);
 	}
-		
 
-    /**
-     * Handle function declaration
-     *
-     * @param id
-     */
+	/**
+	 * Handle function declaration
+	 *
+	 * @param id
+	 */
 	public void handleFuncDecl(String id) {
 		Log.debug("handleFuncDecl: " + id);
 
@@ -49,27 +47,26 @@ public class AstParser extends CParser {
 		if(list.size() < 2 || !(list.get(1) instanceof FormalParametersNode)) {
 			params = new FormalParametersNode();
 		} else {
-			params = (FormalParametersNode)list.remove(1);
+			params = (FormalParametersNode) list.remove(1);
 		}
 
 		// Block
 		Assert.Assert(list.peekFirst() instanceof BlockStatementNode);
-		BlockStatementNode body = (BlockStatementNode)list.removeFirst();
+		BlockStatementNode body = (BlockStatementNode) list.removeFirst();
 
 		// Return type
 		Assert.Assert(list.peekFirst() instanceof TypeNode);
-		TypeNode returnType = (TypeNode)list.removeFirst();
-		
-		FunctionDeclarationNode node = new FunctionDeclarationNode(id, returnType, params, body);
+		TypeNode returnType = (TypeNode) list.removeFirst();
+
+		FunctionDeclarationNode node = new FunctionDeclarationNode(id,
+				returnType, params, body);
 
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle formal parameters
-     * (of a function declaration)
-     */
+	/**
+	 * Handle formal parameters (of a function declaration)
+	 */
 	public void handleFormalParameters() {
 		Log.debug("handleFormalParameters");
 
@@ -82,34 +79,33 @@ public class AstParser extends CParser {
 				break;
 			}
 
-			FormalParameterNode param = (FormalParameterNode)list.removeFirst();
+			FormalParameterNode param = (FormalParameterNode) list
+					.removeFirst();
 			node.addParam(0, param);
 		}
 
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle one single formal parameter
-     *
-     * @param id
-     */
+	/**
+	 * Handle one single formal parameter
+	 *
+	 * @param id
+	 */
 	public void handleFormalParameter(String id) {
 		Log.debug("handleFormalParameter: " + id);
 
 		Assert.Assert(list.peekFirst() instanceof TypeNode);
-		TypeNode type = (TypeNode)list.removeFirst();
+		TypeNode type = (TypeNode) list.removeFirst();
 
 		FormalParameterNode node = new FormalParameterNode(id, type);
-		
+
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle block
-     */
+	/**
+	 * Handle block
+	 */
 	public void handleBlock() {
 		Log.debug("handleBlock");
 
@@ -123,39 +119,37 @@ public class AstParser extends CParser {
 				break;
 			}
 
-			node.addStatement(0, (StatementNode)list.removeFirst());
+			node.addStatement(0, (StatementNode) list.removeFirst());
 		}
 
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle expression
-     */
+	/**
+	 * Handle expression
+	 */
 	public void handleExpr() {
 		Log.debug("handleExpr");
 	}
 
-
-    /**
-     * Handle expression statement
-     */
+	/**
+	 * Handle expression statement
+	 */
 	public void handleExprStatement() {
 		Log.debug("handleExprStatement");
 
 		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
-		ExprStatementNode node = new ExprStatementNode((ExpressionNode)list.removeFirst());
+		ExprStatementNode node = new ExprStatementNode(
+				(ExpressionNode) list.removeFirst());
 
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle int literal
-     *
-     * @param n
-     */
+	/**
+	 * Handle int literal
+	 *
+	 * @param n
+	 */
 	public void handleInt(String n) {
 		Log.debug("handleInt " + n);
 
@@ -163,12 +157,11 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle char literal
-     *
-     * @param n
-     */
+	/**
+	 * Handle char literal
+	 *
+	 * @param n
+	 */
 	public void handleChar(String n) {
 		Log.debug("handleChar " + n);
 
@@ -176,12 +169,11 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle string literal
-     *
-     * @param n
-     */
+	/**
+	 * Handle string literal
+	 *
+	 * @param n
+	 */
 	public void handleString(String n) {
 		Log.debug("handleString " + n);
 
@@ -189,78 +181,74 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle function parameter
-     */
+	/**
+	 * Handle function parameter
+	 */
 	public void handleParam() {
 		Log.debug("handleParam");
 
 		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
-		ParamNode node = new ParamNode((ExpressionNode)list.removeFirst());
-		
+		ParamNode node = new ParamNode((ExpressionNode) list.removeFirst());
+
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle function call
-     *
-     * @param n
-     */
+	/**
+	 * Handle function call
+	 *
+	 * @param n
+	 */
 	public void handleFunctionCall(String n) {
 		Log.debug("handleFunctionCall " + n);
 
 		FunctionCallNode node = new FunctionCallNode(n);
 
 		while(list.peekFirst() instanceof ParamNode) {
-			node.addParam(0, (ParamNode)list.removeFirst());
+			node.addParam(0, (ParamNode) list.removeFirst());
 		}
 
 		insertNode(0, node);
 
 	}
 
-
-    /**
-     * Handle binary operator
-     *
-     * @param operator
-     */
+	/**
+	 * Handle binary operator
+	 *
+	 * @param operator
+	 */
 	public void handleBinaryOperator(String operator) {
 		Log.debug("handleBinaryOperator: " + operator);
 
 		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
-		ExpressionNode left = (ExpressionNode)list.removeFirst();
+		ExpressionNode left = (ExpressionNode) list.removeFirst();
 		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
-		ExpressionNode right = (ExpressionNode)list.removeFirst();
-		
+		ExpressionNode right = (ExpressionNode) list.removeFirst();
+
 		BinaryOperatorNode node = new BinaryOperatorNode(operator, left, right);
 
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle unary operator
-     *
-     * @param operator
-     */
+	/**
+	 * Handle unary operator
+	 *
+	 * @param operator
+	 */
 	public void handleUnaryOperator(String operator) {
 		Log.debug("handleUnaryOperator: " + operator);
 
 		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
-		UnaryOperatorNode node = new UnaryOperatorNode(operator, (ExpressionNode)list.removeFirst());
+		UnaryOperatorNode node = new UnaryOperatorNode(operator,
+				(ExpressionNode) list.removeFirst());
 
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle identifier
-     *
-     * @param id
-     */
+	/**
+	 * Handle identifier
+	 *
+	 * @param id
+	 */
 	public void handleID(String id) {
 		Log.debug("handleID: " + id);
 
@@ -269,13 +257,14 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle type
-     *
-     * @param t: type name
-     * @param c: const
-     */
+	/**
+	 * Handle type
+	 *
+	 * @param t
+	 *            : type name
+	 * @param c
+	 *            : const
+	 */
 	public void handleType(String t, String c) {
 		Log.debug("handleType: " + t + " c=" + c);
 
@@ -332,26 +321,25 @@ public class AstParser extends CParser {
 		}
 	}
 
-
-    /**
-     * Handle static array
-     *
-     * @param n
-     */
+	/**
+	 * Handle static array
+	 *
+	 * @param n
+	 */
 	public void handleStaticArray(String n) {
 		Log.debug("handleStaticArray: " + n);
 
 		Assert.Assert(list.peekFirst() instanceof TypeNode);
-		StaticArrayTypeNode node = new StaticArrayTypeNode(Integer.parseInt(n), (TypeNode)list.removeFirst());
+		StaticArrayTypeNode node = new StaticArrayTypeNode(Integer.parseInt(n),
+				(TypeNode) list.removeFirst());
 		node.topLevel = true;
 
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle const keyword in type
-     */
+	/**
+	 * Handle const keyword in type
+	 */
 	public void handleConst() {
 		Log.debug("handleConst");
 
@@ -359,10 +347,9 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle pointer in type
-     */
+	/**
+	 * Handle pointer in type
+	 */
 	public void handlePointer() {
 		Log.debug("handlePointer");
 
@@ -397,40 +384,38 @@ public class AstParser extends CParser {
 		}
 	}
 
-
-    /**
-     * Handle for statement
-     */
+	/**
+	 * Handle for statement
+	 */
 	public void handleForStatement() {
 		Log.debug("handleForStatement");
 
 		Assert.Assert(list.peekFirst() instanceof StatementNode);
-		StatementNode body = (StatementNode)list.removeFirst();
+		StatementNode body = (StatementNode) list.removeFirst();
 		Node third = list.removeFirst();
 		Node second = list.removeFirst();
 		Node first = list.removeFirst();
 		ForStatementNode node = new ForStatementNode(first, second, third, body);
-				
+
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle return statement
-     */
+	/**
+	 * Handle return statement
+	 */
 	public void handleReturnStatement() {
 		Log.debug("handleReturnStatement");
 
 		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
-		ReturnStatementNode node = new ReturnStatementNode((ExpressionNode)list.removeFirst());
+		ReturnStatementNode node = new ReturnStatementNode(
+				(ExpressionNode) list.removeFirst());
 
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle break statement
-     */
+	/**
+	 * Handle break statement
+	 */
 	public void handleBreakStatement() {
 		Log.debug("handleBreakStatement");
 
@@ -439,10 +424,9 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle continue statement
-     */
+	/**
+	 * Handle continue statement
+	 */
 	public void handleContinueStatement() {
 		Log.debug("handleContinueStatement");
 
@@ -451,45 +435,42 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle while statement
-     */
+	/**
+	 * Handle while statement
+	 */
 	public void handleWhileStatement() {
 		Log.debug("handleWhileStatement");
 
 		Assert.Assert(list.peekFirst() instanceof StatementNode);
-		StatementNode body = (StatementNode)list.removeFirst();
+		StatementNode body = (StatementNode) list.removeFirst();
 		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
-		ExpressionNode condition = (ExpressionNode)list.removeFirst();
-		
+		ExpressionNode condition = (ExpressionNode) list.removeFirst();
+
 		WhileStatementNode node = new WhileStatementNode(condition, body);
 
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle if statement
-     */
+	/**
+	 * Handle if statement
+	 */
 	public void handleIfStatement() {
 		Log.debug("handleIfStatement");
 
 		Node elseBody = list.removeFirst();
 		Assert.Assert(list.peekFirst() instanceof StatementNode);
-		StatementNode body = (StatementNode)list.removeFirst();
+		StatementNode body = (StatementNode) list.removeFirst();
 		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
-		ExpressionNode condition = (ExpressionNode)list.removeFirst();
-		
+		ExpressionNode condition = (ExpressionNode) list.removeFirst();
+
 		IfStatementNode node = new IfStatementNode(condition, body, elseBody);
 
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle 'nothing'
-     */
+	/**
+	 * Handle 'nothing'
+	 */
 	public void handleNothing() {
 		Log.debug("handleNothing");
 
@@ -498,10 +479,9 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
-
-    /**
-     * Handle file
-     */
+	/**
+	 * Handle file
+	 */
 	public void handleFile() {
 		Log.debug("handleFile");
 
@@ -527,7 +507,6 @@ public class AstParser extends CParser {
 		node.line = getCurrentToken().getLine();
 		list.add(pos, node);
 	}
-
 
 	/**
 	 * Build the AST

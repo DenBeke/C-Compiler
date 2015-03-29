@@ -2,7 +2,6 @@ package Compiler;
 
 import org.antlr.v4.runtime.*;
 
-
 /**
  * @brief Main
  */
