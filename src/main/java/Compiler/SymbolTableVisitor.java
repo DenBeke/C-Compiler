@@ -5,8 +5,69 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import Compiler.Ast.CharTypeNode;
+import Compiler.Ast.IntTypeNode;
+
 public class SymbolTableVisitor extends Visitor {
 
+	/**
+	 * Generalize two types
+	 * 
+	 * @param t1 First type
+	 * @param t2 Second type
+	 * 
+	 * @return The type that can hold both t1 and t2. Return's null if no such type exists.
+	 */
+	public Ast.TypeNode generalize(Ast.TypeNode t1, Ast.TypeNode t2) {
+		if(t1 instanceof Ast.CharTypeNode) {
+			if(t2 instanceof Ast.CharTypeNode) {
+				return new Ast.CharTypeNode();
+			} else if(t2 instanceof Ast.IntTypeNode) {
+				return new Ast.IntTypeNode();
+			}
+		}
+		
+		if(t1 instanceof Ast.IntTypeNode) {
+			if(t2 instanceof Ast.CharTypeNode) {
+				return new Ast.IntTypeNode();
+			} else if(t2 instanceof Ast.IntTypeNode) {
+				return new Ast.IntTypeNode();
+			}
+		}
+		
+		return null;
+	}
+	
+	/*
+	 * Add typecasts for the generalized type
+	 * 
+	 * @param e1 First expression
+	 * @param e2 Second expression
+	 * 
+	 * @return The type to which the expressions are casted. Null if no cast is possible.
+	 */
+	public Ast.TypeNode consistent(Ast.ExpressionNode e1, Ast.ExpressionNode e2) {
+			Ast.TypeNode m = generalize(e1.getType(), e2.getType());
+			if(m == null) {
+				return null;
+			}
+			
+			convert(e1, m);
+			convert(e2, m);
+			
+			return m;
+	}
+	
+	/*
+	 * Add typecast to the AST
+	 * 
+	 * @param n The expression to typecast
+	 * @param t The type to typecast to
+	 */
+	public void convert(Ast.ExpressionNode n, Ast.TypeNode t) {
+		
+	}
+	
 	/**
 	 * @brief Class representing a Symbol
 	 *
