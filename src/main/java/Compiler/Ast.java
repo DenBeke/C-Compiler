@@ -151,6 +151,7 @@ public class Ast {
 
 		public IntNode(Integer value) {
 			this.value = value;
+			type = new IntTypeNode();
 		}
 
 		@Override
@@ -165,6 +166,7 @@ public class Ast {
 
 		public CharNode(Character value) {
 			this.value = value;
+			type = new CharTypeNode();
 		}
 
 		@Override
@@ -190,13 +192,32 @@ public class Ast {
 	public static class IdNode extends ExpressionNode {
 		public String id;
 
-		// Filled in by symbolTableVisitor
-		public Symbol symbol;
-
+		private Symbol symbol;
+		
 		public IdNode(String id) {
 			this.id = id;
 		}
 
+		/*
+		 * Set the symbol for this id.
+		 * 
+		 * @param symbol The symbol for this id
+		 * @post getType() == symbol.type
+		 */
+		public void setSymbol(Symbol symbol) {
+			this.symbol = symbol;
+			type = symbol.type;
+		}
+		
+		/*
+		 * Get the symbol for this id
+		 * 
+		 * @return The symbol or null if no symbol was set
+		 */
+		public Symbol getSymbol() {
+			return symbol;
+		}
+		
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -205,7 +226,6 @@ public class Ast {
 
 	public static class DeclarationNode extends ExpressionNode {
 		public String id;
-		public TypeNode type;
 		// Nothing or Expression
 		public Node initializer;
 
@@ -322,6 +342,25 @@ public class Ast {
 	}
 
 	public static abstract class ExpressionNode extends Node {
+		protected TypeNode type;
+		
+		/*
+		 * Set the type of this node. Will be used by ResolveTypeVisitor.
+		 * 
+		 * @param type The type for this expression
+		 */
+		public void setType(TypeNode type) {
+			this.type = type;
+		}
+		
+		/*
+		 * Get the type of this expression.
+		 * 
+		 * @return The type of this expression or null if no type
+		 */
+		public TypeNode getType() {
+			return this.type;
+		}
 	}
 
 	public static class BlockStatementNode extends StatementNode {
@@ -368,6 +407,24 @@ public class Ast {
 			children.add(0, right);
 			children.add(0, left);
 		}
+		
+		/*
+		 * Get the expression to the left of the operator
+		 * 
+		 * @return The expression to the left
+		 */
+		public ExpressionNode getLeftChild() {
+			return left;
+		}
+		
+		/*
+		 * Get the expression to the right of the operator
+		 * 
+		 * @return The expression to the right
+		 */
+		public ExpressionNode getRightChild() {
+			return right;
+		}
 
 		@Override
 		public void visit(Visitor visitor) {
@@ -377,7 +434,7 @@ public class Ast {
 
 	public static class UnaryOperatorNode extends ExpressionNode {
 		public String operator;
-		private ExpressionNode expression;
+		public ExpressionNode expression;
 
 		public UnaryOperatorNode(String operator, ExpressionNode expression) {
 			this.operator = operator;

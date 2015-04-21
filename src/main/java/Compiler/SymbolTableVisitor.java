@@ -172,7 +172,7 @@ public class SymbolTableVisitor extends Visitor {
 			Log.fatal("Use of undeclared '" + node.id + "'", node.line);
 		}
 
-		node.symbol = symbol;
+		node.setSymbol(symbol);
 
 		visitChildren(node);
 	}
@@ -283,6 +283,34 @@ public class SymbolTableVisitor extends Visitor {
 		symbolTableStack.peek().addSymbol(symbol);
 
 		visitChildren(node);
+	}
+	
+	/**
+	 * Visit UnaryOperatorNode
+	 *
+	 * @param node
+	 */
+	@Override
+	public void visit(Ast.UnaryOperatorNode node) {
+		Log.debug("UnaryOperatorNode");
+
+		visitChildren(node);
+		
+		if(!(node.expression.getType() instanceof Ast.IntTypeNode) &&
+			!(node.expression.getType() instanceof Ast.CharTypeNode)) {
+			
+			Log.fatal("UnaryOperator not supported for type '" + node.expression.getType() + "'", node.line);
+		}
+		
+		switch(node.operator) {
+		case "++":
+		case "--":
+			node.setType(node.getType());
+			break;
+		
+		default:
+			Log.fatal("Unary operator not implemented: " + node.operator, node.line);
+		}
 	}
 
 	private Stack<SymbolTable> symbolTableStack = new Stack<SymbolTable>();
