@@ -23,7 +23,34 @@ public class Ast {
 		 */
 		public abstract void visit(Visitor visitor);
 
+		public Node parent = null;
 		public Vector<Node> children = new Vector<Node>();
+		
+		public void addChild(int pos, Node n) {
+			n.parent = this;
+			children.add(pos, n);
+		}
+		
+		public void linkNewParent(Node n) {
+			int pos = -1;
+			for(int i = 0; i < parent.children.size(); i++) {
+				if(this == parent.children.get(i)) {
+					pos = i;
+					break;
+				}
+			}
+			
+			if(pos == -1) {
+				Log.fatal("Node is not a child of it's parent. Erh?", 0);
+			}
+			
+			if(parent != null) {
+				parent.children.remove(pos);
+				parent.addChild(pos, n);
+			}
+			
+			n.addChild(0, this);
+		}
 
 		public Boolean hasChildren() {
 			return children.size() > 0;
@@ -34,7 +61,7 @@ public class Ast {
 			if(hasChildren()) {
 				children.get(0).insertLefMostLeaf(n);
 			} else {
-				children.add(0, n);
+				addChild(0, n);
 			}
 		}
 
@@ -76,7 +103,7 @@ public class Ast {
 			Assert.Assert(declaration instanceof DeclarationNode
 					|| declaration instanceof FunctionDeclarationNode);
 			declarations.add(pos, declaration);
-			children.add(pos, declaration);
+			addChild(pos, declaration);
 		}
 
 		@Override
@@ -89,6 +116,10 @@ public class Ast {
 	public static abstract class TypeNode extends Node {
 		public Boolean constant = false;
 		public Boolean topLevel = false;
+		
+		public Node getTypeCastNode(TypeNode t) {
+			return null;
+		}
 	}
 
 	public static class ConstTypeNode extends TypeNode {
@@ -110,12 +141,30 @@ public class Ast {
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
 		}
+		
+		@Override
+		public Node getTypeCastNode(TypeNode t) {
+			if(t instanceof CharTypeNode) {
+				return new IntToCharExpressionNode();
+			}
+			
+			return null;
+		}
 	}
 
 	public static class CharTypeNode extends TypeNode {
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
+		}
+		
+		@Override
+		public Node getTypeCastNode(TypeNode t) {
+			if(t instanceof IntTypeNode) {
+				return new CharToIntExpressionNode();
+			}
+			
+			return null;
 		}
 	}
 
@@ -134,7 +183,7 @@ public class Ast {
 			this.size = size;
 			this.type = type;
 
-			children.add(0, type);
+			addChild(0, type);
 		}
 
 		@Override
@@ -237,8 +286,8 @@ public class Ast {
 			this.type = type;
 			this.initializer = initializer;
 
-			children.add(0, initializer);
-			children.add(0, type);
+			addChild(0, initializer);
+			addChild(0, type);
 		}
 
 		@Override
@@ -260,9 +309,9 @@ public class Ast {
 			this.params = params;
 			this.block = block;
 
-			children.add(0, block);
-			children.add(0, params);
-			children.add(0, returnType);
+			addChild(0, block);
+			addChild(0, params);
+			addChild(0, returnType);
 		}
 
 		@Override
@@ -276,7 +325,7 @@ public class Ast {
 
 		public void addParam(int pos, FormalParameterNode param) {
 			params.add(pos, param);
-			children.add(pos, param);
+			addChild(pos, param);
 		}
 
 		@Override
@@ -293,7 +342,7 @@ public class Ast {
 			this.id = id;
 			this.type = type;
 
-			children.add(0, type);
+			addChild(0, type);
 		}
 
 		@Override
@@ -308,7 +357,7 @@ public class Ast {
 		public ParamNode(ExpressionNode param) {
 			this.param = param;
 
-			children.add(0, param);
+			addChild(0, param);
 		}
 
 		@Override
@@ -328,7 +377,7 @@ public class Ast {
 		public void addParam(int pos, ParamNode param) {
 			params.add(pos, param);
 
-			children.add(pos, param);
+			addChild(pos, param);
 		}
 
 		@Override
@@ -362,6 +411,44 @@ public class Ast {
 			return this.type;
 		}
 	}
+	
+	public static class CharToIntExpressionNode extends ExpressionNode {
+		public ExpressionNode expression;
+		
+		public CharToIntExpressionNode() {
+			type = new IntTypeNode();
+		}
+		
+		public void setExpression(ExpressionNode e) {
+			expression = e;
+			
+			addChild(0, expression);
+		}
+
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);			
+		}
+	}
+	
+	public static class IntToCharExpressionNode extends ExpressionNode {
+		public ExpressionNode expression;
+		
+		public IntToCharExpressionNode() {
+			type = new CharTypeNode();
+		}
+		
+		public void setExpression(ExpressionNode e) {
+			expression = e;
+			
+			addChild(0, expression);
+		}
+
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);			
+		}
+	}
 
 	public static class BlockStatementNode extends StatementNode {
 		private Vector<StatementNode> statements = new Vector<StatementNode>();
@@ -369,7 +456,7 @@ public class Ast {
 		public void addStatement(int pos, StatementNode statement) {
 			statements.add(pos, statement);
 
-			children.add(pos, statement);
+			addChild(pos, statement);
 		}
 
 		@Override
@@ -384,7 +471,7 @@ public class Ast {
 		public ExprStatementNode(ExpressionNode expression) {
 			this.expression = expression;
 
-			children.add(0, expression);
+			addChild(0, expression);
 		}
 
 		@Override
@@ -404,8 +491,8 @@ public class Ast {
 			this.left = left;
 			this.right = right;
 
-			children.add(0, right);
-			children.add(0, left);
+			addChild(0, right);
+			addChild(0, left);
 		}
 		
 		/*
@@ -440,7 +527,7 @@ public class Ast {
 			this.operator = operator;
 			this.expression = expression;
 
-			children.add(0, expression);
+			addChild(0, expression);
 		}
 
 		@Override
@@ -469,10 +556,10 @@ public class Ast {
 			this.third = third;
 			this.body = body;
 
-			children.add(0, body);
-			children.add(0, third);
-			children.add(0, second);
-			children.add(0, first);
+			addChild(0, body);
+			addChild(0, third);
+			addChild(0, second);
+			addChild(0, first);
 		}
 
 		@Override
@@ -494,7 +581,7 @@ public class Ast {
 		public ReturnStatementNode(ExpressionNode expression) {
 			this.expression = expression;
 
-			children.add(0, expression);
+			addChild(0, expression);
 		}
 
 		@Override
@@ -511,8 +598,8 @@ public class Ast {
 			this.condition = condition;
 			this.body = body;
 
-			children.add(0, body);
-			children.add(0, condition);
+			addChild(0, body);
+			addChild(0, condition);
 		}
 
 		@Override
@@ -535,9 +622,9 @@ public class Ast {
 			this.body = body;
 			this.elseBody = elseBody;
 
-			children.add(0, elseBody);
-			children.add(0, body);
-			children.add(0, condition);
+			addChild(0, elseBody);
+			addChild(0, body);
+			addChild(0, condition);
 		}
 
 		@Override

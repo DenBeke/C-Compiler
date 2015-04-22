@@ -46,12 +46,12 @@ public class SymbolTableVisitor extends Visitor {
 	 * 
 	 * @return The type to which the expressions are casted. Null if no cast is possible.
 	 */
-	public Ast.TypeNode consistent(Ast.ExpressionNode e1, Ast.ExpressionNode e2) {
+	public Ast.TypeNode consistent(Ast.ExpressionNode e1, Ast.ExpressionNode e2) {		
 			Ast.TypeNode m = generalize(e1.getType(), e2.getType());
 			if(m == null) {
 				return null;
 			}
-			
+		
 			convert(e1, m);
 			convert(e2, m);
 			
@@ -64,8 +64,17 @@ public class SymbolTableVisitor extends Visitor {
 	 * @param n The expression to typecast
 	 * @param t The type to typecast to
 	 */
-	public void convert(Ast.ExpressionNode n, Ast.TypeNode t) {
+	public void convert(Ast.ExpressionNode e, Ast.TypeNode t) {
+		if(e.getType().getClass().equals(t.getClass())) {
+			return;
+		}
 		
+		Ast.Node cast = e.getType().getTypeCastNode(t);
+		if(cast == null) {
+			Log.fatal("Can't cast " + e.getType().toString() + " to " + t.toString(), e.line);
+		}
+			
+		e.linkNewParent(cast);
 	}
 	
 	/**
@@ -219,6 +228,10 @@ public class SymbolTableVisitor extends Visitor {
 		symbolTableStack.peek().addSymbol(symbol);
 
 		visitChildren(node);
+		
+		if(!(node.initializer instanceof Ast.NothingNode)) {
+			convert((Ast.ExpressionNode)node.initializer, node.getType());
+		}
 	}
 
 	/**
@@ -371,6 +384,32 @@ public class SymbolTableVisitor extends Visitor {
 		
 		default:
 			Log.fatal("Unary operator not implemented: " + node.operator, node.line);
+		}
+	}
+	
+	public void visit(Ast.BinaryOperatorNode node) {
+		Log.debug("BinaryOperatorNode");
+
+		visitChildren(node);
+			
+		switch(node.operator) {
+		case "=":
+		case "==":
+		case "!=":
+		case "+":
+		case "-":
+		case "/":
+		case "*":
+		case ">":
+		case ">=":
+		case "<":
+		case "<=":
+			node.setType(consistent(node.getLeftChild(), node.getRightChild()));
+			
+			break;
+		
+		default:
+			Log.fatal("Binary operator not implemented: " + node.operator, node.line);
 		}
 	}
 

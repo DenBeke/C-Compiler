@@ -69,4 +69,4 @@ void* funcA(char* abc) {
 
 int a = 6;
 int b;
-char* c = 1+2;
+char* c;
