@@ -525,6 +525,25 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+
+    /**
+     * Handle type cast
+     */
+    @Override
+    public void handleTypeCast() {
+        Log.debug("handleTypeCast");
+        Assert.Assert(list.peekFirst() instanceof ExpressionNode);
+        ExpressionNode expr = (ExpressionNode)list.removeFirst();
+
+        Assert.Assert(list.peekFirst() instanceof TypeNode);
+        TypeNode type = (TypeNode) list.removeFirst();
+
+        expr.cast = type;
+        insertNode(0, expr);
+
+
+    }
+
 	/**
 	 * Handle 'nothing'
 	 */

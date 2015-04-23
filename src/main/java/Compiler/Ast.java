@@ -392,6 +392,7 @@ public class Ast {
 
 	public static abstract class ExpressionNode extends Node {
 		protected TypeNode type;
+        public TypeNode cast = null;
 		
 		/*
 		 * Set the type of this node. Will be used by ResolveTypeVisitor.

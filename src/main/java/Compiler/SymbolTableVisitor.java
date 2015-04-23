@@ -76,6 +76,18 @@ public class SymbolTableVisitor extends Visitor {
 			
 		e.linkNewParent(cast);
 	}
+
+
+    /**
+     * Add a manual cast to ast for the expression
+     * @param e: expression node
+     */
+    public void handleCastExpression(Ast.ExpressionNode e) {
+        if(e.cast == null) {
+            return;
+        }
+        convert(e, e.cast);
+    }
 	
 	/**
 	 * @brief Class representing a Symbol
@@ -92,6 +104,7 @@ public class SymbolTableVisitor extends Visitor {
 	 */
 	public static class VarSymbol extends Symbol {
 	}
+
 
 	/**
 	 * @brief Class representing a Symbol for a function
@@ -228,6 +241,7 @@ public class SymbolTableVisitor extends Visitor {
 		symbolTableStack.peek().addSymbol(symbol);
 
 		visitChildren(node);
+        handleCastExpression(node);
 		
 		if(!(node.initializer instanceof Ast.NothingNode)) {
 			convert((Ast.ExpressionNode)node.initializer, node.getType());
@@ -249,6 +263,7 @@ public class SymbolTableVisitor extends Visitor {
 		node.setSymbol(symbol);
 
 		visitChildren(node);
+        handleCastExpression(node);
 	}
 
 	/**
@@ -369,6 +384,7 @@ public class SymbolTableVisitor extends Visitor {
 		Log.debug("UnaryOperatorNode");
 
 		visitChildren(node);
+        handleCastExpression(node);
 		
 		if(!(node.expression.getType() instanceof Ast.IntTypeNode) &&
 			!(node.expression.getType() instanceof Ast.CharTypeNode)) {
@@ -391,7 +407,10 @@ public class SymbolTableVisitor extends Visitor {
 		Log.debug("BinaryOperatorNode");
 
 		visitChildren(node);
-			
+        //Ast.TypeNode gen = generalize(node.getLeftChild().getType(), node.getRightChild().getType());
+        System.out.println(node.getLeftChild().getType().getClass().getSimpleName() + ", " + node.getRightChild().getType().getClass().getSimpleName());
+
+
 		switch(node.operator) {
 		case "=":
 		case "==":
