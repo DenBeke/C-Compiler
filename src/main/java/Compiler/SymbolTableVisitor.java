@@ -5,9 +5,6 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.Vector;
 
-import Compiler.Ast.CharTypeNode;
-import Compiler.Ast.IntTypeNode;
-
 public class SymbolTableVisitor extends Visitor {
 
 	/**
