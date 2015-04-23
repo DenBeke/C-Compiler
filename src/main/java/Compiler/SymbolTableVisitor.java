@@ -71,10 +71,15 @@ public class SymbolTableVisitor extends Visitor {
 		
 		Ast.Node cast = e.getType().getTypeCastNode(t);
 		if(cast == null) {
-			Log.fatal("Can't cast " + e.getType().toString() + " to " + t.toString(), e.line);
+			Log.fatal("Can't cast " + e.getType().getStringRepresentation() + " to " + t.getStringRepresentation(), e.line);
 		}
-			
-		e.linkNewParent(cast);
+		
+		if(e.parent != null) {
+			e.parent.replaceNode(e, cast);
+		}
+		
+		cast.parent = e.parent;
+		((Ast.CastExpressionNode)cast).setExpression(e);
 	}
 
 
@@ -86,6 +91,7 @@ public class SymbolTableVisitor extends Visitor {
         if(e.cast == null) {
             return;
         }
+        
         convert(e, e.cast);
     }
 	
@@ -243,9 +249,67 @@ public class SymbolTableVisitor extends Visitor {
 		visitChildren(node);
         handleCastExpression(node);
 		
-		if(!(node.initializer instanceof Ast.NothingNode)) {
-			convert((Ast.ExpressionNode)node.initializer, node.getType());
+		if(!(node.getInitializer() instanceof Ast.NothingNode)) {
+			convert((Ast.ExpressionNode)node.getInitializer(), node.getType());
 		}
+	}
+	
+	/**
+	 * Visit FunctionCallNode
+	 *
+	 * @param node
+	 */
+	@Override
+	public void visit(Ast.FunctionCallNode node) {
+		Symbol symbol = findSymbol(node.id);
+		if(symbol == null) {
+			Log.fatal("Use of undeclared function '" + node.id + "'", node.line);
+		}
+		
+		if(!(symbol instanceof FuncSymbol)) {
+			Log.fatal("'" + node.id + "' is not a function", node.line);
+		}
+				
+		visitChildren(node);
+		
+		node.setType(symbol.type);
+        handleCastExpression(node);
+	}
+	
+	/**
+	 * Visit CharNode
+	 *
+	 * @param node
+	 */
+	@Override
+	public void visit(Ast.CharNode node) {
+		visitChildren(node);
+		
+        handleCastExpression(node);
+	}
+	
+	/**
+	 * Visit IntNode
+	 *
+	 * @param node
+	 */
+	@Override
+	public void visit(Ast.IntNode node) {
+		visitChildren(node);
+		
+        handleCastExpression(node);
+	}
+	
+	/**
+	 * Visit StringNode
+	 *
+	 * @param node
+	 */
+	@Override
+	public void visit(Ast.StringNode node) {
+		visitChildren(node);
+		
+        handleCastExpression(node);
 	}
 
 	/**
@@ -305,6 +369,13 @@ public class SymbolTableVisitor extends Visitor {
 				"Expected TypeNode");
 		Assert.Assert(node.children.get(1) instanceof Ast.FormalParametersNode,
 				"Expected FormalParametersNode");
+		
+		// Check for multiple declarations
+		if(symbolTableStack.peek().hasSymbol(node.id)) {
+			Log.fatal("Symbol '" + node.id + "' previously declared (on line "
+					+ symbolTableStack.peek().getSymbol(node.id).type.line
+					+ ")", node.line);
+		}
 
 		FuncSymbol symbol = new FuncSymbol();
 
@@ -406,13 +477,14 @@ public class SymbolTableVisitor extends Visitor {
 	public void visit(Ast.BinaryOperatorNode node) {
 		Log.debug("BinaryOperatorNode");
 
-		visitChildren(node);
-        //Ast.TypeNode gen = generalize(node.getLeftChild().getType(), node.getRightChild().getType());
-        System.out.println(node.getLeftChild().getType().getClass().getSimpleName() + ", " + node.getRightChild().getType().getClass().getSimpleName());
-
+		visitChildren(node);  
 
 		switch(node.operator) {
 		case "=":
+			if(node.getLeftChild().getType().constant) {
+				Log.fatal("Can't assign to constant variable", node.line);
+			}
+			break;
 		case "==":
 		case "!=":
 		case "+":
@@ -423,13 +495,14 @@ public class SymbolTableVisitor extends Visitor {
 		case ">=":
 		case "<":
 		case "<=":
-			node.setType(consistent(node.getLeftChild(), node.getRightChild()));
-			
 			break;
 		
 		default:
 			Log.fatal("Binary operator not implemented: " + node.operator, node.line);
 		}
+		
+		node.setType(consistent(node.getLeftChild(), node.getRightChild()));
+		handleCastExpression(node);
 	}
 
 	private Stack<SymbolTable> symbolTableStack = new Stack<SymbolTable>();

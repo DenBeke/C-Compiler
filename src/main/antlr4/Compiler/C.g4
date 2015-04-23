@@ -67,8 +67,8 @@ block
 	;
 
 expr
-	: '(' expr ')'
-	| '(' type ')' expr {handleTypeCast();}
+	: '(' type ')' expr {handleTypeCast();}
+	| '(' expr ')'
 	| id=ID {handleID($id.text);}
 	| expr '/' expr {handleBinaryOperator("/");}
 	| expr '*' expr {handleBinaryOperator("*");}

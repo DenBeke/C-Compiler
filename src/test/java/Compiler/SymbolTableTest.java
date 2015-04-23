@@ -68,7 +68,7 @@ public class SymbolTableTest extends TestCase {
 				// OK if no exception was thrown
 				assertTrue(true);
 			} catch(Log.FatalException e) {
-				// NOT OK when exception is thrown
+				System.out.println(e.toString());
 				assertTrue(false);
 			}
 

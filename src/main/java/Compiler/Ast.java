@@ -31,25 +31,20 @@ public class Ast {
 			children.add(pos, n);
 		}
 		
-		public void linkNewParent(Node n) {
+		public void replaceNode(Node f, Node t) {
 			int pos = -1;
-			for(int i = 0; i < parent.children.size(); i++) {
-				if(this == parent.children.get(i)) {
+			for(int i = 0; i < children.size(); i++) {
+				if(f == children.get(i)) {
 					pos = i;
 					break;
 				}
 			}
 			
 			if(pos == -1) {
-				Log.fatal("Node is not a child of it's parent. Erh?", 0);
+				Log.fatal("Can't replace node. Node doesn't exist.", 0);
 			}
 			
-			if(parent != null) {
-				parent.children.remove(pos);
-				parent.addChild(pos, n);
-			}
-			
-			n.addChild(0, this);
+			children.set(pos, t);
 		}
 
 		public Boolean hasChildren() {
@@ -120,6 +115,8 @@ public class Ast {
 		public Node getTypeCastNode(TypeNode t) {
 			return null;
 		}
+		
+		public abstract String getStringRepresentation();
 	}
 
 	public static class ConstTypeNode extends TypeNode {
@@ -127,12 +124,29 @@ public class Ast {
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
 		}
+
+		@Override
+		public String getStringRepresentation() {
+			return "TEST";
+		}
 	}
 
 	public static class PointerTypeNode extends TypeNode {
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
+		}
+
+		@Override
+		public String getStringRepresentation() {
+			String result = "";
+			for(int i = 0; i < children.size(); i++) {
+				result += ((TypeNode)children.get(i)).getStringRepresentation();
+			}
+			
+			result += "*";
+			
+			return result;
 		}
 	}
 
@@ -150,6 +164,16 @@ public class Ast {
 			
 			return null;
 		}
+
+		@Override
+		public String getStringRepresentation() {
+			String result = "int";
+			for(int i = 0; i < children.size(); i++) {
+				result += ((TypeNode)children.get(i)).getStringRepresentation();
+			}
+			
+			return result;
+		}
 	}
 
 	public static class CharTypeNode extends TypeNode {
@@ -166,12 +190,32 @@ public class Ast {
 			
 			return null;
 		}
+
+		@Override
+		public String getStringRepresentation() {
+			String result = "char";
+			for(int i = 0; i < children.size(); i++) {
+				result += ((TypeNode)children.get(i)).getStringRepresentation();
+			}
+			
+			return result;
+		}
 	}
 
 	public static class VoidTypeNode extends TypeNode {
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
+		}
+
+		@Override
+		public String getStringRepresentation() {
+			String result = "void";
+			for(int i = 0; i < children.size(); i++) {
+				result += ((TypeNode)children.get(i)).getStringRepresentation();
+			}
+			
+			return result;
 		}
 	}
 
@@ -189,6 +233,18 @@ public class Ast {
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
+		}
+
+		@Override
+		public String getStringRepresentation() {
+			String result = "";
+			for(int i = 0; i < children.size(); i++) {
+				result += ((TypeNode)children.get(i)).getStringRepresentation();
+			}
+			
+			result += "[" + size.toString() + "]";
+			
+			return result;
 		}
 	}
 
@@ -230,6 +286,8 @@ public class Ast {
 
 		public StringNode(String value) {
 			this.value = value;
+			type = new PointerTypeNode();
+			type.addChild(0, new CharTypeNode());
 		}
 
 		@Override
@@ -276,7 +334,6 @@ public class Ast {
 	public static class DeclarationNode extends ExpressionNode {
 		public String id;
 		// Nothing or Expression
-		public Node initializer;
 
 		public DeclarationNode(String id, Ast.TypeNode type,
 				Ast.Node initializer) {
@@ -284,10 +341,13 @@ public class Ast {
 					|| initializer instanceof ExpressionNode);
 			this.id = id;
 			this.type = type;
-			this.initializer = initializer;
 
 			addChild(0, initializer);
 			addChild(0, type);
+		}
+		
+		public Node getInitializer() {
+			return children.get(1);
 		}
 
 		@Override
@@ -368,15 +428,12 @@ public class Ast {
 
 	public static class FunctionCallNode extends ExpressionNode {
 		public String id;
-		private Vector<ParamNode> params = new Vector<ParamNode>();
 
 		public FunctionCallNode(String id) {
 			this.id = id;
 		}
 
 		public void addParam(int pos, ParamNode param) {
-			params.add(pos, param);
-
 			addChild(pos, param);
 		}
 
@@ -413,36 +470,33 @@ public class Ast {
 		}
 	}
 	
-	public static class CharToIntExpressionNode extends ExpressionNode {
-		public ExpressionNode expression;
+	public static class CastExpressionNode extends ExpressionNode {
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);			
+		}
 		
+		public void setExpression(ExpressionNode e) {	
+			children.clear();
+			addChild(0, e);
+		}
+
+	}
+	
+	public static class CharToIntExpressionNode extends CastExpressionNode {	
 		public CharToIntExpressionNode() {
 			type = new IntTypeNode();
 		}
 		
-		public void setExpression(ExpressionNode e) {
-			expression = e;
-			
-			addChild(0, expression);
-		}
-
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);			
 		}
 	}
 	
-	public static class IntToCharExpressionNode extends ExpressionNode {
-		public ExpressionNode expression;
-		
+	public static class IntToCharExpressionNode extends CastExpressionNode {
 		public IntToCharExpressionNode() {
 			type = new CharTypeNode();
-		}
-		
-		public void setExpression(ExpressionNode e) {
-			expression = e;
-			
-			addChild(0, expression);
 		}
 
 		@Override
@@ -452,11 +506,7 @@ public class Ast {
 	}
 
 	public static class BlockStatementNode extends StatementNode {
-		private Vector<StatementNode> statements = new Vector<StatementNode>();
-
 		public void addStatement(int pos, StatementNode statement) {
-			statements.add(pos, statement);
-
 			addChild(pos, statement);
 		}
 
@@ -467,11 +517,7 @@ public class Ast {
 	}
 
 	public static class ExprStatementNode extends StatementNode {
-		private ExpressionNode expression;
-
 		public ExprStatementNode(ExpressionNode expression) {
-			this.expression = expression;
-
 			addChild(0, expression);
 		}
 
@@ -483,14 +529,10 @@ public class Ast {
 
 	public static class BinaryOperatorNode extends ExpressionNode {
 		public String operator;
-		private ExpressionNode left;
-		private ExpressionNode right;
 
 		public BinaryOperatorNode(String operator, ExpressionNode left,
 				ExpressionNode right) {
 			this.operator = operator;
-			this.left = left;
-			this.right = right;
 
 			addChild(0, right);
 			addChild(0, left);
@@ -502,7 +544,7 @@ public class Ast {
 		 * @return The expression to the left
 		 */
 		public ExpressionNode getLeftChild() {
-			return left;
+			return (ExpressionNode)children.get(0);
 		}
 		
 		/*
@@ -511,7 +553,7 @@ public class Ast {
 		 * @return The expression to the right
 		 */
 		public ExpressionNode getRightChild() {
-			return right;
+			return (ExpressionNode)children.get(1);
 		}
 
 		@Override

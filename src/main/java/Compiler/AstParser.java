@@ -265,9 +265,9 @@ public class AstParser extends CParser {
 		Log.debug("handleBinaryOperator: " + operator);
 
 		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
-		ExpressionNode left = (ExpressionNode) list.removeFirst();
-		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
 		ExpressionNode right = (ExpressionNode) list.removeFirst();
+		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
+		ExpressionNode left = (ExpressionNode) list.removeFirst();
 
 		BinaryOperatorNode node = new BinaryOperatorNode(operator, left, right);
 

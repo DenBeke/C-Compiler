@@ -38,7 +38,7 @@ int *funcA(int a, int b, char* s) {
 	some more comments
 	on multiple lines
 */
-void* funcA(char* abc) {
+void* funcB(char* abc) {
 	int i = 0;
 	while(i != 5) { // While comment
 		i = i + 1; /* i = i + 1 */
