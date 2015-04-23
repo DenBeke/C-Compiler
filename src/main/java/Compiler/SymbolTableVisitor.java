@@ -13,10 +13,13 @@ public class SymbolTableVisitor extends Visitor {
 	/**
 	 * Generalize two types
 	 * 
-	 * @param t1 First type
-	 * @param t2 Second type
+	 * @param t1
+	 *            First type
+	 * @param t2
+	 *            Second type
 	 * 
-	 * @return The type that can hold both t1 and t2. Return's null if no such type exists.
+	 * @return The type that can hold both t1 and t2. Return's null if no such
+	 *         type exists.
 	 */
 	public Ast.TypeNode generalize(Ast.TypeNode t1, Ast.TypeNode t2) {
 		if(t1 instanceof Ast.CharTypeNode) {
@@ -26,7 +29,7 @@ public class SymbolTableVisitor extends Visitor {
 				return new Ast.IntTypeNode();
 			}
 		}
-		
+
 		if(t1 instanceof Ast.IntTypeNode) {
 			if(t2 instanceof Ast.CharTypeNode) {
 				return new Ast.IntTypeNode();
@@ -34,67 +37,72 @@ public class SymbolTableVisitor extends Visitor {
 				return new Ast.IntTypeNode();
 			}
 		}
-		
+
 		return null;
 	}
-	
+
 	/*
 	 * Add typecasts for the generalized type
 	 * 
 	 * @param e1 First expression
+	 * 
 	 * @param e2 Second expression
 	 * 
-	 * @return The type to which the expressions are casted. Null if no cast is possible.
+	 * @return The type to which the expressions are casted. Null if no cast is
+	 * possible.
 	 */
-	public Ast.TypeNode consistent(Ast.ExpressionNode e1, Ast.ExpressionNode e2) {		
-			Ast.TypeNode m = generalize(e1.getType(), e2.getType());
-			if(m == null) {
-				return null;
-			}
-		
-			convert(e1, m);
-			convert(e2, m);
-			
-			return m;
+	public Ast.TypeNode consistent(Ast.ExpressionNode e1, Ast.ExpressionNode e2) {
+		Ast.TypeNode m = generalize(e1.getType(), e2.getType());
+		if(m == null) {
+			return null;
+		}
+
+		convert(e1, m);
+		convert(e2, m);
+
+		return m;
 	}
-	
+
 	/*
 	 * Add typecast to the AST
 	 * 
 	 * @param n The expression to typecast
+	 * 
 	 * @param t The type to typecast to
 	 */
 	public void convert(Ast.ExpressionNode e, Ast.TypeNode t) {
 		if(e.getType().getClass().equals(t.getClass())) {
 			return;
 		}
-		
+
 		Ast.Node cast = e.getType().getTypeCastNode(t);
 		if(cast == null) {
-			Log.fatal("Can't cast " + e.getType().getStringRepresentation() + " to " + t.getStringRepresentation(), e.line);
+			Log.fatal("Can't cast " + e.getType().getStringRepresentation()
+					+ " to " + t.getStringRepresentation(), e.line);
 		}
-		
+
 		if(e.parent != null) {
 			e.parent.replaceNode(e, cast);
 		}
-		
+
 		cast.parent = e.parent;
-		((Ast.CastExpressionNode)cast).setExpression(e);
+		((Ast.CastExpressionNode) cast).setExpression(e);
 	}
 
+	/**
+	 * Add a manual cast to ast for the expression
+	 * 
+	 * @param e
+	 *            : expression node
+	 */
+	public void handleCastExpression(Ast.ExpressionNode e) {
+		if(e.cast == null) {
+			return;
+		}
 
-    /**
-     * Add a manual cast to ast for the expression
-     * @param e: expression node
-     */
-    public void handleCastExpression(Ast.ExpressionNode e) {
-        if(e.cast == null) {
-            return;
-        }
-        
-        convert(e, e.cast);
-    }
-	
+		convert(e, e.cast);
+	}
+
 	/**
 	 * @brief Class representing a Symbol
 	 *
@@ -110,7 +118,6 @@ public class SymbolTableVisitor extends Visitor {
 	 */
 	public static class VarSymbol extends Symbol {
 	}
-
 
 	/**
 	 * @brief Class representing a Symbol for a function
@@ -187,7 +194,7 @@ public class SymbolTableVisitor extends Visitor {
 		 * @param symbol
 		 *            : symbol to add
 		 */
-		public void addSymbol(Symbol symbol) {		
+		public void addSymbol(Symbol symbol) {
 			symbols.put(symbol.id, symbol);
 		}
 
@@ -247,13 +254,13 @@ public class SymbolTableVisitor extends Visitor {
 		symbolTableStack.peek().addSymbol(symbol);
 
 		visitChildren(node);
-        handleCastExpression(node);
-		
+		handleCastExpression(node);
+
 		if(!(node.getInitializer() instanceof Ast.NothingNode)) {
-			convert((Ast.ExpressionNode)node.getInitializer(), node.getType());
+			convert((Ast.ExpressionNode) node.getInitializer(), node.getType());
 		}
 	}
-	
+
 	/**
 	 * Visit FunctionCallNode
 	 *
@@ -265,17 +272,17 @@ public class SymbolTableVisitor extends Visitor {
 		if(symbol == null) {
 			Log.fatal("Use of undeclared function '" + node.id + "'", node.line);
 		}
-		
+
 		if(!(symbol instanceof FuncSymbol)) {
 			Log.fatal("'" + node.id + "' is not a function", node.line);
 		}
-				
+
 		visitChildren(node);
-		
+
 		node.setType(symbol.type);
-        handleCastExpression(node);
+		handleCastExpression(node);
 	}
-	
+
 	/**
 	 * Visit CharNode
 	 *
@@ -284,10 +291,10 @@ public class SymbolTableVisitor extends Visitor {
 	@Override
 	public void visit(Ast.CharNode node) {
 		visitChildren(node);
-		
-        handleCastExpression(node);
+
+		handleCastExpression(node);
 	}
-	
+
 	/**
 	 * Visit IntNode
 	 *
@@ -296,10 +303,10 @@ public class SymbolTableVisitor extends Visitor {
 	@Override
 	public void visit(Ast.IntNode node) {
 		visitChildren(node);
-		
-        handleCastExpression(node);
+
+		handleCastExpression(node);
 	}
-	
+
 	/**
 	 * Visit StringNode
 	 *
@@ -308,8 +315,8 @@ public class SymbolTableVisitor extends Visitor {
 	@Override
 	public void visit(Ast.StringNode node) {
 		visitChildren(node);
-		
-        handleCastExpression(node);
+
+		handleCastExpression(node);
 	}
 
 	/**
@@ -327,7 +334,7 @@ public class SymbolTableVisitor extends Visitor {
 		node.setSymbol(symbol);
 
 		visitChildren(node);
-        handleCastExpression(node);
+		handleCastExpression(node);
 	}
 
 	/**
@@ -369,7 +376,7 @@ public class SymbolTableVisitor extends Visitor {
 				"Expected TypeNode");
 		Assert.Assert(node.children.get(1) instanceof Ast.FormalParametersNode,
 				"Expected FormalParametersNode");
-		
+
 		// Check for multiple declarations
 		if(symbolTableStack.peek().hasSymbol(node.id)) {
 			Log.fatal("Symbol '" + node.id + "' previously declared (on line "
@@ -422,7 +429,7 @@ public class SymbolTableVisitor extends Visitor {
 	@Override
 	public void visit(Ast.FormalParameterNode node) {
 		Log.debug("formal parameter");
-		
+
 		// Skip anonymous parameters (with no id)
 		if(node.id == null) {
 			visitChildren(node);
@@ -444,7 +451,7 @@ public class SymbolTableVisitor extends Visitor {
 
 		visitChildren(node);
 	}
-	
+
 	/**
 	 * Visit UnaryOperatorNode
 	 *
@@ -455,29 +462,31 @@ public class SymbolTableVisitor extends Visitor {
 		Log.debug("UnaryOperatorNode");
 
 		visitChildren(node);
-        handleCastExpression(node);
-		
-		if(!(node.expression.getType() instanceof Ast.IntTypeNode) &&
-			!(node.expression.getType() instanceof Ast.CharTypeNode)) {
-			
-			Log.fatal("UnaryOperator not supported for type '" + node.expression.getType() + "'", node.line);
+		handleCastExpression(node);
+
+		if(!(node.expression.getType() instanceof Ast.IntTypeNode)
+				&& !(node.expression.getType() instanceof Ast.CharTypeNode)) {
+
+			Log.fatal("UnaryOperator not supported for type '"
+					+ node.expression.getType() + "'", node.line);
 		}
-		
+
 		switch(node.operator) {
 		case "++":
 		case "--":
 			node.setType(node.getType());
 			break;
-		
+
 		default:
-			Log.fatal("Unary operator not implemented: " + node.operator, node.line);
+			Log.fatal("Unary operator not implemented: " + node.operator,
+					node.line);
 		}
 	}
-	
+
 	public void visit(Ast.BinaryOperatorNode node) {
 		Log.debug("BinaryOperatorNode");
 
-		visitChildren(node);  
+		visitChildren(node);
 
 		switch(node.operator) {
 		case "=":
@@ -496,11 +505,12 @@ public class SymbolTableVisitor extends Visitor {
 		case "<":
 		case "<=":
 			break;
-		
+
 		default:
-			Log.fatal("Binary operator not implemented: " + node.operator, node.line);
+			Log.fatal("Binary operator not implemented: " + node.operator,
+					node.line);
 		}
-		
+
 		node.setType(consistent(node.getLeftChild(), node.getRightChild()));
 		handleCastExpression(node);
 	}

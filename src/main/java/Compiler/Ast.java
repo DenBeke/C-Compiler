@@ -25,12 +25,12 @@ public class Ast {
 
 		public Node parent = null;
 		public Vector<Node> children = new Vector<Node>();
-		
+
 		public void addChild(int pos, Node n) {
 			n.parent = this;
 			children.add(pos, n);
 		}
-		
+
 		public void replaceNode(Node f, Node t) {
 			int pos = -1;
 			for(int i = 0; i < children.size(); i++) {
@@ -39,11 +39,11 @@ public class Ast {
 					break;
 				}
 			}
-			
+
 			if(pos == -1) {
 				Log.fatal("Can't replace node. Node doesn't exist.", 0);
 			}
-			
+
 			children.set(pos, t);
 		}
 
@@ -111,11 +111,11 @@ public class Ast {
 	public static abstract class TypeNode extends Node {
 		public Boolean constant = false;
 		public Boolean topLevel = false;
-		
+
 		public Node getTypeCastNode(TypeNode t) {
 			return null;
 		}
-		
+
 		public abstract String getStringRepresentation();
 	}
 
@@ -141,11 +141,12 @@ public class Ast {
 		public String getStringRepresentation() {
 			String result = "";
 			for(int i = 0; i < children.size(); i++) {
-				result += ((TypeNode)children.get(i)).getStringRepresentation();
+				result += ((TypeNode) children.get(i))
+						.getStringRepresentation();
 			}
-			
+
 			result += "*";
-			
+
 			return result;
 		}
 	}
@@ -155,13 +156,13 @@ public class Ast {
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
 		}
-		
+
 		@Override
 		public Node getTypeCastNode(TypeNode t) {
 			if(t instanceof CharTypeNode) {
 				return new IntToCharExpressionNode();
 			}
-			
+
 			return null;
 		}
 
@@ -169,9 +170,10 @@ public class Ast {
 		public String getStringRepresentation() {
 			String result = "int";
 			for(int i = 0; i < children.size(); i++) {
-				result += ((TypeNode)children.get(i)).getStringRepresentation();
+				result += ((TypeNode) children.get(i))
+						.getStringRepresentation();
 			}
-			
+
 			return result;
 		}
 	}
@@ -181,13 +183,13 @@ public class Ast {
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
 		}
-		
+
 		@Override
 		public Node getTypeCastNode(TypeNode t) {
 			if(t instanceof IntTypeNode) {
 				return new CharToIntExpressionNode();
 			}
-			
+
 			return null;
 		}
 
@@ -195,9 +197,10 @@ public class Ast {
 		public String getStringRepresentation() {
 			String result = "char";
 			for(int i = 0; i < children.size(); i++) {
-				result += ((TypeNode)children.get(i)).getStringRepresentation();
+				result += ((TypeNode) children.get(i))
+						.getStringRepresentation();
 			}
-			
+
 			return result;
 		}
 	}
@@ -212,9 +215,10 @@ public class Ast {
 		public String getStringRepresentation() {
 			String result = "void";
 			for(int i = 0; i < children.size(); i++) {
-				result += ((TypeNode)children.get(i)).getStringRepresentation();
+				result += ((TypeNode) children.get(i))
+						.getStringRepresentation();
 			}
-			
+
 			return result;
 		}
 	}
@@ -239,11 +243,12 @@ public class Ast {
 		public String getStringRepresentation() {
 			String result = "";
 			for(int i = 0; i < children.size(); i++) {
-				result += ((TypeNode)children.get(i)).getStringRepresentation();
+				result += ((TypeNode) children.get(i))
+						.getStringRepresentation();
 			}
-			
+
 			result += "[" + size.toString() + "]";
-			
+
 			return result;
 		}
 	}
@@ -300,7 +305,7 @@ public class Ast {
 		public String id;
 
 		private Symbol symbol;
-		
+
 		public IdNode(String id) {
 			this.id = id;
 		}
@@ -309,13 +314,14 @@ public class Ast {
 		 * Set the symbol for this id.
 		 * 
 		 * @param symbol The symbol for this id
+		 * 
 		 * @post getType() == symbol.type
 		 */
 		public void setSymbol(Symbol symbol) {
 			this.symbol = symbol;
 			type = symbol.type;
 		}
-		
+
 		/*
 		 * Get the symbol for this id
 		 * 
@@ -324,7 +330,7 @@ public class Ast {
 		public Symbol getSymbol() {
 			return symbol;
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -333,6 +339,7 @@ public class Ast {
 
 	public static class DeclarationNode extends ExpressionNode {
 		public String id;
+
 		// Nothing or Expression
 
 		public DeclarationNode(String id, Ast.TypeNode type,
@@ -345,7 +352,7 @@ public class Ast {
 			addChild(0, initializer);
 			addChild(0, type);
 		}
-		
+
 		public Node getInitializer() {
 			return children.get(1);
 		}
@@ -449,8 +456,8 @@ public class Ast {
 
 	public static abstract class ExpressionNode extends Node {
 		protected TypeNode type;
-        public TypeNode cast = null;
-		
+		public TypeNode cast = null;
+
 		/*
 		 * Set the type of this node. Will be used by ResolveTypeVisitor.
 		 * 
@@ -459,7 +466,7 @@ public class Ast {
 		public void setType(TypeNode type) {
 			this.type = type;
 		}
-		
+
 		/*
 		 * Get the type of this expression.
 		 * 
@@ -469,31 +476,31 @@ public class Ast {
 			return this.type;
 		}
 	}
-	
+
 	public static class CastExpressionNode extends ExpressionNode {
 		@Override
 		public void visit(Visitor visitor) {
-			visitor.visit(this);			
+			visitor.visit(this);
 		}
-		
-		public void setExpression(ExpressionNode e) {	
+
+		public void setExpression(ExpressionNode e) {
 			children.clear();
 			addChild(0, e);
 		}
 
 	}
-	
-	public static class CharToIntExpressionNode extends CastExpressionNode {	
+
+	public static class CharToIntExpressionNode extends CastExpressionNode {
 		public CharToIntExpressionNode() {
 			type = new IntTypeNode();
 		}
-		
+
 		@Override
 		public void visit(Visitor visitor) {
-			visitor.visit(this);			
+			visitor.visit(this);
 		}
 	}
-	
+
 	public static class IntToCharExpressionNode extends CastExpressionNode {
 		public IntToCharExpressionNode() {
 			type = new CharTypeNode();
@@ -501,7 +508,7 @@ public class Ast {
 
 		@Override
 		public void visit(Visitor visitor) {
-			visitor.visit(this);			
+			visitor.visit(this);
 		}
 	}
 
@@ -537,23 +544,23 @@ public class Ast {
 			addChild(0, right);
 			addChild(0, left);
 		}
-		
+
 		/*
 		 * Get the expression to the left of the operator
 		 * 
 		 * @return The expression to the left
 		 */
 		public ExpressionNode getLeftChild() {
-			return (ExpressionNode)children.get(0);
+			return (ExpressionNode) children.get(0);
 		}
-		
+
 		/*
 		 * Get the expression to the right of the operator
 		 * 
 		 * @return The expression to the right
 		 */
 		public ExpressionNode getRightChild() {
-			return (ExpressionNode)children.get(1);
+			return (ExpressionNode) children.get(1);
 		}
 
 		@Override
