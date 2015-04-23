@@ -553,6 +553,18 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+
+    /**
+     * Handle
+     *   #include <stdio.h>
+     */
+    @Override
+    public void handleIncludeIO() {} {
+        Log.debug("handleIncludeIO");
+    }
+
+
+
 	@Override
 	public void startScope() {
 		scope += 1;
