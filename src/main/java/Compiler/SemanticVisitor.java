@@ -15,7 +15,7 @@ public class SemanticVisitor extends Visitor {
      */
     @Override
     public void visit(Ast.FunctionDeclarationNode node) {
-        if(!checkReturn(node)) {
+        if(!checkReturn(node) && !(node.getReturnType() instanceof Ast.VoidTypeNode)) {
             Log.warning("Control may reach end of non-void function '" + node.id + "' without return", node.line);
         }
     }
@@ -30,7 +30,7 @@ public class SemanticVisitor extends Visitor {
         int count = 0;
         for(Ast.Node child : node.children) {
             if(node instanceof Ast.IfStatementNode) {
-                if(count == 0) {
+                if(count <= 1) {
                     count++;
                     continue;
                 }
