@@ -32,6 +32,7 @@ grammar C;
 	public void handleConst() {};
 	public void handleStaticArray(String n) {};
 	public void handleTypeCast() {};
+	public void handleIncludeIO() {};
 }
 
 start
@@ -52,6 +53,7 @@ static_array
 
 funcDecl
 	: type id=ID '(' formalParameters? ')' block {handleFuncDecl($id.text);}
+	| '#include <stdio.h>' {handleIncludeIO();}
 	;
 
 formalParameters
