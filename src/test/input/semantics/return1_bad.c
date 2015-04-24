@@ -1,4 +1,4 @@
-// Enough returns
+// Missing return in the else (or main block)
 
 int a() {
     if(0) {
