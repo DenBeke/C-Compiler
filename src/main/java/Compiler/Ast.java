@@ -374,17 +374,17 @@ public class Ast {
 			addChild(0, params);
 			addChild(0, returnType);
 		}
-		
+
 		public TypeNode getReturnType() {
-			return (TypeNode)children.get(0);
+			return (TypeNode) children.get(0);
 		}
-		
+
 		public BlockStatementNode getBlock() {
-			return (BlockStatementNode)children.get(2);
+			return (BlockStatementNode) children.get(2);
 		}
-		
+
 		public FormalParametersNode getParams() {
-			return (FormalParametersNode)children.get(1);
+			return (FormalParametersNode) children.get(1);
 		}
 
 		@Override
@@ -428,9 +428,9 @@ public class Ast {
 		public ParamNode(ExpressionNode param) {
 			addChild(0, param);
 		}
-		
+
 		public ExpressionNode getExpression() {
-			return (ExpressionNode)children.get(0);
+			return (ExpressionNode) children.get(0);
 		}
 
 		@Override
@@ -449,9 +449,9 @@ public class Ast {
 		public void addParam(int pos, ParamNode param) {
 			addChild(pos, param);
 		}
-		
+
 		public ExpressionNode getParamExpression(int pos) {
-			return ((ParamNode)children.get(pos)).getExpression();
+			return ((ParamNode) children.get(pos)).getExpression();
 		}
 
 		@Override
@@ -584,12 +584,12 @@ public class Ast {
 
 		public UnaryOperatorNode(String operator, ExpressionNode expression) {
 			this.operator = operator;
-			
+
 			addChild(0, expression);
 		}
-		
+
 		public ExpressionNode getExpression() {
-			return (ExpressionNode)children.get(0);
+			return (ExpressionNode) children.get(0);
 		}
 
 		@Override
@@ -641,9 +641,9 @@ public class Ast {
 		public ReturnStatementNode(ExpressionNode expression) {
 			addChild(0, expression);
 		}
-		
+
 		public ExpressionNode getExpression() {
-			return (ExpressionNode)children.get(0);
+			return (ExpressionNode) children.get(0);
 		}
 
 		@Override

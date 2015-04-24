@@ -273,23 +273,27 @@ public class SymbolTableVisitor extends Visitor {
 		if(!(symbol instanceof FuncSymbol)) {
 			Log.fatal("'" + node.id + "' is not a function", node.line);
 		}
-		
-		FuncSymbol funcSymbol = (FuncSymbol)symbol;
-		
+
+		FuncSymbol funcSymbol = (FuncSymbol) symbol;
+
 		if(node.children.size() != funcSymbol.paramTypes.size()) {
-			Log.fatal("Number of arguments for '" + symbol.id + "': " + String.valueOf(funcSymbol.paramTypes.size()) + ", " + String.valueOf(node.children.size()) + " given", node.line);
+			Log.fatal(
+					"Number of arguments for '" + symbol.id + "': "
+							+ String.valueOf(funcSymbol.paramTypes.size())
+							+ ", " + String.valueOf(node.children.size())
+							+ " given", node.line);
 		}
-		
+
 		node.setType(symbol.type);
 		visitChildren(node);
 
 		for(int i = 0; i < node.children.size(); i++) {
 			convert(node.getParamExpression(i), funcSymbol.paramTypes.get(i));
 		}
-		
+
 		handleCastExpression(node);
 	}
-	
+
 	/**
 	 * Visit ReturnStatementNode
 	 *
@@ -298,22 +302,23 @@ public class SymbolTableVisitor extends Visitor {
 	@Override
 	public void visit(Ast.ReturnStatementNode node) {
 		visitChildren(node);
-		
+
 		// Check if we are inside a function
 		Ast.FunctionDeclarationNode func = null;
 		while(node.parent != null) {
 			if(node.parent instanceof Ast.FunctionDeclarationNode) {
-				func = (Ast.FunctionDeclarationNode)node.parent;
+				func = (Ast.FunctionDeclarationNode) node.parent;
 				break;
 			}
-			
+
 			node.parent = node.parent.parent;
 		}
-		
+
 		if(func == null) {
-			Log.fatal("Return statement outside function declaration", node.line);
+			Log.fatal("Return statement outside function declaration",
+					node.line);
 		}
-		
+
 		convert(node.getExpression(), func.getReturnType());
 	}
 
@@ -496,12 +501,13 @@ public class SymbolTableVisitor extends Visitor {
 		Log.debug("UnaryOperatorNode");
 
 		visitChildren(node);
-		
+
 		if(!(node.getExpression().getType() instanceof Ast.IntTypeNode)
 				&& !(node.getExpression().getType() instanceof Ast.CharTypeNode)) {
 
 			Log.fatal("UnaryOperator not supported for type '"
-					+ node.getExpression().getType().getStringRepresentation() + "'", node.line);
+					+ node.getExpression().getType().getStringRepresentation()
+					+ "'", node.line);
 		}
 
 		switch(node.operator) {
@@ -514,7 +520,7 @@ public class SymbolTableVisitor extends Visitor {
 			Log.fatal("Unary operator not implemented: " + node.operator,
 					node.line);
 		}
-		
+
 		handleCastExpression(node);
 	}
 
@@ -522,13 +528,13 @@ public class SymbolTableVisitor extends Visitor {
 		Log.debug("BinaryOperatorNode");
 
 		visitChildren(node);
-		
+
 		switch(node.operator) {
 		case "=":
 			if(node.getLeftChild().getType().constant) {
 				Log.fatal("Can't assign to constant variable", node.line);
 			}
-			
+
 			convert(node.getRightChild(), node.getLeftChild().getType());
 			break;
 		case "==":
@@ -542,8 +548,16 @@ public class SymbolTableVisitor extends Visitor {
 		case "<":
 		case "<=":
 			if(consistent(node.getLeftChild(), node.getRightChild()) == null) {
-				Log.fatal("Operator '" + node.operator + "' not supported for types '" + node.getLeftChild().getType().getStringRepresentation() + "', '" + node.getRightChild().getType().getStringRepresentation() + "'", node.line);
-			};
+				Log.fatal("Operator '"
+						+ node.operator
+						+ "' not supported for types '"
+						+ node.getLeftChild().getType()
+								.getStringRepresentation()
+						+ "', '"
+						+ node.getRightChild().getType()
+								.getStringRepresentation() + "'", node.line);
+			}
+			;
 			break;
 
 		default:
