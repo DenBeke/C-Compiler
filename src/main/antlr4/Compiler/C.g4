@@ -31,6 +31,7 @@ grammar C;
 	public void handlePointer() {};
 	public void handleConst() {};
 	public void handleStaticArray(String n) {};
+	public void handleTypeCast() {};
 	public void handleIncludeIO() {};
 }
 
@@ -68,7 +69,8 @@ block
 	;
 
 expr
-	: '(' expr ')'
+	: '(' type ')' expr {handleTypeCast();}
+	| '(' expr ')'
 	| id=ID {handleID($id.text);}
 	| expr '/' expr {handleBinaryOperator("/");}
 	| expr '*' expr {handleBinaryOperator("*");}

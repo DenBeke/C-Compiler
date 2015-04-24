@@ -265,9 +265,9 @@ public class AstParser extends CParser {
 		Log.debug("handleBinaryOperator: " + operator);
 
 		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
-		ExpressionNode left = (ExpressionNode) list.removeFirst();
-		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
 		ExpressionNode right = (ExpressionNode) list.removeFirst();
+		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
+		ExpressionNode left = (ExpressionNode) list.removeFirst();
 
 		BinaryOperatorNode node = new BinaryOperatorNode(operator, left, right);
 
@@ -523,6 +523,23 @@ public class AstParser extends CParser {
 		IfStatementNode node = new IfStatementNode(condition, body, elseBody);
 
 		insertNode(0, node);
+	}
+
+	/**
+	 * Handle type cast
+	 */
+	@Override
+	public void handleTypeCast() {
+		Log.debug("handleTypeCast");
+		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
+		ExpressionNode expr = (ExpressionNode) list.removeFirst();
+
+		Assert.Assert(list.peekFirst() instanceof TypeNode);
+		TypeNode type = (TypeNode) list.removeFirst();
+
+		expr.cast = type;
+		insertNode(0, expr);
+
 	}
 
 	/**

@@ -125,11 +125,11 @@ public abstract class Visitor {
 	public void visit(Ast.ExprStatementNode node) {
 		visitChildren(node);
 	};
-	
+
 	public void visit(Ast.CharToIntExpressionNode node) {
 		visitChildren(node);
 	};
-	
+
 	public void visit(Ast.IntToCharExpressionNode node) {
 		visitChildren(node);
 	};
