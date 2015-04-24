@@ -496,25 +496,26 @@ public class SymbolTableVisitor extends Visitor {
 		Log.debug("UnaryOperatorNode");
 
 		visitChildren(node);
-		handleCastExpression(node);
-
-		if(!(node.expression.getType() instanceof Ast.IntTypeNode)
-				&& !(node.expression.getType() instanceof Ast.CharTypeNode)) {
+		
+		if(!(node.getExpression().getType() instanceof Ast.IntTypeNode)
+				&& !(node.getExpression().getType() instanceof Ast.CharTypeNode)) {
 
 			Log.fatal("UnaryOperator not supported for type '"
-					+ node.expression.getType() + "'", node.line);
+					+ node.getExpression().getType().getStringRepresentation() + "'", node.line);
 		}
 
 		switch(node.operator) {
 		case "++":
 		case "--":
-			node.setType(node.getType());
+			node.setType(node.getExpression().getType());
 			break;
 
 		default:
 			Log.fatal("Unary operator not implemented: " + node.operator,
 					node.line);
 		}
+		
+		handleCastExpression(node);
 	}
 
 	public void visit(Ast.BinaryOperatorNode node) {

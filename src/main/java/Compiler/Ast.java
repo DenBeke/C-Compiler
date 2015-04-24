@@ -581,13 +581,15 @@ public class Ast {
 
 	public static class UnaryOperatorNode extends ExpressionNode {
 		public String operator;
-		public ExpressionNode expression;
 
 		public UnaryOperatorNode(String operator, ExpressionNode expression) {
 			this.operator = operator;
-			this.expression = expression;
-
+			
 			addChild(0, expression);
+		}
+		
+		public ExpressionNode getExpression() {
+			return (ExpressionNode)children.get(0);
 		}
 
 		@Override
