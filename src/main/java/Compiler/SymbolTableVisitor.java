@@ -274,8 +274,18 @@ public class SymbolTableVisitor extends Visitor {
 			Log.fatal("'" + node.id + "' is not a function", node.line);
 		}
 		
+		FuncSymbol funcSymbol = (FuncSymbol)symbol;
+		
+		if(node.children.size() != funcSymbol.paramTypes.size()) {
+			Log.fatal("Number of arguments for '" + symbol.id + "': " + String.valueOf(funcSymbol.paramTypes.size()) + ", " + String.valueOf(node.children.size()) + " given", node.line);
+		}
+		
 		node.setType(symbol.type);
 		visitChildren(node);
+
+		for(int i = 0; i < node.children.size(); i++) {
+			convert(node.getParamExpression(i), funcSymbol.paramTypes.get(i));
+		}
 		
 		handleCastExpression(node);
 	}

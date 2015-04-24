@@ -425,12 +425,12 @@ public class Ast {
 	}
 
 	public static class ParamNode extends Node {
-		private ExpressionNode param;
-
 		public ParamNode(ExpressionNode param) {
-			this.param = param;
-
 			addChild(0, param);
+		}
+		
+		public ExpressionNode getExpression() {
+			return (ExpressionNode)children.get(0);
 		}
 
 		@Override
@@ -448,6 +448,10 @@ public class Ast {
 
 		public void addParam(int pos, ParamNode param) {
 			addChild(pos, param);
+		}
+		
+		public ExpressionNode getParamExpression(int pos) {
+			return ((ParamNode)children.get(pos)).getExpression();
 		}
 
 		@Override
