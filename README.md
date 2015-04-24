@@ -37,7 +37,11 @@ Or compile an input file:
 Optional features
 =================
 
-Right now our AST and symbol table support nested pointer/const declarations. e.g. `const int * const **** a[5]`.
+* Right now our AST and symbol table support nested pointer/const declarations. e.g. `const int * const **** a[5]`.
+* Implicit casts
+* Cast operator
+* Error when calling undeclared functions
+* Checking for presence of return statements in all branches of function
 
 Authors
 =======
