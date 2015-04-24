@@ -273,11 +273,38 @@ public class SymbolTableVisitor extends Visitor {
 		if(!(symbol instanceof FuncSymbol)) {
 			Log.fatal("'" + node.id + "' is not a function", node.line);
 		}
-
-		visitChildren(node);
-
+		
 		node.setType(symbol.type);
+		visitChildren(node);
+		
 		handleCastExpression(node);
+	}
+	
+	/**
+	 * Visit ReturnStatementNode
+	 *
+	 * @param node
+	 */
+	@Override
+	public void visit(Ast.ReturnStatementNode node) {
+		visitChildren(node);
+		
+		// Check if we are inside a function
+		Ast.FunctionDeclarationNode func = null;
+		while(node.parent != null) {
+			if(node.parent instanceof Ast.FunctionDeclarationNode) {
+				func = (Ast.FunctionDeclarationNode)node.parent;
+				break;
+			}
+			
+			node.parent = node.parent.parent;
+		}
+		
+		if(func == null) {
+			Log.fatal("Return statement outside function declaration", node.line);
+		}
+		
+		convert(node.getExpression(), func.getReturnType());
 	}
 
 	/**

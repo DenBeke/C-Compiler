@@ -365,20 +365,26 @@ public class Ast {
 
 	public static class FunctionDeclarationNode extends Node {
 		public String id;
-		public TypeNode returnType;
-		public FormalParametersNode params;
-		public BlockStatementNode block;
 
 		public FunctionDeclarationNode(String id, TypeNode returnType,
 				FormalParametersNode params, BlockStatementNode block) {
 			this.id = id;
-			this.returnType = returnType;
-			this.params = params;
-			this.block = block;
 
 			addChild(0, block);
 			addChild(0, params);
 			addChild(0, returnType);
+		}
+		
+		public TypeNode getReturnType() {
+			return (TypeNode)children.get(0);
+		}
+		
+		public BlockStatementNode getBlock() {
+			return (BlockStatementNode)children.get(2);
+		}
+		
+		public FormalParametersNode getParams() {
+			return (FormalParametersNode)children.get(1);
 		}
 
 		@Override
@@ -626,12 +632,12 @@ public class Ast {
 	}
 
 	public static class ReturnStatementNode extends StatementNode {
-		private ExpressionNode expression;
-
 		public ReturnStatementNode(ExpressionNode expression) {
-			this.expression = expression;
-
 			addChild(0, expression);
+		}
+		
+		public ExpressionNode getExpression() {
+			return (ExpressionNode)children.get(0);
 		}
 
 		@Override
