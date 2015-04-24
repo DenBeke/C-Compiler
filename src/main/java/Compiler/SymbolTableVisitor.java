@@ -522,12 +522,14 @@ public class SymbolTableVisitor extends Visitor {
 		Log.debug("BinaryOperatorNode");
 
 		visitChildren(node);
-
+		
 		switch(node.operator) {
 		case "=":
 			if(node.getLeftChild().getType().constant) {
 				Log.fatal("Can't assign to constant variable", node.line);
 			}
+			
+			convert(node.getRightChild(), node.getLeftChild().getType());
 			break;
 		case "==":
 		case "!=":
@@ -539,6 +541,9 @@ public class SymbolTableVisitor extends Visitor {
 		case ">=":
 		case "<":
 		case "<=":
+			if(consistent(node.getLeftChild(), node.getRightChild()) == null) {
+				Log.fatal("Operator '" + node.operator + "' not supported for types '" + node.getLeftChild().getType().getStringRepresentation() + "', '" + node.getRightChild().getType().getStringRepresentation() + "'", node.line);
+			};
 			break;
 
 		default:
