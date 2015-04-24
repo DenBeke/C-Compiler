@@ -14,15 +14,16 @@ Tests:
 
 // Some comment
 int *funcA(int a, int b, char* s) {
+	int* d;
 	if(a == 5) {
-		return 5;
+		return d;
 	}
 
 	if(b == 0) {
 		return "test";
 	} else {
 		int c = 1;
-		return c;
+		return d;
 	}
 
 	while(1)
@@ -31,14 +32,14 @@ int *funcA(int a, int b, char* s) {
 		else
 			b = 1;
 
-	return s;
+	return d;
 }
 
 /*
 	some more comments
 	on multiple lines
 */
-void* funcB(char* abc) {
+char* funcB(char* abc) {
 	int i = 0;
 	while(i != 5) { // While comment
 		i = i + 1; /* i = i + 1 */
@@ -52,7 +53,7 @@ void* funcB(char* abc) {
 			return something else
 		*/
 		break;
-		return 'a';
+		return abc;
 	}
 
 	for(i = 0; i < 10; i++) {
@@ -61,9 +62,9 @@ void* funcB(char* abc) {
 	int a = 0;
 	for(a = 5;;) {
 		if(1==2)
-			funcB(a);
+			funcB("abc");
 		else
-			funcA(a);
+			funcA(a, i, abc);
 	}
 }
 
