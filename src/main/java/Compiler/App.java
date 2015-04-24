@@ -22,7 +22,7 @@ public class App {
 			visitor.visit(root);
             visitor = new SemanticVisitor();
             visitor.visit(root);
-			System.out.println(root.toString());
+//			System.out.println(root.toString());
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
