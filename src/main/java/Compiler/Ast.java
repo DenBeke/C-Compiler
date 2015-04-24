@@ -638,12 +638,12 @@ public class Ast {
 	}
 
 	public static class ReturnStatementNode extends StatementNode {
-		public ReturnStatementNode(ExpressionNode expression) {
+		public ReturnStatementNode(Node expression) {
 			addChild(0, expression);
 		}
 
-		public ExpressionNode getExpression() {
-			return (ExpressionNode) children.get(0);
+		public Node getExpression() {
+			return (Node) children.get(0);
 		}
 
 		@Override

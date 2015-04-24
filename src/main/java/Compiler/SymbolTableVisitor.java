@@ -319,7 +319,16 @@ public class SymbolTableVisitor extends Visitor {
 					node.line);
 		}
 
-		convert(node.getExpression(), func.getReturnType());
+        if(node.getExpression() instanceof Ast.ExpressionNode) {
+            convert((Ast.ExpressionNode)node.getExpression(), func.getReturnType());
+        }
+        else {
+            if(!(func.getReturnType() instanceof Ast.VoidTypeNode)) {
+                Log.fatal("Empty return in non-void function",
+                        node.line);
+            }
+        }
+
 	}
 
 	/**
@@ -563,9 +572,9 @@ public class SymbolTableVisitor extends Visitor {
 		default:
 			Log.fatal("Binary operator not implemented: " + node.operator,
 					node.line);
-		}
+        }
 
-		node.setType(consistent(node.getLeftChild(), node.getRightChild()));
+        node.setType(consistent(node.getLeftChild(), node.getRightChild()));
 		handleCastExpression(node);
 	}
 

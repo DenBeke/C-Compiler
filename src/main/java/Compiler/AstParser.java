@@ -459,10 +459,16 @@ public class AstParser extends CParser {
 	public void handleReturnStatement() {
 		Log.debug("handleReturnStatement");
 
-		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
-		ReturnStatementNode node = new ReturnStatementNode(
-				(ExpressionNode) list.removeFirst());
-
+		Assert.Assert(list.peekFirst() instanceof ExpressionNode || list.peekFirst() instanceof NothingNode);
+        ReturnStatementNode node;
+        if(list.peekFirst() instanceof NothingNode) {
+            node = new ReturnStatementNode(new NothingNode());
+            list.removeFirst();
+        }
+        else {
+            node = new ReturnStatementNode(
+                    (ExpressionNode) list.removeFirst());
+        }
 		insertNode(0, node);
 	}
 
