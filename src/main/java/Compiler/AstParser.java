@@ -36,6 +36,8 @@ import Compiler.Ast.TypeNode;
 import Compiler.Ast.UnaryOperatorNode;
 import Compiler.Ast.VoidTypeNode;
 import Compiler.Ast.WhileStatementNode;
+import Compiler.Ast.ReferenceExpressionNode;
+import Compiler.Ast.DereferenceExpressionNode;
 
 public class AstParser extends CParser {
 
@@ -45,6 +47,24 @@ public class AstParser extends CParser {
 
 	public AstParser(TokenStream input) {
 		super(input);
+	}
+
+	@Override
+	public void handleDereference() {
+		Log.debug("handleDereference");
+
+		ExpressionNode e = (ExpressionNode)list.removeFirst();
+		DereferenceExpressionNode node = new DereferenceExpressionNode(e);
+		insertNode(0, node);
+	}
+
+	@Override
+	public void handleReference() {
+		Log.debug("handleReference");
+
+		ExpressionNode e = (ExpressionNode)list.removeFirst();
+		ReferenceExpressionNode node = new ReferenceExpressionNode(e);
+		insertNode(0, node);
 	}
 
 	/**

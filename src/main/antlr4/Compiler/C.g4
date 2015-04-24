@@ -33,6 +33,8 @@ grammar C;
 	public void handleStaticArray(String n) {};
 	public void handleTypeCast() {};
 	public void handleIncludeIO() {};
+	public void handleReference() {};
+	public void handleDereference() {};
 }
 
 start
@@ -71,6 +73,8 @@ block
 expr
 	: '(' type ')' expr {handleTypeCast();}
 	| '(' expr ')'
+	| '&' expr {handleReference();}
+	| '*' expr {handleDereference();}
 	| id=ID {handleID($id.text);}
 	| expr '/' expr {handleBinaryOperator("/");}
 	| expr '*' expr {handleBinaryOperator("*");}

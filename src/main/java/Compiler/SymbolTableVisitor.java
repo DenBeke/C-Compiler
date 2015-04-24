@@ -68,7 +68,7 @@ public class SymbolTableVisitor extends Visitor {
 	 * @param t The type to typecast to
 	 */
 	public void convert(Ast.ExpressionNode e, Ast.TypeNode t) {
-		if(e.getType().getClass().equals(t.getClass())) {
+		if(e.getType().equals(t)) {
 			return;
 		}
 
@@ -522,6 +522,30 @@ public class SymbolTableVisitor extends Visitor {
 		}
 
 		handleCastExpression(node);
+	}
+
+	@Override
+	public void visit(Ast.DereferenceExpressionNode node) {
+		Log.debug("DereferenceExpressionNode");
+		
+		visitChildren(node);
+
+		if(!(node.getExpression().getType() instanceof Ast.PointerTypeNode)) {
+			Log.fatal("Can't dereference non-pointer type '" + node.getExpression().getType().getStringRepresentation()  + "'", node.line);
+		}
+
+		node.setType((Ast.TypeNode)node.getExpression().getType().children.get(0));
+	}
+
+	@Override
+	public void visit(Ast.ReferenceExpressionNode node) {
+		Log.debug("ReferenceExpressionNode");
+		
+		visitChildren(node);
+
+		Ast.PointerTypeNode pointer = new Ast.PointerTypeNode();
+		pointer.addChild(0, node.getExpression().getType());
+		node.setType(pointer);
 	}
 
 	public void visit(Ast.BinaryOperatorNode node) {

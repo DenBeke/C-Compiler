@@ -1,0 +1,1 @@
+6: Can't cast char* to char

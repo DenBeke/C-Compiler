@@ -15,15 +15,16 @@ Tests:
 // Some comment
 int *funcA(int a, int b, char* s) {
 	int* d;
+	int** e = &d;
 	if(a == 5) {
 		return d;
 	}
 
 	if(b == 0) {
-		return "test";
+		return &a;
 	} else {
 		int c = 1;
-		return d;
+		return *e;
 	}
 
 	while(1)

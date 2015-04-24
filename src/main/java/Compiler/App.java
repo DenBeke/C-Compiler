@@ -9,6 +9,8 @@ import org.antlr.v4.runtime.CommonTokenStream;
 public class App {
 	public static void main(String[] args) {
 
+		Log.debug = false;
+
 		ANTLRInputStream input;
 		try {
 			input = new ANTLRInputStream(System.in);

@@ -134,6 +134,14 @@ public abstract class Visitor {
 		visitChildren(node);
 	};
 
+	public void visit(Ast.ReferenceExpressionNode node) {
+		visitChildren(node);
+	};
+
+	public void visit(Ast.DereferenceExpressionNode node) {
+		visitChildren(node);
+	};
+
 	/*
 	 * Visit all the children of the node.
 	 * 

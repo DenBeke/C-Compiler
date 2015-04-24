@@ -1,0 +1,1 @@
+2: Can't cast int to int*

@@ -116,6 +116,22 @@ public class Ast {
 			return null;
 		}
 
+		public boolean equals(TypeNode t) {
+			if(!getClass().equals(t.getClass())) {
+				return false;
+			}
+
+			if(children.size() != t.children.size()) {
+				return false;
+			}
+
+			if(children.size() > 0 && t.children.size() > 0) {
+				return ((TypeNode)children.get(0)).equals((TypeNode)t.children.get(0));
+			}
+
+			return true;
+		}
+
 		public abstract String getStringRepresentation();
 	}
 
@@ -487,6 +503,35 @@ public class Ast {
 		}
 	}
 
+	public static class ReferenceExpressionNode extends ExpressionNode {
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
+
+		public ReferenceExpressionNode(ExpressionNode e) {
+			addChild(0, e);
+		}
+
+		public ExpressionNode getExpression() {
+			return (ExpressionNode)children.get(0);
+		}
+	}
+
+	public static class DereferenceExpressionNode extends ExpressionNode {
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
+
+		public DereferenceExpressionNode(ExpressionNode e) {
+			addChild(0, e);
+		}
+
+		public ExpressionNode getExpression() {
+			return (ExpressionNode)children.get(0);
+		}
+	}
 	public static class CastExpressionNode extends ExpressionNode {
 		@Override
 		public void visit(Visitor visitor) {
