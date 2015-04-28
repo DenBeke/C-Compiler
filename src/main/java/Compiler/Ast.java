@@ -31,6 +31,21 @@ public class Ast {
 			children.add(pos, n);
 		}
 
+		public Vector<String> codeL() {
+			Log.fatal("codeL not implemented for " + getClass().getName(), line);
+			return null;
+		}
+
+		public Vector<String> codeR() {
+			Log.fatal("codeR not implemented for " + getClass().getName(), line);
+			return null;
+		}
+
+		public Vector<String> code() {
+			Log.fatal("code not implemented for " + getClass().getName(), line);
+			return null;
+		}
+
 		public void replaceNode(Node f, Node t) {
 			int pos = -1;
 			for(int i = 0; i < children.size(); i++) {
@@ -283,6 +298,14 @@ public class Ast {
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
+		}
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+
+			instructions.add("ldc i " + Integer.toString(value));
+			return instructions;
 		}
 
 	}
@@ -554,6 +577,16 @@ public class Ast {
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
 		}
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+
+			instructions.addAll(children.get(0).codeR());
+			instructions.add("conv c i");
+
+			return instructions;
+		}
 	}
 
 	public static class IntToCharExpressionNode extends CastExpressionNode {
@@ -564,6 +597,16 @@ public class Ast {
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
+		}
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+
+			instructions.addAll(children.get(0).codeR());
+			instructions.add("conv i c");
+
+			return instructions;
 		}
 	}
 
