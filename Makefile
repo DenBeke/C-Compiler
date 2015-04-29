@@ -4,7 +4,7 @@ build:
 	mvn package
 
 run:
-	mvn exec:java -Dexec.mainClass="Compiler.App"
+	./bin/c2p
 
 test:
 	mvn test
