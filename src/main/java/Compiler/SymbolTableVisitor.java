@@ -557,10 +557,19 @@ public class SymbolTableVisitor extends Visitor {
 		node.setType(pointer);
 	}
 
+	public void visit(Ast.IfStatementNode node) {
+		Log.debug("IfStatementNode");
+
+		visitChildren(node);
+		convert(node.getCondition(), new Ast.IntTypeNode());
+	}
+
 	public void visit(Ast.BinaryOperatorNode node) {
 		Log.debug("BinaryOperatorNode");
 
 		visitChildren(node);
+
+		Ast.TypeNode resultType = null;
 
 		switch(node.operator) {
 		case "=":
@@ -569,18 +578,23 @@ public class SymbolTableVisitor extends Visitor {
 			}
 
 			convert(node.getRightChild(), node.getLeftChild().getType());
+			resultType = node.getLeftChild().getType();
 			break;
 		case "==":
 		case "!=":
-		case "+":
-		case "-":
-		case "/":
-		case "*":
 		case ">":
 		case ">=":
 		case "<":
 		case "<=":
-			if(consistent(node.getLeftChild(), node.getRightChild()) == null) {
+			consistent(node.getLeftChild(), node.getRightChild());
+			resultType = new Ast.IntTypeNode();
+			break;
+		case "+":
+		case "-":
+		case "/":
+		case "*":
+			resultType = consistent(node.getLeftChild(), node.getRightChild());
+			if(resultType == null) {
 				Log.fatal("Operator '"
 						+ node.operator
 						+ "' not supported for types '"
@@ -590,7 +604,7 @@ public class SymbolTableVisitor extends Visitor {
 						+ node.getRightChild().getType()
 								.getStringRepresentation() + "'", node.line);
 			}
-			;
+
 			break;
 
 		default:
@@ -598,7 +612,7 @@ public class SymbolTableVisitor extends Visitor {
 					node.line);
         }
 
-        node.setType(consistent(node.getLeftChild(), node.getRightChild()));
+        node.setType(resultType);
 		handleCastExpression(node);
 	}
 

@@ -371,6 +371,22 @@ public class Ast {
 		}
 
 		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+			instructions.add("ldo " + CodeGenVisitor.typeToPtype(getType()) + " <&" + id + ">");
+
+			return instructions;
+		}
+
+		@Override
+		public Vector<String> codeL() {
+			Vector<String> instructions = new Vector<String>();
+			instructions.add("ldc a <&" + id + ">");
+
+			return instructions;
+		}
+
+		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
 		}
@@ -378,8 +394,6 @@ public class Ast {
 
 	public static class DeclarationNode extends ExpressionNode {
 		public String id;
-
-		// Nothing or Expression
 
 		public DeclarationNode(String id, Ast.TypeNode type,
 				Ast.Node initializer) {
@@ -390,6 +404,27 @@ public class Ast {
 
 			addChild(0, initializer);
 			addChild(0, type);
+		}
+
+		@Override
+		public Vector<String> code() {
+			Vector<String> instructions = new Vector<String>();
+
+			// TODO: Can add default initial value
+			if(!(getInitializer() instanceof NothingNode)) {
+				instructions.addAll(getInitializer().codeR());
+				instructions.add("sro " + CodeGenVisitor.typeToPtype(getType()) + " <&" + id + ">");
+			}
+
+			return instructions;
+		}
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = code();
+			instructions.add("ldo " + CodeGenVisitor.typeToPtype(getType()) + " <&" + id + ">");
+
+			return instructions;
 		}
 
 		public Node getInitializer() {
@@ -424,6 +459,15 @@ public class Ast {
 
 		public FormalParametersNode getParams() {
 			return (FormalParametersNode) children.get(1);
+		}
+
+		@Override
+		public Vector<String> code() {
+			Vector<String> instructions = new Vector<String>();
+
+			instructions.addAll(getBlock().code());
+
+			return instructions;
 		}
 
 		@Override
@@ -616,6 +660,18 @@ public class Ast {
 		}
 
 		@Override
+		public Vector<String> code() {
+			Vector<String> instructions = new Vector<String>();
+
+
+			for(int i = 0; i < children.size(); i++) {
+				instructions.addAll(children.get(i).code());
+			}
+
+			return instructions;
+		}
+
+		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
 		}
@@ -624,6 +680,13 @@ public class Ast {
 	public static class ExprStatementNode extends StatementNode {
 		public ExprStatementNode(ExpressionNode expression) {
 			addChild(0, expression);
+		}
+
+		public Vector<String> code() {
+			Vector<String> instructions = new Vector<String>();
+			instructions.addAll(children.get(0).code());
+
+			return instructions;
 		}
 
 		@Override
@@ -642,6 +705,82 @@ public class Ast {
 			addChild(0, right);
 			addChild(0, left);
 		}
+
+		@Override
+		public Vector<String> code() {
+			// TODO: Generate pop instruction to remove unneeded result.
+			return codeR();
+		}
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+
+			String pType = CodeGenVisitor.typeToPtype(getType());
+			String childPType = CodeGenVisitor.typeToPtype(getLeftChild().getType());
+
+			if(pType == null || childPType == null) {
+				Log.fatal("Cant convert type to ptype", line);
+			}
+
+			if(operator.equals("=")) {
+				instructions.addAll(getLeftChild().codeL());
+				instructions.addAll(getRightChild().codeR());
+			} else {
+				instructions.addAll(getLeftChild().codeR());
+				instructions.addAll(getRightChild().codeR());
+			}
+
+			switch(operator) {
+			case "=":
+				instructions.add("sto " + CodeGenVisitor.typeToPtype(getLeftChild().getType()));
+				// Put assigned value back on stack
+				instructions.addAll(getLeftChild().codeL());
+				instructions.add("ind " + CodeGenVisitor.typeToPtype(getLeftChild().getType()));
+				break;
+			case "==":
+				instructions.add("equ " + childPType);
+				instructions.add("conv b " + pType);
+				break;
+			case "!=":
+				instructions.add("neq " + childPType);
+				instructions.add("conv b " + pType);
+				break;
+			case ">":
+				instructions.add("grt " + childPType);
+				instructions.add("conv b " + pType);
+				break;
+			case ">=":
+				instructions.add("geq " + childPType);
+				instructions.add("conv b " + pType);
+				break;
+			case "<":
+				instructions.add("les " + childPType);
+				instructions.add("conv b " + pType);
+				break;
+			case "<=":
+				instructions.add("leq " + childPType);
+				instructions.add("conv b " + pType);
+				break;
+			case "+":
+				instructions.add("add " + childPType);
+				break;
+			case "-":
+				instructions.add("sub " + childPType);
+				break;
+			case "/":
+				instructions.add("div " + childPType);
+				break;
+			case "*":
+				instructions.add("mul " + childPType);
+				break;
+			default:
+				Log.fatal("Codegen invalid binary operator: " + operator, line);
+			}
+
+			return instructions;
+		}
+
 
 		/*
 		 * Get the expression to the left of the operator
@@ -759,22 +898,42 @@ public class Ast {
 	}
 
 	public static class IfStatementNode extends StatementNode {
-		private ExpressionNode condition;
-		private StatementNode body;
-		private Node elseBody;
-
 		public IfStatementNode(ExpressionNode condition, StatementNode body,
 				Node elseBody) {
 			Assert.Assert(elseBody instanceof NothingNode
 					|| elseBody instanceof StatementNode);
 
-			this.condition = condition;
-			this.body = body;
-			this.elseBody = elseBody;
-
 			addChild(0, elseBody);
 			addChild(0, body);
 			addChild(0, condition);
+		}
+
+		public ExpressionNode getCondition() {
+			return (ExpressionNode)children.get(0);
+		}
+
+		public StatementNode getBody() {
+			return (StatementNode)children.get(1);
+		}
+
+		public Node getElse() {
+			return children.get(2);
+		}
+
+		@Override
+		public Vector<String> code() {
+			Vector<String> instructions = new Vector<String>();
+
+			instructions.addAll(getCondition().codeR());
+			instructions.add("conv " + CodeGenVisitor.typeToPtype(getCondition().getType())  + " b");
+			instructions.add("fjp else");
+			instructions.addAll(getBody().code());
+			instructions.add("fjp endif");
+			instructions.add("else:");
+			instructions.addAll(getElse().code());
+			instructions.add("endif:");
+
+			return instructions;
 		}
 
 		@Override
