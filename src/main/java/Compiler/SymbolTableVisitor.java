@@ -127,6 +127,7 @@ public class SymbolTableVisitor extends Visitor {
 	public static class FuncSymbol extends Symbol {
 
 		public Vector<Ast.TypeNode> paramTypes = new Vector<>();
+		public Ast.TypeNode returnType;
 		public String label;
 
 		/**
@@ -282,6 +283,7 @@ public class SymbolTableVisitor extends Visitor {
 		}
 
 		FuncSymbol funcSymbol = (FuncSymbol) symbol;
+		node.symbol = funcSymbol;
 
 		if(node.children.size() != funcSymbol.paramTypes.size()) {
 			Log.fatal(
@@ -297,8 +299,6 @@ public class SymbolTableVisitor extends Visitor {
 		for(int i = 0; i < node.children.size(); i++) {
 			convert(node.getParamExpression(i), funcSymbol.paramTypes.get(i));
 		}
-
-		node.symbol = symbol;
 
 		handleCastExpression(node);
 	}
@@ -443,10 +443,12 @@ public class SymbolTableVisitor extends Visitor {
 
 		FuncSymbol symbol = new FuncSymbol();
 
+		symbol.returnType = node.getReturnType();
 		symbol.id = node.id;
 		symbol.label = node.id + Integer.toString(functionDeclCounter);
 		functionDeclCounter += 1;
 		symbol.type = (Ast.TypeNode) node.children.get(0);
+		node.symbol = symbol;
 
 		// add param types
 		for(int i = 0; i < node.children.get(1).children.size(); i++) {

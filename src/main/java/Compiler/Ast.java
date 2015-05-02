@@ -131,25 +131,55 @@ public class Ast {
 		public Vector<String> code() {
 			Vector<String> instructions = new Vector<String>();
 
-			// nr of variable declarations
+			FuncSymbol main = null;
+
+			// nr of variable declarations. Start at 1 because there will be a return value on the stack
 			int varDecls = 0;
 			for(int i = 0; i < children.size(); i++) {
 				if(children.get(i) instanceof DeclarationNode) {
 					((DeclarationNode)children.get(i)).symbol.offset = varDecls;
 					varDecls += 1;
+				} else if(children.get(i) instanceof FunctionDeclarationNode) {
+					FunctionDeclarationNode fd = (FunctionDeclarationNode)children.get(i);
+					if(fd.id.equals("main")) {
+						main = fd.symbol;
+					}
 				}
 			}
 
-			if(varDecls > 0) {
-				instructions.add("ssp " + Integer.toString(varDecls));
+			if(main == null) {
+				Log.fatal("Could not find main function", -1);
 			}
 
+			if(main.paramTypes.size() > 0) {
+				Log.fatal("Main can't take arguments", -1);
+			}
+
+			if(!(main.returnType instanceof VoidTypeNode)) {
+				Log.fatal("Main should return void", -1);
+			}
+
+
+			// Pretend that global scope is a function enclosing everything else
+			instructions.add("mst 0");
+			instructions.add("cup 0 init");
+			instructions.add("init:");
+			instructions.add("ssp " + Integer.toString(varDecls + 5));
+			for(int i = 0; i < children.size(); i++) {
+				if(children.get(i) instanceof DeclarationNode) {
+					instructions.addAll(children.get(i).code());
+				}
+			}
+
+			instructions.add("mst 0");
+			instructions.add("cup 0 " + main.label);
+			instructions.add("hlt");
 
 			for(int i = 0; i < children.size(); i++) {
-				instructions.addAll(children.get(i).code());
+				if(children.get(i) instanceof FunctionDeclarationNode) {
+					instructions.addAll(children.get(i).code());
+				}
 			}
-
-			instructions.add("hlt");
 
 			return instructions;
 		}
@@ -519,7 +549,7 @@ public class Ast {
 
 			instructions.add(symbol.label + ":");
 			
-			int staticDataSize = 0;
+			int staticDataSize = 5;
 
 			for(int i = 0; i < getParams().children.size(); i++) {
 				FormalParameterNode fp = (FormalParameterNode)getParams().children.get(i);
@@ -541,8 +571,13 @@ public class Ast {
 			for(int i = 0; i < getBlock().children.size(); i++) {
 				instructions.addAll(getBlock().children.get(i).code());
 			}
-
-			instructions.add("retf");
+		
+			// TODO: Should be in AST
+			if(getReturnType() instanceof VoidTypeNode) {
+				instructions.add("retp");
+			} else {
+				instructions.add("retf");
+			}
 
 			return instructions;
 		}
@@ -617,13 +652,34 @@ public class Ast {
 		}
 
 		@Override
-		public Vector<String> codeR() {
+		public Vector<String> code() {
 			Vector<String> instructions = new Vector<String>();
-			// Functions are in global scope, so static link points 1 scope up.
-			instructions.add("mst 1");
+
+			instructions.add("mst 0");
 
 			for(int i = 0; i < children.size(); i++) {
-				instructions.addAll(getParamExpression(i).getExpression().codeR());
+				instructions.addAll(getParamExpression(i).codeR());
+			}
+
+			instructions.add("cup " + Integer.toString(children.size()) + " " + symbol.label);
+
+			// TODO: generate pop instruction if non void function
+
+			return instructions;
+		}
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+
+			if(symbol.returnType instanceof VoidTypeNode) {
+				Log.fatal("Cannot generate rvalue for void function", line);
+			}
+
+			instructions.add("mst 0");
+
+			for(int i = 0; i < children.size(); i++) {
+				instructions.addAll(getParamExpression(i).codeR());
 			}
 
 			instructions.add("cup " + Integer.toString(children.size()) + " " + symbol.label);
@@ -803,14 +859,9 @@ public class Ast {
 		@Override
 		public Vector<String> code() {
 			Vector<String> instructions = new Vector<String>();
+			instructions.addAll(codeR());
 
-			// We dont need the value of the binary expression, so we only
-			// need to generate instructions for an assignement.
-			if(operator.equals("=")) {
-				instructions.addAll(getLeftChild().codeL());
-				instructions.addAll(getRightChild().codeR());
-				instructions.add("sto " + CodeGenVisitor.typeToPtype(getLeftChild().getType()));
-			}
+			// TODO: generate pop instruction.
 
 			return instructions;
 		}
@@ -977,15 +1028,23 @@ public class Ast {
 		}
 
 		@Override
-		public Vector<String> codeR() {
+		public Vector<String> code() {
 			Vector<String> instructions = new Vector<String>();
 
 			if(!(getExpression() instanceof NothingNode)) {
 				instructions.addAll(((ExpressionNode)getExpression()).codeR());
-
+				instructions.add("str " + CodeGenVisitor.typeToPtype(((ExpressionNode)getExpression()).getType()) + " 0 0");
+				instructions.add("retf");
+			} else {
+				instructions.add("retp");
 			}
 
 			return instructions;
+		}
+
+		@Override
+		public Vector<String> codeR() {
+			return code();
 		}
 
 		@Override
@@ -1039,14 +1098,24 @@ public class Ast {
 		public Vector<String> code() {
 			Vector<String> instructions = new Vector<String>();
 
+
+			String endIfLabel = CodeGenVisitor.getUniqueLabel();
+			String elseLabel = CodeGenVisitor.getUniqueLabel();
+
 			instructions.addAll(getCondition().codeR());
 			instructions.add("conv " + CodeGenVisitor.typeToPtype(getCondition().getType())  + " b");
-			instructions.add("fjp else");
+			if(getElse() instanceof NothingNode) {
+				instructions.add("fjp " + endIfLabel);
+			} else {
+				instructions.add("fjp " + elseLabel);
+			}
 			instructions.addAll(getBody().code());
-			instructions.add("fjp endif");
-			instructions.add("else:");
-			instructions.addAll(getElse().code());
-			instructions.add("endif:");
+			instructions.add("ujp " + endIfLabel);
+			if(!(getElse() instanceof NothingNode)) {
+				instructions.add(elseLabel + ":");
+				instructions.addAll(getElse().code());
+			}
+			instructions.add(endIfLabel + ":");
 
 			return instructions;
 		}

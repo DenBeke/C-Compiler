@@ -8,6 +8,14 @@ import java.util.Vector;
 public class CodeGenVisitor extends Visitor {
 	private Vector<String> instructions = new Vector<String>();
 
+	private static int labelCounter = 0;
+	public static String getUniqueLabel() {
+		String label = "L" + Integer.toString(labelCounter);
+		labelCounter += 1;
+
+		return label;
+	}
+
 	public static String typeToPtype(Ast.TypeNode t) {
 		if(t.equals(new Ast.IntTypeNode())) {
 			return "i";
