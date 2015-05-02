@@ -10,7 +10,7 @@ public class App {
 	public static void main(String[] args) {
 
 		Log.debug = false;
-		Log.exception = true;
+		Log.exception = false;
 
 		ANTLRInputStream input;
 		try {

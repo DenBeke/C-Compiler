@@ -25,7 +25,9 @@ public class SymbolTableVisitor extends Visitor {
 				return new Ast.CharTypeNode();
 			} else if(t2 instanceof Ast.IntTypeNode) {
 				return new Ast.IntTypeNode();
-			}
+			}/*else if(t2 instanceof Ast.PointerTypeNode) {
+				return new Ast.IntTypeNode();
+			}*/
 		}
 
 		if(t1 instanceof Ast.IntTypeNode) {
@@ -33,9 +35,21 @@ public class SymbolTableVisitor extends Visitor {
 				return new Ast.IntTypeNode();
 			} else if(t2 instanceof Ast.IntTypeNode) {
 				return new Ast.IntTypeNode();
-			}
+			} /*else if(t2 instanceof Ast.PointerTypeNode) {
+				return new Ast.IntTypeNode();
+			}*/
 		}
 
+/*		if(t1 instanceof Ast.PointerTypeNode) {
+			if(t2 instanceof Ast.CharTypeNode) {
+				return new Ast.IntTypeNode();
+			} else if(t2 instanceof Ast.IntTypeNode) {
+				return new Ast.IntTypeNode();
+			} else if(t2 instanceof Ast.PointerTypeNode) {
+				return new Ast.IntTypeNode();
+			}
+		}
+*/
 		return null;
 	}
 
@@ -558,7 +572,12 @@ public class SymbolTableVisitor extends Visitor {
 			Log.fatal("Can't dereference non-pointer type '" + node.getExpression().getType().getStringRepresentation()  + "'", node.line);
 		}
 
-		node.setType((Ast.TypeNode)node.getExpression().getType().children.get(0));
+		if(node.getExpression().getType().children.size() > 0) {
+			node.setType((Ast.TypeNode)node.getExpression().getType().children.get(0));
+		} else {
+			Log.fatal("Don't go crazy with the casts. Try splitting it up in multiple statements.", node.line);
+		}
+		handleCastExpression(node);
 	}
 
 	@Override
@@ -570,6 +589,8 @@ public class SymbolTableVisitor extends Visitor {
 		Ast.PointerTypeNode pointer = new Ast.PointerTypeNode();
 		pointer.addChild(0, node.getExpression().getType());
 		node.setType(pointer);
+
+		handleCastExpression(node);
 	}
 
 	public void visit(Ast.IfStatementNode node) {

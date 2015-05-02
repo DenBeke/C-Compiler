@@ -236,6 +236,19 @@ public class Ast {
 		}
 
 		@Override
+		public Node getTypeCastNode(TypeNode t) {
+			if(t instanceof IntTypeNode) {
+				return new PointerToIntExpressionNode();
+			}
+
+			if(t instanceof PointerTypeNode) {
+				return new PointerToPointerExpressionNode();
+			}
+
+			return null;
+		}
+
+		@Override
 		public String getStringRepresentation() {
 			String result = "";
 			for(int i = 0; i < children.size(); i++) {
@@ -259,6 +272,10 @@ public class Ast {
 		public Node getTypeCastNode(TypeNode t) {
 			if(t instanceof CharTypeNode) {
 				return new IntToCharExpressionNode();
+			}
+
+			if(t instanceof PointerTypeNode) {
+				return new IntToPointerExpressionNode();
 			}
 
 			return null;
@@ -785,7 +802,7 @@ public class Ast {
 		}
 
 		public void setExpression(ExpressionNode e) {
-			children.clear();
+			e.children.clear();
 			addChild(0, e);
 		}
 
@@ -828,6 +845,68 @@ public class Ast {
 
 			instructions.addAll(children.get(0).codeR());
 			instructions.add("conv i c");
+
+			return instructions;
+		}
+	}
+
+	public static class PointerToIntExpressionNode extends CastExpressionNode {
+		public PointerToIntExpressionNode() {
+			type = new IntTypeNode();
+		}
+
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+
+			instructions.addAll(children.get(0).codeR());
+			instructions.add("conv a i");
+
+			return instructions;
+		}
+	}
+
+	public static class PointerToPointerExpressionNode extends CastExpressionNode {
+		public PointerToPointerExpressionNode() {
+			type = new PointerTypeNode();
+		}
+
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+
+			instructions.addAll(children.get(0).codeR());
+
+			return instructions;
+		}
+	}
+
+	public static class IntToPointerExpressionNode extends CastExpressionNode {
+		public IntToPointerExpressionNode() {
+			type = new PointerTypeNode();
+		}
+
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+
+			instructions.addAll(children.get(0).codeR());
+			instructions.add("conv i a");
 
 			return instructions;
 		}
