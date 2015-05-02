@@ -25,8 +25,11 @@ public class CodeGenVisitor extends Visitor {
 	}
 
 	public void visit(Ast.FileNode node) {
-		visitChildren(node);
-		System.out.println(instructions.toString());
+		instructions.addAll(node.code());
+
+		for(int i = 0; i < instructions.size(); i++) {
+			System.out.println(instructions.get(i));
+		}
 	}
 
 	public void visit(Ast.DeclarationNode node) {

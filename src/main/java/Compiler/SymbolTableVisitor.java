@@ -6,6 +6,7 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 public class SymbolTableVisitor extends Visitor {
+	private int functionDeclCounter = 0;
 
 	/**
 	 * Generalize two types
@@ -108,6 +109,8 @@ public class SymbolTableVisitor extends Visitor {
 	public static class Symbol {
 		public String id;
 		public Ast.TypeNode type;
+		public int scope;
+		public int offset;
 	}
 
 	/**
@@ -124,6 +127,7 @@ public class SymbolTableVisitor extends Visitor {
 	public static class FuncSymbol extends Symbol {
 
 		public Vector<Ast.TypeNode> paramTypes = new Vector<>();
+		public String label;
 
 		/**
 		 * Add new parameter type node to the function symbol
@@ -243,12 +247,15 @@ public class SymbolTableVisitor extends Visitor {
 					+ ")", node.line);
 		}
 
-		Symbol symbol = new Symbol();
+		VarSymbol symbol = new VarSymbol();
+		symbol.scope = node.scope;
 		symbol.id = node.id;
 		Assert.Assert(node.children.get(0) instanceof Ast.TypeNode,
 				"Expected TypeNode");
 		symbol.type = (Ast.TypeNode) node.children.get(0);
 		symbolTableStack.peek().addSymbol(symbol);
+
+		node.symbol = symbol;
 
 		visitChildren(node);
 		handleCastExpression(node);
@@ -290,6 +297,8 @@ public class SymbolTableVisitor extends Visitor {
 		for(int i = 0; i < node.children.size(); i++) {
 			convert(node.getParamExpression(i), funcSymbol.paramTypes.get(i));
 		}
+
+		node.symbol = symbol;
 
 		handleCastExpression(node);
 	}
@@ -434,10 +443,9 @@ public class SymbolTableVisitor extends Visitor {
 
 		FuncSymbol symbol = new FuncSymbol();
 
-		// set id
 		symbol.id = node.id;
-
-		// set return type
+		symbol.label = node.id + Integer.toString(functionDeclCounter);
+		functionDeclCounter += 1;
 		symbol.type = (Ast.TypeNode) node.children.get(0);
 
 		// add param types
@@ -490,12 +498,17 @@ public class SymbolTableVisitor extends Visitor {
 					node.line);
 		}
 
-		Symbol symbol = new Symbol();
+		VarSymbol symbol = new VarSymbol();
+		// AstParser will put parameters in the enclosing scope.
+		// Put it in the same scope as the function's local variables.
+		symbol.scope = node.scope + 1;
 		symbol.id = node.id;
 		Assert.Assert(node.children.get(0) instanceof Ast.TypeNode,
 				"Expected TypeNode");
 		symbol.type = (Ast.TypeNode) node.children.get(0);
 		symbolTableStack.peek().addSymbol(symbol);
+
+		node.symbol = symbol;
 
 		visitChildren(node);
 	}

@@ -2,7 +2,7 @@ package Compiler;
 
 import java.util.Vector;
 
-import Compiler.SymbolTableVisitor.Symbol;
+import Compiler.SymbolTableVisitor.*;
 
 public class Ast {
 
@@ -29,6 +29,17 @@ public class Ast {
 		public void addChild(int pos, Node n) {
 			n.parent = this;
 			children.add(pos, n);
+		}
+
+		public int countChildren(Ast.Node n) {
+			int c = 0;
+			for(int i = 0; i < children.size(); i++) {
+				if(children.get(i).getClass().equals(n.getClass())) {
+					c++;
+				}
+			}
+
+			return c;
 		}
 
 		public Vector<String> codeL() {
@@ -114,6 +125,33 @@ public class Ast {
 					|| declaration instanceof FunctionDeclarationNode);
 			declarations.add(pos, declaration);
 			addChild(pos, declaration);
+		}
+
+		@Override
+		public Vector<String> code() {
+			Vector<String> instructions = new Vector<String>();
+
+			// nr of variable declarations
+			int varDecls = 0;
+			for(int i = 0; i < children.size(); i++) {
+				if(children.get(i) instanceof DeclarationNode) {
+					((DeclarationNode)children.get(i)).symbol.offset = varDecls;
+					varDecls += 1;
+				}
+			}
+
+			if(varDecls > 0) {
+				instructions.add("ssp " + Integer.toString(varDecls));
+			}
+
+
+			for(int i = 0; i < children.size(); i++) {
+				instructions.addAll(children.get(i).code());
+			}
+
+			instructions.add("hlt");
+
+			return instructions;
 		}
 
 		@Override
@@ -373,7 +411,10 @@ public class Ast {
 		@Override
 		public Vector<String> codeR() {
 			Vector<String> instructions = new Vector<String>();
-			instructions.add("ldo " + CodeGenVisitor.typeToPtype(getType()) + " <&" + id + ">");
+
+			int depth = scope - symbol.scope;
+			int offset = symbol.offset;
+			instructions.add("lod " + CodeGenVisitor.typeToPtype(getType()) + " " + Integer.toString(depth) + " " + Integer.toString(offset));
 
 			return instructions;
 		}
@@ -381,7 +422,10 @@ public class Ast {
 		@Override
 		public Vector<String> codeL() {
 			Vector<String> instructions = new Vector<String>();
-			instructions.add("ldc a <&" + id + ">");
+
+			int depth = scope - symbol.scope;
+			int offset = symbol.offset;
+			instructions.add("lda " + Integer.toString(depth) + " " + Integer.toString(offset));
 
 			return instructions;
 		}
@@ -394,6 +438,12 @@ public class Ast {
 
 	public static class DeclarationNode extends ExpressionNode {
 		public String id;
+		public Symbol symbol = null;
+
+		public int offset = 0;
+
+		public DeclarationNode() {
+		}
 
 		public DeclarationNode(String id, Ast.TypeNode type,
 				Ast.Node initializer) {
@@ -410,10 +460,9 @@ public class Ast {
 		public Vector<String> code() {
 			Vector<String> instructions = new Vector<String>();
 
-			// TODO: Can add default initial value
 			if(!(getInitializer() instanceof NothingNode)) {
 				instructions.addAll(getInitializer().codeR());
-				instructions.add("sro " + CodeGenVisitor.typeToPtype(getType()) + " <&" + id + ">");
+				instructions.add("str " + CodeGenVisitor.typeToPtype(getType()) + " 0 " + Integer.toString(offset));
 			}
 
 			return instructions;
@@ -422,7 +471,7 @@ public class Ast {
 		@Override
 		public Vector<String> codeR() {
 			Vector<String> instructions = code();
-			instructions.add("ldo " + CodeGenVisitor.typeToPtype(getType()) + " <&" + id + ">");
+			instructions.add("lod " + CodeGenVisitor.typeToPtype(getType()) + 0  + Integer.toString(offset));
 
 			return instructions;
 		}
@@ -438,7 +487,10 @@ public class Ast {
 	}
 
 	public static class FunctionDeclarationNode extends Node {
+		private static int functionCounter = 0;
+
 		public String id;
+		public FuncSymbol symbol;
 
 		public FunctionDeclarationNode(String id, TypeNode returnType,
 				FormalParametersNode params, BlockStatementNode block) {
@@ -465,7 +517,32 @@ public class Ast {
 		public Vector<String> code() {
 			Vector<String> instructions = new Vector<String>();
 
-			instructions.addAll(getBlock().code());
+			instructions.add(symbol.label + ":");
+			
+			int staticDataSize = 0;
+
+			for(int i = 0; i < getParams().children.size(); i++) {
+				FormalParameterNode fp = (FormalParameterNode)getParams().children.get(i);
+				fp.symbol.offset = staticDataSize;
+				staticDataSize += 1;
+			}
+
+			for(int i = 0; i < getBlock().children.size(); i++) {
+				if(getBlock().children.get(i) instanceof ExprStatementNode) {
+					if(getBlock().children.get(i).children.get(0) instanceof DeclarationNode) {
+						DeclarationNode decl = (DeclarationNode)getBlock().children.get(i).children.get(0);
+						decl.symbol.offset = staticDataSize;
+						staticDataSize += 1;
+					}
+				}
+			}
+
+			instructions.add("ssp " + Integer.toString(staticDataSize));
+			for(int i = 0; i < getBlock().children.size(); i++) {
+				instructions.addAll(getBlock().children.get(i).code());
+			}
+
+			instructions.add("retf");
 
 			return instructions;
 		}
@@ -493,6 +570,7 @@ public class Ast {
 	public static class FormalParameterNode extends Node {
 		public String id;
 		private TypeNode type;
+		public VarSymbol symbol;
 
 		public FormalParameterNode(String id, TypeNode type) {
 			this.id = id;
@@ -524,6 +602,7 @@ public class Ast {
 
 	public static class FunctionCallNode extends ExpressionNode {
 		public String id;
+		public FuncSymbol symbol;
 
 		public FunctionCallNode(String id) {
 			this.id = id;
@@ -535,6 +614,21 @@ public class Ast {
 
 		public ExpressionNode getParamExpression(int pos) {
 			return ((ParamNode) children.get(pos)).getExpression();
+		}
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+			// Functions are in global scope, so static link points 1 scope up.
+			instructions.add("mst 1");
+
+			for(int i = 0; i < children.size(); i++) {
+				instructions.addAll(getParamExpression(i).getExpression().codeR());
+			}
+
+			instructions.add("cup " + Integer.toString(children.size()) + " " + symbol.label);
+
+			return instructions;
 		}
 
 		@Override
@@ -708,8 +802,17 @@ public class Ast {
 
 		@Override
 		public Vector<String> code() {
-			// TODO: Generate pop instruction to remove unneeded result.
-			return codeR();
+			Vector<String> instructions = new Vector<String>();
+
+			// We dont need the value of the binary expression, so we only
+			// need to generate instructions for an assignement.
+			if(operator.equals("=")) {
+				instructions.addAll(getLeftChild().codeL());
+				instructions.addAll(getRightChild().codeR());
+				instructions.add("sto " + CodeGenVisitor.typeToPtype(getLeftChild().getType()));
+			}
+
+			return instructions;
 		}
 
 		@Override
@@ -871,6 +974,18 @@ public class Ast {
 
 		public Node getExpression() {
 			return (Node) children.get(0);
+		}
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+
+			if(!(getExpression() instanceof NothingNode)) {
+				instructions.addAll(((ExpressionNode)getExpression()).codeR());
+
+			}
+
+			return instructions;
 		}
 
 		@Override
