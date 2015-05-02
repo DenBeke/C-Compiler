@@ -17,18 +17,19 @@ public class CodeGenVisitor extends Visitor {
 	}
 
 	public static String typeToPtype(Ast.TypeNode t) {
-		if(t.equals(new Ast.IntTypeNode())) {
+		if(t instanceof Ast.IntTypeNode) {
 			return "i";
 		}
 
-		if(t.equals(new Ast.CharTypeNode())) {
+		if(t instanceof Ast.CharTypeNode) {
 			return "c";
 		}
 
-		if(t.equals(new Ast.PointerTypeNode())) {
+		if(t instanceof Ast.PointerTypeNode) {
 			return "a";
 		}
 
+		Log.warning("Can't convert type to pmachine type: " + t.getStringRepresentation(), t.line);
 		return "";
 	}
 

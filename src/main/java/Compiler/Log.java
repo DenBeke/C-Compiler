@@ -12,7 +12,7 @@ public class Log {
 	public static String level = new String("ALL"); // NONE, ALL, ERROR,
 													// WARNING, NOTICE
 	public static boolean debug = true;
-	public static boolean exception = true;
+	public static boolean exception = false;
 
 	public static class FatalException extends RuntimeException {
 		public FatalException(String msg) {

@@ -133,8 +133,7 @@ public class Ast {
 
 			FuncSymbol main = null;
 
-			// nr of variable declarations. Start at 1 because there will be a return value on the stack
-			int varDecls = 0;
+			int varDecls = 5;
 			for(int i = 0; i < children.size(); i++) {
 				if(children.get(i) instanceof DeclarationNode) {
 					((DeclarationNode)children.get(i)).symbol.offset = varDecls;
@@ -164,7 +163,7 @@ public class Ast {
 			instructions.add("mst 0");
 			instructions.add("cup 0 init");
 			instructions.add("init:");
-			instructions.add("ssp " + Integer.toString(varDecls + 5));
+			instructions.add("ssp " + Integer.toString(varDecls));
 			for(int i = 0; i < children.size(); i++) {
 				if(children.get(i) instanceof DeclarationNode) {
 					instructions.addAll(children.get(i).code());
@@ -470,8 +469,6 @@ public class Ast {
 		public String id;
 		public Symbol symbol = null;
 
-		public int offset = 0;
-
 		public DeclarationNode() {
 		}
 
@@ -492,7 +489,7 @@ public class Ast {
 
 			if(!(getInitializer() instanceof NothingNode)) {
 				instructions.addAll(getInitializer().codeR());
-				instructions.add("str " + CodeGenVisitor.typeToPtype(getType()) + " 0 " + Integer.toString(offset));
+				instructions.add("str " + CodeGenVisitor.typeToPtype(getType()) + " 0 " + Integer.toString(symbol.offset));
 			}
 
 			return instructions;
@@ -501,7 +498,7 @@ public class Ast {
 		@Override
 		public Vector<String> codeR() {
 			Vector<String> instructions = code();
-			instructions.add("lod " + CodeGenVisitor.typeToPtype(getType()) + 0  + Integer.toString(offset));
+			instructions.add("lod " + CodeGenVisitor.typeToPtype(getType()) + 0  + Integer.toString(symbol.offset));
 
 			return instructions;
 		}
@@ -655,7 +652,9 @@ public class Ast {
 		public Vector<String> code() {
 			Vector<String> instructions = new Vector<String>();
 
-			instructions.add("mst 0");
+			// Static link to global scope.
+			// TODO: If nested function have to be supported this link has to change.
+			instructions.add("mst 1");
 
 			for(int i = 0; i < children.size(); i++) {
 				instructions.addAll(getParamExpression(i).codeR());
@@ -733,6 +732,14 @@ public class Ast {
 		public ExpressionNode getExpression() {
 			return (ExpressionNode)children.get(0);
 		}
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+
+			instructions.addAll(getExpression().codeL());
+			return instructions;
+		}
 	}
 
 	public static class DereferenceExpressionNode extends ExpressionNode {
@@ -747,6 +754,28 @@ public class Ast {
 
 		public ExpressionNode getExpression() {
 			return (ExpressionNode)children.get(0);
+		}
+
+		@Override
+		public Vector<String> codeL() {
+			Vector<String> instructions = new Vector<String>();
+
+			// Dereferencing an lvalue means we should put the address we point to on the stack.
+			// So generate the rvalue of the poiner
+			instructions.addAll(getExpression().codeR());
+			return instructions;
+		}
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+
+			instructions.addAll(getExpression().codeR());
+			// The above code will put the address to which the pointer points to on the stack.
+			// Now we dereference it.
+			instructions.add("ind " + CodeGenVisitor.typeToPtype(getType()));
+
+			return instructions;
 		}
 	}
 	public static class CastExpressionNode extends ExpressionNode {
