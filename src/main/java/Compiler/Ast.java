@@ -802,7 +802,7 @@ public class Ast {
 		}
 
 		public void setExpression(ExpressionNode e) {
-			e.children.clear();
+			children.clear();
 			addChild(0, e);
 		}
 
