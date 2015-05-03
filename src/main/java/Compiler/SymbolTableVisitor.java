@@ -225,8 +225,8 @@ public class SymbolTableVisitor extends Visitor {
 	 */
 	private Symbol findSymbol(String id) {
 		for(int i = 0; i < symbolTableStack.size(); i++) {
-			if(symbolTableStack.get(i).hasSymbol(id)) {
-				return symbolTableStack.get(i).getSymbol(id);
+			if(symbolTableStack.get(symbolTableStack.size() - i - 1).hasSymbol(id)) {
+				return symbolTableStack.get(symbolTableStack.size() - i - 1).getSymbol(id);
 			}
 		}
 
