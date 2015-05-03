@@ -33,6 +33,7 @@ public class CodeGenVisitor extends Visitor {
 		return "";
 	}
 
+	@Override
 	public void visit(Ast.FileNode node) {
 		instructions.addAll(node.code());
 
@@ -41,10 +42,12 @@ public class CodeGenVisitor extends Visitor {
 		}
 	}
 
+	@Override
 	public void visit(Ast.DeclarationNode node) {
 		instructions.addAll(node.code());
 	}
 
+	@Override
 	public void visit(Ast.FunctionDeclarationNode node) {
 		instructions.addAll(node.code());
 	}

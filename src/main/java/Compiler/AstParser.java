@@ -486,7 +486,7 @@ public class AstParser extends CParser {
 			node = new ReturnStatementNode(new NothingNode());
 			list.removeFirst();
 		} else {
-			node = new ReturnStatementNode((ExpressionNode) list.removeFirst());
+			node = new ReturnStatementNode(list.removeFirst());
 		}
 		insertNode(0, node);
 	}

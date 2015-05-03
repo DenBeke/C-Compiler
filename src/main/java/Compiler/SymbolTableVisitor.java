@@ -654,6 +654,7 @@ public class SymbolTableVisitor extends Visitor {
 		handleCastExpression(node);
 	}
 
+	@Override
 	public void visit(Ast.IfStatementNode node) {
 		Log.debug("IfStatementNode");
 
@@ -661,6 +662,7 @@ public class SymbolTableVisitor extends Visitor {
 		convert(node.getCondition(), new Ast.IntTypeNode());
 	}
 
+	@Override
 	public void visit(Ast.BinaryOperatorNode node) {
 		Log.debug("BinaryOperatorNode");
 

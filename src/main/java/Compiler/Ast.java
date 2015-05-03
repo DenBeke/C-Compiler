@@ -1031,6 +1031,7 @@ public class Ast {
 			addChild(0, expression);
 		}
 
+		@Override
 		public Vector<String> code() {
 			Vector<String> instructions = new Vector<String>();
 			instructions.addAll(children.get(0).code());
@@ -1225,7 +1226,7 @@ public class Ast {
 		}
 
 		public Node getExpression() {
-			return (Node) children.get(0);
+			return children.get(0);
 		}
 
 		@Override
