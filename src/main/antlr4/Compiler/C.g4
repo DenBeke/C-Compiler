@@ -99,6 +99,7 @@ param : expr {handleParam();};
 stmt
 	: block
 	| expr ';' {handleExprStatement();}
+	| funcDecl
 	| 'return' (expr|nothing) ';' {handleReturnStatement();}
 	| 'while' '(' expr ')' stmt {handleWhileStatement();}
 	| 'for' '(' (expr|nothing) ';' (expr|nothing) ';' (expr|nothing) ')' stmt {handleForStatement();}

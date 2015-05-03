@@ -530,7 +530,7 @@ public class Ast {
 		}
 	}
 
-	public static class FunctionDeclarationNode extends Node {
+	public static class FunctionDeclarationNode extends StatementNode {
 		private static int functionCounter = 0;
 
 		public String id;
@@ -583,7 +583,15 @@ public class Ast {
 
 			instructions.add("ssp " + Integer.toString(staticDataSize));
 			for(int i = 0; i < getBlock().children.size(); i++) {
-				instructions.addAll(getBlock().children.get(i).code());
+				boolean functionDecl = getBlock().children.get(i) instanceof FunctionDeclarationNode;
+				if(functionDecl) {
+					String skip = CodeGenVisitor.getUniqueLabel();
+					instructions.add("ujp " + skip);
+					instructions.addAll(getBlock().children.get(i).code());
+					instructions.add(skip + ":");
+				} else {
+					instructions.addAll(getBlock().children.get(i).code());
+				}
 			}
 		
 			// TODO: Should be in AST
@@ -671,7 +679,10 @@ public class Ast {
 
 			// Static link to global scope.
 			// TODO: If nested function have to be supported this link has to change.
-			instructions.add("mst 1");
+			System.out.println("Calling from " + Integer.toString(scope));
+			System.out.println("Calling to " + Integer.toString(symbol.scope));
+			int link = scope - symbol.scope;
+			instructions.add("mst " + Integer.toString(link));
 
 			for(int i = 0; i < children.size(); i++) {
 				instructions.addAll(getParamExpression(i).codeR());
@@ -921,6 +932,47 @@ public class Ast {
 		public Vector<String> code() {
 			Vector<String> instructions = new Vector<String>();
 
+			String start = CodeGenVisitor.getUniqueLabel();
+			String end = CodeGenVisitor.getUniqueLabel();
+			instructions.add("ujp " + end);
+			instructions.add(start + ":");
+			
+			int staticDataSize = 5;
+
+			for(int i = 0; i < children.size(); i++) {
+				if(children.get(i) instanceof ExprStatementNode) {
+					if(children.get(i).children.get(0) instanceof DeclarationNode) {
+						DeclarationNode decl = (DeclarationNode)children.get(i).children.get(0);
+						decl.symbol.offset = staticDataSize;
+						staticDataSize += 1;
+					}
+				}
+			}
+
+			instructions.add("ssp " + Integer.toString(staticDataSize));
+			for(int i = 0; i < children.size(); i++) {
+				boolean functionDecl = children.get(i) instanceof FunctionDeclarationNode;
+				if(functionDecl) {
+					String skip = CodeGenVisitor.getUniqueLabel();
+					instructions.add("ujp " + skip);
+					instructions.addAll(children.get(i).code());
+					instructions.add(skip + ":");
+				} else {
+					instructions.addAll(children.get(i).code());
+				}
+			}
+		
+			instructions.add("retp");
+			instructions.add(end + ":");
+			instructions.add("mst 0");
+			instructions.add("cup 0 " + start);
+			return instructions;
+		}
+
+	/*	@Override
+		public Vector<String> code() {
+			Vector<String> instructions = new Vector<String>();
+
 
 			for(int i = 0; i < children.size(); i++) {
 				instructions.addAll(children.get(i).code());
@@ -928,6 +980,7 @@ public class Ast {
 
 			return instructions;
 		}
+		*/
 
 		@Override
 		public void visit(Visitor visitor) {

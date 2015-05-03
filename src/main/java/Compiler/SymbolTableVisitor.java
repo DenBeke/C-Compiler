@@ -7,6 +7,7 @@ import java.util.Vector;
 
 public class SymbolTableVisitor extends Visitor {
 	private int functionDeclCounter = 0;
+	private int scope = 0;
 
 	/**
 	 * Generalize two types
@@ -463,6 +464,7 @@ public class SymbolTableVisitor extends Visitor {
 		functionDeclCounter += 1;
 		symbol.type = (Ast.TypeNode) node.children.get(0);
 		node.symbol = symbol;
+		symbol.scope = node.scope;
 
 		// add param types
 		for(int i = 0; i < node.children.get(1).children.size(); i++) {
