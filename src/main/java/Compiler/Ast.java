@@ -2,7 +2,9 @@ package Compiler;
 
 import java.util.Vector;
 
-import Compiler.SymbolTableVisitor.*;
+import Compiler.SymbolTableVisitor.FuncSymbol;
+import Compiler.SymbolTableVisitor.Symbol;
+import Compiler.SymbolTableVisitor.VarSymbol;
 
 public class Ast {
 

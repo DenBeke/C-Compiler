@@ -12,6 +12,7 @@ import Compiler.Ast.CharTypeNode;
 import Compiler.Ast.ConstTypeNode;
 import Compiler.Ast.ContinueStatementNode;
 import Compiler.Ast.DeclarationNode;
+import Compiler.Ast.DereferenceExpressionNode;
 import Compiler.Ast.ExprStatementNode;
 import Compiler.Ast.ExpressionNode;
 import Compiler.Ast.FileNode;
@@ -28,6 +29,7 @@ import Compiler.Ast.Node;
 import Compiler.Ast.NothingNode;
 import Compiler.Ast.ParamNode;
 import Compiler.Ast.PointerTypeNode;
+import Compiler.Ast.ReferenceExpressionNode;
 import Compiler.Ast.ReturnStatementNode;
 import Compiler.Ast.StatementNode;
 import Compiler.Ast.StaticArrayTypeNode;
@@ -36,8 +38,6 @@ import Compiler.Ast.TypeNode;
 import Compiler.Ast.UnaryOperatorNode;
 import Compiler.Ast.VoidTypeNode;
 import Compiler.Ast.WhileStatementNode;
-import Compiler.Ast.ReferenceExpressionNode;
-import Compiler.Ast.DereferenceExpressionNode;
 
 public class AstParser extends CParser {
 
