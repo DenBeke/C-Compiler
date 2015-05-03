@@ -28,9 +28,10 @@ public class SymbolTableVisitor extends Visitor {
 				return new Ast.CharTypeNode();
 			} else if(t2 instanceof Ast.IntTypeNode) {
 				return new Ast.IntTypeNode();
-			}/*else if(t2 instanceof Ast.PointerTypeNode) {
-				return new Ast.IntTypeNode();
-			}*/
+			}/*
+			 * else if(t2 instanceof Ast.PointerTypeNode) { return new
+			 * Ast.IntTypeNode(); }
+			 */
 		}
 
 		if(t1 instanceof Ast.IntTypeNode) {
@@ -38,21 +39,19 @@ public class SymbolTableVisitor extends Visitor {
 				return new Ast.IntTypeNode();
 			} else if(t2 instanceof Ast.IntTypeNode) {
 				return new Ast.IntTypeNode();
-			} /*else if(t2 instanceof Ast.PointerTypeNode) {
-				return new Ast.IntTypeNode();
-			}*/
+			} /*
+			 * else if(t2 instanceof Ast.PointerTypeNode) { return new
+			 * Ast.IntTypeNode(); }
+			 */
 		}
 
-/*		if(t1 instanceof Ast.PointerTypeNode) {
-			if(t2 instanceof Ast.CharTypeNode) {
-				return new Ast.IntTypeNode();
-			} else if(t2 instanceof Ast.IntTypeNode) {
-				return new Ast.IntTypeNode();
-			} else if(t2 instanceof Ast.PointerTypeNode) {
-				return new Ast.IntTypeNode();
-			}
-		}
-*/
+		/*
+		 * if(t1 instanceof Ast.PointerTypeNode) { if(t2 instanceof
+		 * Ast.CharTypeNode) { return new Ast.IntTypeNode(); } else if(t2
+		 * instanceof Ast.IntTypeNode) { return new Ast.IntTypeNode(); } else
+		 * if(t2 instanceof Ast.PointerTypeNode) { return new Ast.IntTypeNode();
+		 * } }
+		 */
 		return null;
 	}
 
@@ -229,8 +228,10 @@ public class SymbolTableVisitor extends Visitor {
 	 */
 	private Symbol findSymbol(String id) {
 		for(int i = 0; i < symbolTableStack.size(); i++) {
-			if(symbolTableStack.get(symbolTableStack.size() - i - 1).hasSymbol(id)) {
-				return symbolTableStack.get(symbolTableStack.size() - i - 1).getSymbol(id);
+			if(symbolTableStack.get(symbolTableStack.size() - i - 1).hasSymbol(
+					id)) {
+				return symbolTableStack.get(symbolTableStack.size() - i - 1)
+						.getSymbol(id);
 			}
 		}
 
@@ -277,19 +278,19 @@ public class SymbolTableVisitor extends Visitor {
 		symbolTableStack.peek().addSymbol(symbol);
 
 		node.symbol = symbol;
-		
+
 		Ast.Node n = node;
 		while(n.parent != null) {
 			n = n.parent;
-			
+
 			if(n instanceof FunctionDeclarationNode) {
 				break;
 			}
 		}
 		if(n instanceof FunctionDeclarationNode) {
-			node.function = (FunctionDeclarationNode)n;
+			node.function = (FunctionDeclarationNode) n;
 		}
-		
+
 		visitChildren(node);
 		handleCastExpression(node);
 
@@ -316,17 +317,17 @@ public class SymbolTableVisitor extends Visitor {
 
 		FuncSymbol funcSymbol = (FuncSymbol) symbol;
 		node.symbol = funcSymbol;
-		
+
 		Ast.Node n = node;
 		while(n.parent != null) {
 			n = n.parent;
-			
+
 			if(n instanceof FunctionDeclarationNode) {
 				break;
 			}
 		}
 		if(n instanceof FunctionDeclarationNode) {
-			node.owner = (FunctionDeclarationNode)n;
+			node.owner = (FunctionDeclarationNode) n;
 		}
 
 		if(node.children.size() != funcSymbol.paramTypes.size()) {
@@ -372,15 +373,14 @@ public class SymbolTableVisitor extends Visitor {
 					node.line);
 		}
 
-        if(node.getExpression() instanceof Ast.ExpressionNode) {
-            convert((Ast.ExpressionNode)node.getExpression(), func.getReturnType());
-        }
-        else {
-            if(!(func.getReturnType() instanceof Ast.VoidTypeNode)) {
-                Log.fatal("Empty return in non-void function",
-                        node.line);
-            }
-        }
+		if(node.getExpression() instanceof Ast.ExpressionNode) {
+			convert((Ast.ExpressionNode) node.getExpression(),
+					func.getReturnType());
+		} else {
+			if(!(func.getReturnType() instanceof Ast.VoidTypeNode)) {
+				Log.fatal("Empty return in non-void function", node.line);
+			}
+		}
 
 	}
 
@@ -431,19 +431,19 @@ public class SymbolTableVisitor extends Visitor {
 		if(symbol == null) {
 			Log.fatal("Use of undeclared '" + node.id + "'", node.line);
 		}
-		
+
 		Ast.Node n = node;
 		while(n.parent != null) {
 			n = n.parent;
-			
+
 			if(n instanceof FunctionDeclarationNode) {
 				break;
 			}
 		}
 		if(n instanceof FunctionDeclarationNode) {
-			node.function = (FunctionDeclarationNode)n;
+			node.function = (FunctionDeclarationNode) n;
 		}
-		
+
 		node.setSymbol(symbol);
 
 		visitChildren(node);
@@ -507,17 +507,17 @@ public class SymbolTableVisitor extends Visitor {
 		symbol.type = (Ast.TypeNode) node.children.get(0);
 		node.symbol = symbol;
 		symbol.scope = node.scope;
-		
+
 		Ast.Node n = node;
 		while(n.parent != null) {
 			n = n.parent;
-			
+
 			if(n instanceof FunctionDeclarationNode) {
 				break;
 			}
 		}
 		if(n instanceof FunctionDeclarationNode) {
-			node.owner = (FunctionDeclarationNode)n;
+			node.owner = (FunctionDeclarationNode) n;
 		}
 
 		// add param types
@@ -621,17 +621,22 @@ public class SymbolTableVisitor extends Visitor {
 	@Override
 	public void visit(Ast.DereferenceExpressionNode node) {
 		Log.debug("DereferenceExpressionNode");
-		
+
 		visitChildren(node);
 
 		if(!(node.getExpression().getType() instanceof Ast.PointerTypeNode)) {
-			Log.fatal("Can't dereference non-pointer type '" + node.getExpression().getType().getStringRepresentation()  + "'", node.line);
+			Log.fatal("Can't dereference non-pointer type '"
+					+ node.getExpression().getType().getStringRepresentation()
+					+ "'", node.line);
 		}
 
 		if(node.getExpression().getType().children.size() > 0) {
-			node.setType((Ast.TypeNode)node.getExpression().getType().children.get(0));
+			node.setType((Ast.TypeNode) node.getExpression().getType().children
+					.get(0));
 		} else {
-			Log.fatal("Don't go crazy with the casts. Try splitting it up in multiple statements.", node.line);
+			Log.fatal(
+					"Don't go crazy with the casts. Try splitting it up in multiple statements.",
+					node.line);
 		}
 		handleCastExpression(node);
 	}
@@ -639,7 +644,7 @@ public class SymbolTableVisitor extends Visitor {
 	@Override
 	public void visit(Ast.ReferenceExpressionNode node) {
 		Log.debug("ReferenceExpressionNode");
-		
+
 		visitChildren(node);
 
 		Ast.PointerTypeNode pointer = new Ast.PointerTypeNode();
@@ -702,9 +707,9 @@ public class SymbolTableVisitor extends Visitor {
 		default:
 			Log.fatal("Binary operator not implemented: " + node.operator,
 					node.line);
-        }
+		}
 
-        node.setType(resultType);
+		node.setType(resultType);
 		handleCastExpression(node);
 	}
 

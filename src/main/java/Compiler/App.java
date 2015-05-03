@@ -21,11 +21,11 @@ public class App {
 			Ast.Node root = parser.buildAst();
 			Visitor visitor = new SymbolTableVisitor();
 			visitor.visit(root);
-            visitor = new SemanticVisitor();
-            visitor.visit(root);
-            visitor = new CodeGenVisitor();
-            visitor.visit(root);
-//			System.out.println(root.toString());
+			visitor = new SemanticVisitor();
+			visitor.visit(root);
+			visitor = new CodeGenVisitor();
+			visitor.visit(root);
+			// System.out.println(root.toString());
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

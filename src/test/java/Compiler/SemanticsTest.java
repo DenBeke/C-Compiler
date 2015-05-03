@@ -14,210 +14,201 @@ import org.antlr.v4.runtime.CommonTokenStream;
 
 public class SemanticsTest extends TestCase {
 
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public SemanticsTest(String testName) {
-        super(testName);
-        Log.debug = false;
-        Log.exception = true;
-    }
+	/**
+	 * Create the test case
+	 *
+	 * @param testName
+	 *            name of the test case
+	 */
+	public SemanticsTest(String testName) {
+		super(testName);
+		Log.debug = false;
+		Log.exception = true;
+	}
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite() {
-        return new TestSuite(SemanticsTest.class);
-    }
+	/**
+	 * @return the suite of tests being tested
+	 */
+	public static Test suite() {
+		return new TestSuite(SemanticsTest.class);
+	}
 
+	/**
+	 * Test for functions with correct returns
+	 */
+	public void testCorrectReturns() {
 
+		Log.debug("testCorrectReturns");
 
-    /**
-     * Test for functions with correct returns
-     */
-    public void testCorrectReturns() {
+		try {
 
-        Log.debug("testCorrectReturns");
+			try {
+				InputStream is = new FileInputStream(
+						"src/test/input/semantics/return1_ok.c");
+				ANTLRInputStream input = new ANTLRInputStream(is);
+				CLexer lexer = new CLexer(input);
+				AstParser parser = new AstParser(new CommonTokenStream(lexer));
+				Ast.Node root = parser.buildAst();
 
-        try {
+				Visitor visitor = new SymbolTableVisitor();
+				visitor.visit(root);
+				visitor = new SemanticVisitor();
+				visitor.visit(root);
 
-            try {
-                InputStream is = new FileInputStream(
-                        "src/test/input/semantics/return1_ok.c");
-                ANTLRInputStream input = new ANTLRInputStream(is);
-                CLexer lexer = new CLexer(input);
-                AstParser parser = new AstParser(new CommonTokenStream(lexer));
-                Ast.Node root = parser.buildAst();
+				// OK if no exception was thrown
+				assertTrue(true);
 
-                Visitor visitor = new SymbolTableVisitor();
-                visitor.visit(root);
-                visitor = new SemanticVisitor();
-                visitor.visit(root);
+				is = new FileInputStream(
+						"src/test/input/semantics/return2_ok.c");
+				input = new ANTLRInputStream(is);
+				lexer = new CLexer(input);
+				parser = new AstParser(new CommonTokenStream(lexer));
+				root = parser.buildAst();
 
-                // OK if no exception was thrown
-                assertTrue(true);
+				visitor = new SymbolTableVisitor();
+				visitor.visit(root);
+				visitor = new SemanticVisitor();
+				visitor.visit(root);
 
-                is = new FileInputStream("src/test/input/semantics/return2_ok.c");
-                input = new ANTLRInputStream(is);
-                lexer = new CLexer(input);
-                parser = new AstParser(new CommonTokenStream(lexer));
-                root = parser.buildAst();
+				// OK if no exception was thrown
+				assertTrue(true);
+			} catch(Log.FatalException e) {
+				System.out.println(e.toString());
+				assertTrue(false);
+			}
 
-                visitor = new SymbolTableVisitor();
-                visitor.visit(root);
-                visitor = new SemanticVisitor();
-                visitor.visit(root);
+		} catch(FileNotFoundException e) {
+			fail("Could not load input file");
+			return;
+		} catch(IOException e) {
+			fail("Could not load input file");
+			return;
+		}
 
-                // OK if no exception was thrown
-                assertTrue(true);
-            } catch(Log.FatalException e) {
-                System.out.println(e.toString());
-                assertTrue(false);
-            }
+	}
 
-        } catch(FileNotFoundException e) {
-            fail("Could not load input file");
-            return;
-        } catch(IOException e) {
-            fail("Could not load input file");
-            return;
-        }
+	/**
+	 * Test for functions with incorrect returns
+	 */
+	public void testInCorrectReturns() {
 
-    }
+		Log.debug("testInCorrectReturns");
 
+		try {
 
+			try {
+				InputStream is = new FileInputStream(
+						"src/test/input/semantics/return1_bad.c");
+				ANTLRInputStream input = new ANTLRInputStream(is);
+				CLexer lexer = new CLexer(input);
+				AstParser parser = new AstParser(new CommonTokenStream(lexer));
+				Ast.Node root = parser.buildAst();
 
-    /**
-     * Test for functions with incorrect returns
-     */
-    public void testInCorrectReturns() {
+				Visitor visitor = new SymbolTableVisitor();
+				visitor.visit(root);
+				visitor = new SemanticVisitor();
+				visitor.visit(root);
 
-        Log.debug("testInCorrectReturns");
+				// OK if no exception was thrown
+				assertTrue(false);
 
-        try {
+			} catch(Log.FatalException e) {
+				// System.out.println(e.toString());
+				assertTrue(true);
+				assertEquals(
+						"12: Control may reach end of non-void function 'a' without return",
+						e.getMessage());
+			}
 
-            try {
-                InputStream is = new FileInputStream(
-                        "src/test/input/semantics/return1_bad.c");
-                ANTLRInputStream input = new ANTLRInputStream(is);
-                CLexer lexer = new CLexer(input);
-                AstParser parser = new AstParser(new CommonTokenStream(lexer));
-                Ast.Node root = parser.buildAst();
+		} catch(FileNotFoundException e) {
+			fail("Could not load input file");
+			return;
+		} catch(IOException e) {
+			fail("Could not load input file");
+			return;
+		}
 
-                Visitor visitor = new SymbolTableVisitor();
-                visitor.visit(root);
-                visitor = new SemanticVisitor();
-                visitor.visit(root);
+	}
 
-                // OK if no exception was thrown
-                assertTrue(false);
+	/**
+	 * Test for functions with correct void (i.e. empty) returns
+	 */
+	public void testCorrectVoidReturns() {
 
-            } catch(Log.FatalException e) {
-                //System.out.println(e.toString());
-                assertTrue(true);
-                assertEquals("12: Control may reach end of non-void function 'a' without return",
-                        e.getMessage());
-            }
+		Log.debug("testCorrectVoidReturns");
 
-        } catch(FileNotFoundException e) {
-            fail("Could not load input file");
-            return;
-        } catch(IOException e) {
-            fail("Could not load input file");
-            return;
-        }
+		try {
 
-    }
+			try {
+				InputStream is = new FileInputStream(
+						"src/test/input/semantics/return_void_ok.c");
+				ANTLRInputStream input = new ANTLRInputStream(is);
+				CLexer lexer = new CLexer(input);
+				AstParser parser = new AstParser(new CommonTokenStream(lexer));
+				Ast.Node root = parser.buildAst();
 
+				Visitor visitor = new SymbolTableVisitor();
+				visitor.visit(root);
+				visitor = new SemanticVisitor();
+				visitor.visit(root);
 
+				// OK if no exception was thrown
+				assertTrue(true);
+			} catch(Log.FatalException e) {
+				System.out.println(e.toString());
+				assertTrue(false);
+			}
 
+		} catch(FileNotFoundException e) {
+			fail("Could not load input file");
+			return;
+		} catch(IOException e) {
+			fail("Could not load input file");
+			return;
+		}
 
-    /**
-     * Test for functions with correct void (i.e. empty) returns
-     */
-    public void testCorrectVoidReturns() {
+	}
 
-        Log.debug("testCorrectVoidReturns");
+	/**
+	 * Test for functions with incorrect void returns
+	 */
+	public void testInCorrectVoidReturns() {
 
-        try {
+		Log.debug("testInCorrectVoidReturns");
 
-            try {
-                InputStream is = new FileInputStream(
-                        "src/test/input/semantics/return_void_ok.c");
-                ANTLRInputStream input = new ANTLRInputStream(is);
-                CLexer lexer = new CLexer(input);
-                AstParser parser = new AstParser(new CommonTokenStream(lexer));
-                Ast.Node root = parser.buildAst();
+		try {
 
-                Visitor visitor = new SymbolTableVisitor();
-                visitor.visit(root);
-                visitor = new SemanticVisitor();
-                visitor.visit(root);
+			try {
+				InputStream is = new FileInputStream(
+						"src/test/input/semantics/return_void_bad.c");
+				ANTLRInputStream input = new ANTLRInputStream(is);
+				CLexer lexer = new CLexer(input);
+				AstParser parser = new AstParser(new CommonTokenStream(lexer));
+				Ast.Node root = parser.buildAst();
 
-                // OK if no exception was thrown
-                assertTrue(true);
-            } catch(Log.FatalException e) {
-                System.out.println(e.toString());
-                assertTrue(false);
-            }
+				Visitor visitor = new SymbolTableVisitor();
+				visitor.visit(root);
+				visitor = new SemanticVisitor();
+				visitor.visit(root);
 
-        } catch(FileNotFoundException e) {
-            fail("Could not load input file");
-            return;
-        } catch(IOException e) {
-            fail("Could not load input file");
-            return;
-        }
+				// OK if no exception was thrown
+				assertTrue(false);
 
-    }
+			} catch(Log.FatalException e) {
+				// System.out.println(e.toString());
+				assertTrue(true);
+				assertEquals("9: Empty return in non-void function",
+						e.getMessage());
+			}
 
+		} catch(FileNotFoundException e) {
+			fail("Could not load input file");
+			return;
+		} catch(IOException e) {
+			fail("Could not load input file");
+			return;
+		}
 
-
-    /**
-     * Test for functions with incorrect void returns
-     */
-    public void testInCorrectVoidReturns() {
-
-        Log.debug("testInCorrectVoidReturns");
-
-        try {
-
-            try {
-                InputStream is = new FileInputStream(
-                        "src/test/input/semantics/return_void_bad.c");
-                ANTLRInputStream input = new ANTLRInputStream(is);
-                CLexer lexer = new CLexer(input);
-                AstParser parser = new AstParser(new CommonTokenStream(lexer));
-                Ast.Node root = parser.buildAst();
-
-                Visitor visitor = new SymbolTableVisitor();
-                visitor.visit(root);
-                visitor = new SemanticVisitor();
-                visitor.visit(root);
-
-                // OK if no exception was thrown
-                assertTrue(false);
-
-            } catch(Log.FatalException e) {
-                //System.out.println(e.toString());
-                assertTrue(true);
-                assertEquals("9: Empty return in non-void function",
-                        e.getMessage());
-            }
-
-        } catch(FileNotFoundException e) {
-            fail("Could not load input file");
-            return;
-        } catch(IOException e) {
-            fail("Could not load input file");
-            return;
-        }
-
-    }
-
-
-
+	}
 
 }

@@ -9,6 +9,7 @@ public class CodeGenVisitor extends Visitor {
 	private Vector<String> instructions = new Vector<String>();
 
 	private static int labelCounter = 0;
+
 	public static String getUniqueLabel() {
 		String label = "L" + Integer.toString(labelCounter);
 		labelCounter += 1;
@@ -29,7 +30,9 @@ public class CodeGenVisitor extends Visitor {
 			return "a";
 		}
 
-		Log.warning("Can't convert type to pmachine type: " + t.getStringRepresentation(), t.line);
+		Log.warning(
+				"Can't convert type to pmachine type: "
+						+ t.getStringRepresentation(), t.line);
 		return "";
 	}
 

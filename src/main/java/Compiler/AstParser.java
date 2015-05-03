@@ -53,7 +53,7 @@ public class AstParser extends CParser {
 	public void handleDereference() {
 		Log.debug("handleDereference");
 
-		ExpressionNode e = (ExpressionNode)list.removeFirst();
+		ExpressionNode e = (ExpressionNode) list.removeFirst();
 		DereferenceExpressionNode node = new DereferenceExpressionNode(e);
 		insertNode(0, node);
 	}
@@ -62,7 +62,7 @@ public class AstParser extends CParser {
 	public void handleReference() {
 		Log.debug("handleReference");
 
-		ExpressionNode e = (ExpressionNode)list.removeFirst();
+		ExpressionNode e = (ExpressionNode) list.removeFirst();
 		ReferenceExpressionNode node = new ReferenceExpressionNode(e);
 		insertNode(0, node);
 	}
@@ -479,16 +479,15 @@ public class AstParser extends CParser {
 	public void handleReturnStatement() {
 		Log.debug("handleReturnStatement");
 
-		Assert.Assert(list.peekFirst() instanceof ExpressionNode || list.peekFirst() instanceof NothingNode);
-        ReturnStatementNode node;
-        if(list.peekFirst() instanceof NothingNode) {
-            node = new ReturnStatementNode(new NothingNode());
-            list.removeFirst();
-        }
-        else {
-            node = new ReturnStatementNode(
-                    (ExpressionNode) list.removeFirst());
-        }
+		Assert.Assert(list.peekFirst() instanceof ExpressionNode
+				|| list.peekFirst() instanceof NothingNode);
+		ReturnStatementNode node;
+		if(list.peekFirst() instanceof NothingNode) {
+			node = new ReturnStatementNode(new NothingNode());
+			list.removeFirst();
+		} else {
+			node = new ReturnStatementNode((ExpressionNode) list.removeFirst());
+		}
 		insertNode(0, node);
 	}
 
@@ -596,17 +595,16 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+	/**
+	 * Handle #include <stdio.h>
+	 */
+	@Override
+	public void handleIncludeIO() {
+	}
 
-    /**
-     * Handle
-     *   #include <stdio.h>
-     */
-    @Override
-    public void handleIncludeIO() {} {
-        Log.debug("handleIncludeIO");
-    }
-
-
+	{
+		Log.debug("handleIncludeIO");
+	}
 
 	@Override
 	public void startScope() {
