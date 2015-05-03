@@ -428,7 +428,8 @@ public class Ast {
 		public String id;
 
 		private Symbol symbol;
-
+		public FunctionDeclarationNode function;
+		
 		public IdNode(String id) {
 			this.id = id;
 		}
@@ -457,8 +458,19 @@ public class Ast {
 		@Override
 		public Vector<String> codeR() {
 			Vector<String> instructions = new Vector<String>();
-
-			int depth = scope - symbol.scope;
+			
+			int depth = 0;
+			if(((VarSymbol)symbol).declaration != null && ((VarSymbol)symbol).declaration.function != function) {		
+				Node n = this;
+				while(n != ((VarSymbol)symbol).declaration.function) {
+					if(n instanceof FunctionDeclarationNode) {
+						depth += 1;
+					}
+					
+					n = n.parent;
+				}
+			}
+			
 			int offset = symbol.offset;
 			instructions.add("lod " + CodeGenVisitor.typeToPtype(getType()) + " " + Integer.toString(depth) + " " + Integer.toString(offset));
 
@@ -468,8 +480,19 @@ public class Ast {
 		@Override
 		public Vector<String> codeL() {
 			Vector<String> instructions = new Vector<String>();
+			
+			int depth = 0;
+			if(((VarSymbol)symbol).declaration != null && ((VarSymbol)symbol).declaration.function != function) {		
+				Node n = this;
+				while(n != ((VarSymbol)symbol).declaration.function) {
+					if(n instanceof FunctionDeclarationNode) {
+						depth += 1;
+					}
+					
+					n = n.parent;
+				}
+			}
 
-			int depth = scope - symbol.scope;
 			int offset = symbol.offset;
 			instructions.add("lda " + Integer.toString(depth) + " " + Integer.toString(offset));
 
@@ -485,6 +508,7 @@ public class Ast {
 	public static class DeclarationNode extends ExpressionNode {
 		public String id;
 		public Symbol symbol = null;
+		public FunctionDeclarationNode function;
 
 		public DeclarationNode() {
 		}
@@ -532,6 +556,7 @@ public class Ast {
 
 	public static class FunctionDeclarationNode extends StatementNode {
 		private static int functionCounter = 0;
+		public FunctionDeclarationNode owner;
 
 		public String id;
 		public FuncSymbol symbol;
@@ -623,6 +648,7 @@ public class Ast {
 	public static class FunctionCallNode extends ExpressionNode {
 		public String id;
 		public FuncSymbol symbol;
+		public FunctionDeclarationNode owner;
 
 		public FunctionCallNode(String id) {
 			this.id = id;
@@ -642,10 +668,19 @@ public class Ast {
 
 			// Static link to global scope.
 			// TODO: If nested function have to be supported this link has to change.
-			System.out.println("Calling from " + Integer.toString(scope));
-			System.out.println("Calling to " + Integer.toString(symbol.scope));
-			int link = scope - symbol.scope;
-			instructions.add("mst " + Integer.toString(link));
+			int depth = 0;
+			if(symbol.declaration.owner != owner) {		
+				Node n = this;
+				while(n != symbol.declaration.owner) {
+					if(n instanceof FunctionDeclarationNode) {
+						depth += 1;
+					}
+					
+					n = n.parent;
+				}
+			}
+			
+			instructions.add("mst " + Integer.toString(depth));
 
 			for(int i = 0; i < children.size(); i++) {
 				instructions.addAll(getParamExpression(i).codeR());
@@ -886,6 +921,24 @@ public class Ast {
 		}
 	}
 
+	public static int resolvePositions(Node a, int start) {
+		int pos = start;
+		for(int i = 0; i < a.children.size(); i++) {
+			if(a.children.get(i) instanceof DeclarationNode) {
+				DeclarationNode decl = (DeclarationNode)a.children.get(i);
+				if(decl.symbol.offset == -1) {
+					decl.symbol.offset = pos;
+					pos++;
+				}
+			}
+			
+			if(!(a.children.get(i) instanceof FunctionDeclarationNode)) {
+				pos = resolvePositions(a.children.get(i), pos);
+			}
+		}
+		
+		return pos;
+	}
 	public static class BlockStatementNode extends StatementNode {
 		public void addStatement(int pos, StatementNode statement) {
 			addChild(pos, statement);
@@ -910,15 +963,7 @@ public class Ast {
 				}
 			}
 
-			for(int i = 0; i < children.size(); i++) {
-				if(children.get(i) instanceof ExprStatementNode) {
-					if(children.get(i).children.get(0) instanceof DeclarationNode) {
-						DeclarationNode decl = (DeclarationNode)children.get(i).children.get(0);
-						decl.symbol.offset = staticDataSize;
-						staticDataSize += 1;
-					}
-				}
-			}
+			staticDataSize += resolvePositions(this, staticDataSize) - 5;
 
 			if(parent instanceof FunctionDeclarationNode) {
 				instructions.add("ssp " + Integer.toString(staticDataSize));

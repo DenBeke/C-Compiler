@@ -5,6 +5,8 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import Compiler.Ast.FunctionDeclarationNode;
+
 public class SymbolTableVisitor extends Visitor {
 	private int functionDeclCounter = 0;
 	private int scope = 0;
@@ -125,13 +127,14 @@ public class SymbolTableVisitor extends Visitor {
 		public String id;
 		public Ast.TypeNode type;
 		public int scope;
-		public int offset;
+		public int offset = -1;
 	}
 
 	/**
 	 * @brief Class representing a Symbol for a variable
 	 */
 	public static class VarSymbol extends Symbol {
+		public Ast.DeclarationNode declaration;
 	}
 
 	/**
@@ -144,6 +147,7 @@ public class SymbolTableVisitor extends Visitor {
 		public Vector<Ast.TypeNode> paramTypes = new Vector<>();
 		public Ast.TypeNode returnType;
 		public String label;
+		public Ast.FunctionDeclarationNode declaration;
 
 		/**
 		 * Add new parameter type node to the function symbol
@@ -264,6 +268,7 @@ public class SymbolTableVisitor extends Visitor {
 		}
 
 		VarSymbol symbol = new VarSymbol();
+		symbol.declaration = node;
 		symbol.scope = node.scope;
 		symbol.id = node.id;
 		Assert.Assert(node.children.get(0) instanceof Ast.TypeNode,
@@ -272,7 +277,19 @@ public class SymbolTableVisitor extends Visitor {
 		symbolTableStack.peek().addSymbol(symbol);
 
 		node.symbol = symbol;
-
+		
+		Ast.Node n = node;
+		while(n.parent != null) {
+			n = n.parent;
+			
+			if(n instanceof FunctionDeclarationNode) {
+				break;
+			}
+		}
+		if(n instanceof FunctionDeclarationNode) {
+			node.function = (FunctionDeclarationNode)n;
+		}
+		
 		visitChildren(node);
 		handleCastExpression(node);
 
@@ -299,6 +316,18 @@ public class SymbolTableVisitor extends Visitor {
 
 		FuncSymbol funcSymbol = (FuncSymbol) symbol;
 		node.symbol = funcSymbol;
+		
+		Ast.Node n = node;
+		while(n.parent != null) {
+			n = n.parent;
+			
+			if(n instanceof FunctionDeclarationNode) {
+				break;
+			}
+		}
+		if(n instanceof FunctionDeclarationNode) {
+			node.owner = (FunctionDeclarationNode)n;
+		}
 
 		if(node.children.size() != funcSymbol.paramTypes.size()) {
 			Log.fatal(
@@ -402,7 +431,19 @@ public class SymbolTableVisitor extends Visitor {
 		if(symbol == null) {
 			Log.fatal("Use of undeclared '" + node.id + "'", node.line);
 		}
-
+		
+		Ast.Node n = node;
+		while(n.parent != null) {
+			n = n.parent;
+			
+			if(n instanceof FunctionDeclarationNode) {
+				break;
+			}
+		}
+		if(n instanceof FunctionDeclarationNode) {
+			node.function = (FunctionDeclarationNode)n;
+		}
+		
 		node.setSymbol(symbol);
 
 		visitChildren(node);
@@ -458,6 +499,7 @@ public class SymbolTableVisitor extends Visitor {
 
 		FuncSymbol symbol = new FuncSymbol();
 
+		symbol.declaration = node;
 		symbol.returnType = node.getReturnType();
 		symbol.id = node.id;
 		symbol.label = node.id + Integer.toString(functionDeclCounter);
@@ -465,6 +507,18 @@ public class SymbolTableVisitor extends Visitor {
 		symbol.type = (Ast.TypeNode) node.children.get(0);
 		node.symbol = symbol;
 		symbol.scope = node.scope;
+		
+		Ast.Node n = node;
+		while(n.parent != null) {
+			n = n.parent;
+			
+			if(n instanceof FunctionDeclarationNode) {
+				break;
+			}
+		}
+		if(n instanceof FunctionDeclarationNode) {
+			node.owner = (FunctionDeclarationNode)n;
+		}
 
 		// add param types
 		for(int i = 0; i < node.children.get(1).children.size(); i++) {
