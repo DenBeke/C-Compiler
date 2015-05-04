@@ -10,6 +10,10 @@ public class SemanticVisitor extends Visitor {
 	 */
 	@Override
 	public void visit(Ast.FunctionDeclarationNode node) {
+		if(node.symbol.builtin) {
+			return;
+		}
+		
 		if(!checkReturn(node)
 				&& !(node.getReturnType() instanceof Ast.VoidTypeNode)) {
 			Log.warning("Control may reach end of non-void function '"

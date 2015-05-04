@@ -275,6 +275,18 @@ public class Ast {
 			return result;
 		}
 	}
+	
+	public static class VariadicTypeNode extends TypeNode {
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
+
+		@Override
+		public String getStringRepresentation() {
+			return "<variadic>";
+		}
+	}
 
 	public static class IntTypeNode extends TypeNode {
 		@Override
@@ -415,7 +427,15 @@ public class Ast {
 			this.value = value;
 			type = new CharTypeNode();
 		}
+		
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
 
+			instructions.add("ldc c '" + value + "'");
+			return instructions;
+		}
+		
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
@@ -612,13 +632,267 @@ public class Ast {
 		public FormalParametersNode getParams() {
 			return (FormalParametersNode) children.get(1);
 		}
+		
+		private Vector<String> generateStrcmp() {
+			Vector<String> instructions = new Vector<String>();
+			
+			String loopStart = CodeGenVisitor.getUniqueLabel();
+			String loopEnd = CodeGenVisitor.getUniqueLabel();
+			
+			String nonNullChar = CodeGenVisitor.getUniqueLabel();
+			
+			instructions.add("strcmp:");
+			instructions.add("ssp 7");
+			
+			instructions.add(loopStart + ":");
+			instructions.add("lod a 0 5");
+			instructions.add("ind c");		
+			instructions.add("lod a 0 6");
+			instructions.add("ind c");
+			
+			instructions.add("equ c");
+			instructions.add("fjp " + loopEnd);
+			
+			instructions.add("lod a 0 5");
+			instructions.add("ind c");		
+			instructions.add("ldc c 0");
+			instructions.add("equ c");
+			instructions.add("fjp " + nonNullChar);
+			instructions.add("ldc i 1");
+			instructions.add("str i 0 0");
+			instructions.add("retf");
+			
+			instructions.add(nonNullChar + ":");
+			instructions.add("lod a 0 5");
+			instructions.add("inc a 1");
+			instructions.add("str a 0 5");
+			instructions.add("lod a 0 6");
+			instructions.add("inc a 1");
+			instructions.add("str a 0 6");
+			instructions.add("ujp " + loopStart);
 
+			
+			instructions.add(loopEnd + ":");
+			instructions.add("ldc i 0");
+			instructions.add("str i 0 0");
+			instructions.add("retf");
+
+			
+			return instructions;
+		}
+
+		private Vector<String> generatePrint() {
+			Vector<String> instructions = new Vector<String>();
+			
+			String loopStart = CodeGenVisitor.getUniqueLabel();
+			String loopEnd = CodeGenVisitor.getUniqueLabel();
+					
+			instructions.add("print:");
+			instructions.add("ssp 6");
+			
+			instructions.add(loopStart + ":");	
+			instructions.add("lod a 0 5");
+			instructions.add("ind c");		
+			instructions.add("ldc c 0");
+			instructions.add("neq c");
+			instructions.add("fjp " + loopEnd);
+			instructions.add("lod a 0 5");
+			instructions.add("ind c");	
+			instructions.add("out c");
+			instructions.add("lod a 0 5");
+			instructions.add("inc a 1");
+			instructions.add("str a 0 5");
+			instructions.add("ujp " + loopStart);
+
+			
+			instructions.add(loopEnd + ":");
+			instructions.add("retp");
+
+			
+			return instructions;
+		}
+			
+		private Vector<String> generatePrintf() {
+			Vector<String> instructions = new Vector<String>();
+			
+			String loopStart = CodeGenVisitor.getUniqueLabel();
+			String loopEnd = CodeGenVisitor.getUniqueLabel();
+			String nonPercent = CodeGenVisitor.getUniqueLabel();
+			String increment = CodeGenVisitor.getUniqueLabel();
+			String notD = CodeGenVisitor.getUniqueLabel();
+			String notC = CodeGenVisitor.getUniqueLabel();
+			String notS = CodeGenVisitor.getUniqueLabel();
+			String checkForPercent = CodeGenVisitor.getUniqueLabel();
+
+
+
+			// Nr of variadic arguments
+			/*instructions.add("lod i 0 5");
+			instructions.add("ldc i 1");
+			instructions.add("sub i");
+			instructions.add("str i 0 5");*/
+
+			/*// counter to loop over string
+			instructions.add("ldc i 0");*/
+			
+			instructions.add("printf:");
+			
+			// Use first argument(nr of arguments) as pointer to variadic argument
+			instructions.add("lda 0 7");
+			instructions.add("str a 0 5");
+			
+			instructions.add("ldc b f");
+			instructions.add("str b 0 0");
+			
+			// Loop over string
+			instructions.add(loopStart + ":");
+	
+			// Check for null terminator
+			instructions.add("lod a 0 6");
+			instructions.add("ind c");
+			instructions.add("ldc c 0");
+			instructions.add("neq c");
+			instructions.add("fjp " + loopEnd);
+			
+			// Prev char was a %
+			instructions.add("lod b 0 0");
+			instructions.add("fjp " + checkForPercent);
+			// Check for 'd'
+			instructions.add("lod a 0 6");
+			instructions.add("ind c");
+			instructions.add("ldc c 'd'");
+			instructions.add("equ c");
+			instructions.add("fjp " + notD);
+			instructions.add("lod a 0 5");
+			instructions.add("ind i");
+			instructions.add("out i");
+			instructions.add("lod a 0 5");
+			instructions.add("inc a 1");
+			instructions.add("str a 0 5");
+			instructions.add("ujp " + increment);
+			instructions.add(notD + ":");
+			
+			// Check for 'c'
+			instructions.add("lod a 0 6");
+			instructions.add("ind c");
+			instructions.add("ldc c 'c'");
+			instructions.add("equ c");
+			instructions.add("fjp " + notC);
+			instructions.add("lod a 0 5");
+			instructions.add("ind c");
+			instructions.add("out c");
+			instructions.add("lod a 0 5");
+			instructions.add("inc a 1");
+			instructions.add("str a 0 5");
+			instructions.add("ujp " + increment);
+			instructions.add(notC + ":");
+			
+			// Check for 's'
+			instructions.add("lod a 0 6");
+			instructions.add("ind c");
+			instructions.add("ldc c 's'");
+			instructions.add("equ c");
+			instructions.add("fjp " + notS);
+			instructions.add("mst 0");
+			instructions.add("lod a 0 5");
+			instructions.add("ind a");
+			instructions.add("cup 1 print");
+			instructions.add("lod a 0 5");
+			instructions.add("inc a 1");
+			instructions.add("str a 0 5");
+			instructions.add("ujp " + increment);
+			instructions.add(notS + ":");
+			
+			instructions.add("ujp " + nonPercent);
+
+			
+			// Check for %
+			instructions.add(checkForPercent + ":");
+			instructions.add("lod a 0 6");
+			instructions.add("ind c");
+			instructions.add("ldc c '%'");
+			instructions.add("equ c");
+			instructions.add("fjp " + nonPercent);
+			instructions.add("ldc b t");
+			instructions.add("str b 0 0");
+			instructions.add("ujp " + increment);
+			
+			instructions.add(nonPercent + ":");
+			instructions.add("lod a 0 6");
+			instructions.add("ind c");
+			instructions.add("out c");
+			instructions.add("ldc b f");
+			instructions.add("str b 0 0");
+			
+			instructions.add(increment + ":");
+			instructions.add("lod a 0 6");
+			instructions.add("inc a 1");
+			instructions.add("str a 0 6");
+			instructions.add("ujp " + loopStart);
+			instructions.add(loopEnd + ":");
+
+			
+			instructions.add("retp");
+
+
+
+			// Loop over format string
+			// -------------
+		/*	instructions.add(loopStart + ":");
+			instructions.add("lod a 0 6");
+			instructions.add("ind c");
+
+			instructions.add("ldc c 0");
+			instructions.add("neq c");
+			instructions.add("fjp " + loopEnd);
+
+			// Body
+			instructions.add("lod a 0 6");
+			instructions.add("ind c");
+			instructions.add("out c");
+			
+			
+			
+			instructions.add("lod a 0 6");
+			instructions.add("inc a 1");
+			instructions.add("str a 0 6");
+			instructions.add("ujp " + loopStart);
+
+			
+			instructions.add(loopEnd + ":");
+
+
+			
+			instructions.add("retp");*/
+
+			
+			return instructions;
+		}
+		
+		private Vector<String> generateBuiltin() {
+			if(id.equals("printf")) {
+				return generatePrintf();
+			} else if(id.equals("print")) {
+				return generatePrint();
+			} else if(id.equals("strcmp")) {
+				return generateStrcmp();
+			} else {
+				Log.fatal("Builtin function not found " + id, line);
+			}
+			
+			return null;
+		}
+		
 		@Override
-		public Vector<String> code() {
+		public Vector<String> code() {		
 			Vector<String> instructions = new Vector<String>();
 
-			instructions.add(symbol.label + ":");
-			instructions.addAll(getBlock().code());
+			if(symbol.builtin) {
+				instructions.addAll(generateBuiltin());
+			} else {
+				instructions.add(symbol.label + ":");
+				instructions.addAll(getBlock().code());
+			}
 
 			return instructions;
 		}
@@ -697,9 +971,7 @@ public class Ast {
 		public Vector<String> code() {
 			Vector<String> instructions = new Vector<String>();
 
-			// Static link to global scope.
-			// TODO: If nested function have to be supported this link has to
-			// change.
+
 			int depth = 0;
 			if(symbol.declaration.owner != owner) {
 				Node n = this;
@@ -714,11 +986,17 @@ public class Ast {
 
 			instructions.add("mst " + Integer.toString(depth));
 
+			int nrParams = 0;
+			if(symbol.variadic) {
+				instructions.add("ldc i " + children.size());
+				nrParams += 1;
+			}
 			for(int i = 0; i < children.size(); i++) {
 				instructions.addAll(getParamExpression(i).codeR());
+				nrParams += 1;
 			}
 
-			instructions.add("cup " + Integer.toString(children.size()) + " "
+			instructions.add("cup " + Integer.toString(nrParams) + " "
 					+ symbol.label);
 
 			// TODO: generate pop instruction if non void function

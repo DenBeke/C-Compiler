@@ -150,6 +150,8 @@ public class SymbolTableVisitor extends Visitor {
 		public Ast.TypeNode returnType;
 		public String label;
 		public Ast.FunctionDeclarationNode declaration;
+		public boolean builtin = false;
+		public boolean variadic = false;
 
 		/**
 		 * Add new parameter type node to the function symbol
@@ -333,11 +335,22 @@ public class SymbolTableVisitor extends Visitor {
 		if(n instanceof FunctionDeclarationNode) {
 			node.owner = (FunctionDeclarationNode) n;
 		}
+		
+		boolean variadic = false;
+		int nonVariadicArgs = 0;
+		for(int i = 0; i < funcSymbol.paramTypes.size(); i++) {
+			if(funcSymbol.paramTypes.get(i) instanceof Ast.VariadicTypeNode) {
+				variadic = true;
+				break;
+			}
+			
+			nonVariadicArgs += 1;
+		}
 
-		if(node.children.size() != funcSymbol.paramTypes.size()) {
+		if((!variadic && node.children.size() != nonVariadicArgs) || (variadic && node.children.size() < nonVariadicArgs)) {
 			Log.fatal(
 					"Number of arguments for '" + symbol.id + "': "
-							+ String.valueOf(funcSymbol.paramTypes.size())
+							+ String.valueOf(nonVariadicArgs)
 							+ ", " + String.valueOf(node.children.size())
 							+ " given", node.line);
 		}
@@ -346,7 +359,9 @@ public class SymbolTableVisitor extends Visitor {
 		visitChildren(node);
 
 		for(int i = 0; i < node.children.size(); i++) {
-			convert(node.getParamExpression(i), funcSymbol.paramTypes.get(i));
+			if(i < nonVariadicArgs) {
+				convert(node.getParamExpression(i), funcSymbol.paramTypes.get(i));
+			}
 		}
 
 		handleCastExpression(node);
@@ -510,7 +525,14 @@ public class SymbolTableVisitor extends Visitor {
 		symbol.declaration = node;
 		symbol.returnType = node.getReturnType();
 		symbol.id = node.id;
-		symbol.label = node.id + Integer.toString(functionDeclCounter);
+		symbol.builtin = false;
+		if(node.id.equals("printf") || node.id.equals("print") || node.id.equals("strcmp")) {
+			symbol.builtin = true;
+		}
+		symbol.label = node.id;
+		if(!symbol.builtin) {
+			symbol.label += Integer.toString(functionDeclCounter);
+		}
 		functionDeclCounter += 1;
 		symbol.type = (Ast.TypeNode) node.children.get(0);
 		node.symbol = symbol;
@@ -535,6 +557,10 @@ public class SymbolTableVisitor extends Visitor {
 					"Expected TypeNode");
 			symbol.addParamType(node.children.get(1).children.get(i).children
 					.get(0));
+			
+			if(symbol.paramTypes.lastElement() instanceof Ast.VariadicTypeNode) {
+				symbol.variadic = true;
+			}
 		}
 
 		symbolTableStack.peek().addSymbol(symbol);

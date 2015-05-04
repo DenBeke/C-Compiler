@@ -38,6 +38,8 @@ import Compiler.Ast.TypeNode;
 import Compiler.Ast.UnaryOperatorNode;
 import Compiler.Ast.VoidTypeNode;
 import Compiler.Ast.WhileStatementNode;
+import Compiler.Ast.VariadicTypeNode;
+
 
 public class AstParser extends CParser {
 
@@ -226,7 +228,7 @@ public class AstParser extends CParser {
 	public void handleChar(String n) {
 		Log.debug("handleChar " + n);
 
-		CharNode node = new CharNode(n.charAt(0));
+		CharNode node = new CharNode(n.charAt(1));
 		insertNode(0, node);
 	}
 
@@ -257,6 +259,18 @@ public class AstParser extends CParser {
 	}
 
 	/**
+	 * Insert a null on the stack to mark first param.
+	 * Will be used in handleFunctionCall to avoid capturing params from an outer function.
+	 * E.g: test(1, somefunc());
+	 * Without the null, handleFunctionCall would think argument '1' is it's argument.
+	 */
+	@Override
+	public void startParams() {
+		list.add(0, null);
+	};
+
+	
+	/**
 	 * Handle function call
 	 *
 	 * @param n
@@ -269,6 +283,12 @@ public class AstParser extends CParser {
 
 		while(list.peekFirst() instanceof ParamNode) {
 			node.addParam(0, (ParamNode) list.removeFirst());
+		}
+		
+		if(list.peekFirst() == null) {
+			list.removeFirst();
+		} else {
+			Assert.Assert(false, "Should be null, see startParams()");
 		}
 
 		insertNode(0, node);
@@ -600,6 +620,33 @@ public class AstParser extends CParser {
 	 */
 	@Override
 	public void handleIncludeIO() {
+		// printf
+		PointerTypeNode charPointerType = new PointerTypeNode();
+		charPointerType.addChild(0, new CharTypeNode());
+		
+		FormalParametersNode fpsPrintf = new FormalParametersNode();
+		fpsPrintf.addParam(0, new FormalParameterNode("fmt", charPointerType));
+		fpsPrintf.addParam(1, new FormalParameterNode("variadic", new VariadicTypeNode()));
+		
+		FunctionDeclarationNode printf = new FunctionDeclarationNode("printf", new VoidTypeNode(), fpsPrintf, new BlockStatementNode());
+
+		insertNode(0, printf);
+		
+		// print
+		FormalParametersNode fpsPrint = new FormalParametersNode();
+		fpsPrint.addParam(0, new FormalParameterNode("str", charPointerType));
+		FunctionDeclarationNode print = new FunctionDeclarationNode("print", new VoidTypeNode(), fpsPrint, new BlockStatementNode());
+		
+		insertNode(0, print);
+		
+		// strcmp
+		FormalParametersNode fpsStrcmp = new FormalParametersNode();
+		fpsStrcmp.addParam(0, new FormalParameterNode("s1", charPointerType));
+		fpsStrcmp.addParam(0, new FormalParameterNode("s2", charPointerType));
+
+		FunctionDeclarationNode strcmp = new FunctionDeclarationNode("strcmp", new IntTypeNode(), fpsStrcmp, new BlockStatementNode());
+		
+		insertNode(0, strcmp);
 	}
 
 	{

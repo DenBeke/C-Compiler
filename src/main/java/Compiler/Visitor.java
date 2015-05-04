@@ -153,6 +153,10 @@ public abstract class Visitor {
 	public void visit(Ast.DereferenceExpressionNode node) {
 		visitChildren(node);
 	};
+	
+	public void visit(Ast.VariadicTypeNode node) {
+		visitChildren(node);
+	};
 
 	/*
 	 * Visit all the children of the node.
