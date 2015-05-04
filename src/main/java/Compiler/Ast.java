@@ -166,7 +166,7 @@ public class Ast {
 			// Store static strings
 			for(int i = 0; i < stringLiterals.size(); i++) {
 				for(int c = 0; c < stringLiterals.get(i).length(); c++) {
-					instructions.add("ldc c '" + stringLiterals.get(i).charAt(c) + "'");
+					instructions.add("ldc c " + (int)stringLiterals.get(i).charAt(c));
 				}
 				instructions.add("ldc c 0");
 
@@ -432,7 +432,7 @@ public class Ast {
 		public Vector<String> codeR() {
 			Vector<String> instructions = new Vector<String>();
 
-			instructions.add("ldc c '" + value + "'");
+			instructions.add("ldc c " + (int)value.charValue());
 			return instructions;
 		}
 		

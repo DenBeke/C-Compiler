@@ -149,7 +149,7 @@ WHITESPACE : [ \t]+ -> skip;
 ID : [a-zA-Z_][a-zA-Z_0-9]*;
 CHAR : '\'' (ESC|.) '\'';
 STRING : '"' (ESC|.)*? '"';
-ESC : '\\"' | '\\\\';
+ESC : '\\"' | '\\\\' | '\\n' | '\\t';
 INT : [0-9]+ ;
 SINGLELINECOMMENT : '//' .*? NEWLINE -> skip;
 MULTILINECOMMENT : '/*' .*? '*/' -> skip;

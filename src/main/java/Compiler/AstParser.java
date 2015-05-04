@@ -242,6 +242,37 @@ public class AstParser extends CParser {
 		Log.debug("handleString " + n);
 
 		StringNode node = new StringNode(n.substring(1, n.length() - 1));
+		
+		String str = "";
+		// handle escape chars
+		boolean escape = false;
+		for(int i = 0; i < node.value.length(); i++) {	
+			if(!escape && node.value.charAt(i) == '\\') {
+				escape = true;
+				continue;
+			}
+			
+			if(escape) {
+				switch(node.value.charAt(i)) {
+				case '\\':
+					str += '\\';
+				break;
+				case 'n':
+					str += '\n';
+				break;
+				case 't':
+					str += '\t';
+				break;
+				}
+			} else {
+				str += node.value.charAt(i);
+			}
+			
+			escape = false;
+		}
+		
+		node.value = str;
+		
 		insertNode(0, node);
 	}
 
