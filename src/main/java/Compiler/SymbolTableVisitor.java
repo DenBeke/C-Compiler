@@ -10,6 +10,9 @@ import Compiler.Ast.FunctionDeclarationNode;
 public class SymbolTableVisitor extends Visitor {
 	private int functionDeclCounter = 0;
 	private int scope = 0;
+	public int stringCounter = 0;
+	
+	private Ast.FileNode file;
 
 	/**
 	 * Generalize two types
@@ -246,6 +249,7 @@ public class SymbolTableVisitor extends Visitor {
 	@Override
 	public void visit(Ast.FileNode node) {
 		Log.debug("file");
+		file = node;
 
 		enterNewScope();
 		visitChildren(node);
@@ -416,6 +420,10 @@ public class SymbolTableVisitor extends Visitor {
 	@Override
 	public void visit(Ast.StringNode node) {
 		visitChildren(node);
+		
+		node.stringPosition = stringCounter;
+		stringCounter += node.value.length() + 1;
+		file.stringLiterals.add(node.value);
 
 		handleCastExpression(node);
 	}

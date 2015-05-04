@@ -122,6 +122,8 @@ public class Ast {
 	public static class FileNode extends Node {
 		private Vector<Node> declarations = new Vector<Node>();
 
+		public Vector<String> stringLiterals = new Vector<String>();
+		
 		public void addDeclaration(int pos, Node declaration) {
 			Assert.Assert(declaration instanceof DeclarationNode
 					|| declaration instanceof FunctionDeclarationNode);
@@ -159,6 +161,15 @@ public class Ast {
 
 			if(!(main.returnType instanceof VoidTypeNode)) {
 				Log.fatal("Main should return void", -1);
+			}
+			
+			// Store static strings
+			for(int i = 0; i < stringLiterals.size(); i++) {
+				for(int c = 0; c < stringLiterals.get(i).length(); c++) {
+					instructions.add("ldc c '" + stringLiterals.get(i).charAt(c) + "'");
+				}
+				instructions.add("ldc c 0");
+
 			}
 
 			// Pretend that global scope is a function enclosing everything else
@@ -414,6 +425,7 @@ public class Ast {
 
 	public static class StringNode extends LiteralNode {
 		public String value;
+		public int stringPosition = 0;
 
 		public StringNode(String value) {
 			this.value = value;
@@ -421,6 +433,15 @@ public class Ast {
 			type.addChild(0, new CharTypeNode());
 		}
 
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+
+			instructions.add("ldc a " + Integer.toString(stringPosition));
+			return instructions;
+		}
+		
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
