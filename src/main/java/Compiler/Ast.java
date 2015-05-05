@@ -1735,10 +1735,6 @@ public class Ast {
 	}
 
 	public static class ForStatementNode extends StatementNode {
-		private Node first;
-		private Node second;
-		private Node third;
-		private StatementNode body;
 
 		public ForStatementNode(Node first, Node second, Node third,
 				StatementNode body) {
@@ -1749,21 +1745,57 @@ public class Ast {
 			Assert.Assert(third instanceof NothingNode
 					|| third instanceof ExpressionNode);
 
-			this.first = first;
-			this.second = second;
-			this.third = third;
-			this.body = body;
-
 			addChild(0, body);
 			addChild(0, third);
 			addChild(0, second);
 			addChild(0, first);
 		}
 
+        public Node getCondition() {
+            return children.get(1);
+        }
+
+        public Node getBody() {
+            return children.get(3);
+        }
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
 		}
+
+        @Override
+        public Vector<String> code() {
+            Vector<String> instructions = new Vector<String>();
+
+            if(!(children.get(0) instanceof NothingNode)) {
+                instructions.addAll(children.get(0).code());
+            }
+
+            String beginForLable = CodeGenVisitor.getUniqueLabel();
+            String endForLable = CodeGenVisitor.getUniqueLabel();
+
+            instructions.add(beginForLable + ":");
+            if(getCondition() instanceof NothingNode) {
+                instructions.add("ldc b t");
+            } else {
+                instructions.addAll(getCondition().codeR());
+                instructions.add("conv " + CodeGenVisitor.typeToPtype(((ExpressionNode)getCondition()).getType()) + " b");
+            }
+            instructions.add("fjp " + endForLable);
+            instructions.addAll(getBody().code());
+
+            if(!(children.get(2) instanceof NothingNode)) {
+                instructions.addAll(children.get(2).code());
+            }
+
+            instructions.add("ujp " + beginForLable);
+
+            instructions.add(endForLable + ":");
+
+            return instructions;
+        }
+
 	}
 
 	public static class NothingNode extends Node {
@@ -1816,17 +1848,40 @@ public class Ast {
 		private StatementNode body;
 
 		public WhileStatementNode(ExpressionNode condition, StatementNode body) {
-			this.condition = condition;
-			this.body = body;
-
 			addChild(0, body);
 			addChild(0, condition);
 		}
+
+        public ExpressionNode getCondition() {
+            return (ExpressionNode)children.get(0);
+        }
+
+        public StatementNode getBody() {
+            return (StatementNode)children.get(1);
+        }
 
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
 		}
+
+        @Override
+        public Vector<String> code() {
+            Vector<String> instructions = new Vector<String>();
+
+            String beginWhileLable = CodeGenVisitor.getUniqueLabel();
+            String endWhileLable = CodeGenVisitor.getUniqueLabel();
+
+            instructions.add(beginWhileLable + ":");
+            instructions.addAll(getCondition().codeR());
+            instructions.add("conv " + CodeGenVisitor.typeToPtype(getCondition().getType()) + " b");
+            instructions.add("fjp " + endWhileLable);
+            instructions.addAll(getBody().code());
+            instructions.add("ujp " + beginWhileLable);
+            instructions.add(endWhileLable + ":");
+
+            return instructions;
+        }
 	}
 
 	public static class IfStatementNode extends StatementNode {

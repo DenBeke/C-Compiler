@@ -1,4 +1,7 @@
 target
+bin
+repo
+test.p
 a.out
 test.c
 documentation/
