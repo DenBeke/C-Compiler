@@ -654,11 +654,14 @@ public class Ast {
 			instructions.add("str a 0 5");
 			instructions.add("lod i 0 6");
 			instructions.add("dec i 1");
-			instructions.add("str a 0 6");
+			instructions.add("str i 0 6");
 			instructions.add("ujp " + loopStart);
 
-			
 			instructions.add(loopEnd + ":");
+			// null char
+			instructions.add("lod a 0 5");
+			instructions.add("ldc c 0");
+			instructions.add("sto c");
 			instructions.add("retp");
 
 			
@@ -691,39 +694,7 @@ public class Ast {
 
 			return instructions;
 		}
-		
-		private Vector<String> generateParseint() {
-			Vector<String> instructions = new Vector<String>();
 			
-			String loopStart = CodeGenVisitor.getUniqueLabel();
-			String loopEnd = CodeGenVisitor.getUniqueLabel();
-					
-			instructions.add("parseint:");
-			instructions.add("ssp 7");
-			
-			instructions.add(loopStart + ":");	
-			instructions.add("lod i 0 6");
-			instructions.add("conv i b");
-			instructions.add("fjp " + loopEnd);
-			instructions.add("lod a 0 5");
-			instructions.add("in c");
-			instructions.add("sto c");
-			instructions.add("lod a 0 5");
-			instructions.add("inc a 1");
-			instructions.add("str a 0 5");
-			instructions.add("lod i 0 6");
-			instructions.add("dec i 1");
-			instructions.add("str a 0 6");
-			instructions.add("ujp " + loopStart);
-
-			
-			instructions.add(loopEnd + ":");
-			instructions.add("retp");
-
-			
-			return instructions;
-		}
-		
 		private Vector<String> generateStrcmp() {
 			Vector<String> instructions = new Vector<String>();
 			
@@ -805,6 +776,8 @@ public class Ast {
 		
 		private Vector<String> generateScanf() {
 			Vector<String> instructions = new Vector<String>();
+			instructions.addAll(generateParseint());
+			
 			
 			String loopStart = CodeGenVisitor.getUniqueLabel();
 			String loopEnd = CodeGenVisitor.getUniqueLabel();
@@ -814,6 +787,7 @@ public class Ast {
 			String notC = CodeGenVisitor.getUniqueLabel();
 			String notS = CodeGenVisitor.getUniqueLabel();
 			String checkForPercent = CodeGenVisitor.getUniqueLabel();
+			String notNumber = CodeGenVisitor.getUniqueLabel();
 
 
 
@@ -880,16 +854,21 @@ public class Ast {
 			instructions.add("ujp " + increment);
 			instructions.add(notC + ":");
 			
-			// Check for 's'
+			// Check for 'digit'
+			instructions.add("mst 0");
 			instructions.add("lod a 0 6");
 			instructions.add("ind c");
-			instructions.add("ldc c 's'");
-			instructions.add("equ c");
+			instructions.add("cup 1 isdigit");
+			instructions.add("conv i b");
 			instructions.add("fjp " + notS);
 			instructions.add("mst 0");
 			instructions.add("lod a 0 5");
 			instructions.add("ind a");
-			instructions.add("cup 1 print");
+			instructions.add("mst 0");
+			instructions.add("lda 0 6");
+			instructions.add("cup 1 parseint");
+			instructions.add("cup 2 readstr");
+
 			instructions.add("lod a 0 5");
 			instructions.add("inc a 1");
 			instructions.add("str a 0 5");
@@ -911,11 +890,7 @@ public class Ast {
 			instructions.add("ujp " + increment);
 			
 			instructions.add(nonPercent + ":");
-			instructions.add("lod a 0 6");
-			instructions.add("ind c");
-			instructions.add("out c");
-			instructions.add("ldc b f");
-			instructions.add("str b 0 0");
+
 			
 			instructions.add(increment + ":");
 			instructions.add("lod a 0 6");
@@ -962,6 +937,194 @@ public class Ast {
 			return instructions;
 		}
 		
+		private Vector<String> generateParseint() {
+		Vector<String> instructions = new Vector<String>();
+		
+		String l1 = CodeGenVisitor.getUniqueLabel();
+		String l2 = CodeGenVisitor.getUniqueLabel();
+		String l3 = CodeGenVisitor.getUniqueLabel();
+		String l4 = CodeGenVisitor.getUniqueLabel();
+
+		instructions.add("parseint:");
+		instructions.add("ssp 11");
+		instructions.add("ldc i 0");
+		instructions.add("str i 0 6");
+		instructions.add("ldc i 0");
+		instructions.add("str i 0 7");
+		instructions.add("lod a 0 5");
+		instructions.add("ind a");
+		instructions.add("str a 0 8");
+		instructions.add(l1 + ":");
+		instructions.add("mst 0");
+		instructions.add("lod a 0 5");
+		instructions.add("ind a");
+		instructions.add("ind c");
+		instructions.add("cup 1 isdigit");
+		instructions.add("conv i b");
+		instructions.add("fjp " + l2);
+		instructions.add("lda 0 7");
+		instructions.add("lod i 0 7");
+		instructions.add("conv i i");
+		instructions.add("ldc i 1");
+		instructions.add("conv i i");
+		instructions.add("add i");
+		instructions.add("sto i");
+		instructions.add("lda 0 7");
+		instructions.add("ind i");
+		instructions.add("lod a 0 5");
+		instructions.add("lod a 0 5");
+		instructions.add("ind a");
+		instructions.add("conv a i");
+		instructions.add("conv i i");
+		instructions.add("ldc i 1");
+		instructions.add("conv i i");
+		instructions.add("add i");
+		instructions.add("conv i a");
+		instructions.add("sto a");
+		instructions.add("lod a 0 5");
+		instructions.add("ind a");
+		instructions.add("ujp " + l1);
+		instructions.add(l2 + ":");
+		instructions.add("lod a 0 5");
+		instructions.add("lod a 0 8");
+		instructions.add("sto a");
+		instructions.add("lod a 0 5");
+		instructions.add("ind a");
+		instructions.add("lod i 0 7");
+		instructions.add("str i 0 9");
+		instructions.add(l3 + ":");
+		instructions.add("lod i 0 9");
+		instructions.add("ldc i 0");
+		instructions.add("grt i");
+		instructions.add("conv b i");
+		instructions.add("conv i b");
+		instructions.add("fjp " + l4);
+		instructions.add("lda 0 6");
+		instructions.add("lod i 0 6");
+		instructions.add("conv i i");
+		instructions.add("mst 0");
+		instructions.add("lod a 0 5");
+		instructions.add("ind a");
+		instructions.add("ind c");
+		instructions.add("cup 1 chartoint");
+		instructions.add("conv i i");
+		instructions.add("mst 0");
+		instructions.add("ldc i 10");
+		instructions.add("lod i 0 9");
+		instructions.add("conv i i");
+		instructions.add("ldc i 1");
+		instructions.add("conv i i");
+		instructions.add("sub i");
+		instructions.add("cup 2 pow");
+		instructions.add("conv i i");
+		instructions.add("mul i");
+		instructions.add("conv i i");
+		instructions.add("add i");
+		instructions.add("sto i");
+		instructions.add("lda 0 6");
+		instructions.add("ind i");
+		instructions.add("lod a 0 5");
+		instructions.add("lod a 0 5");
+		instructions.add("ind a");
+		instructions.add("conv a i");
+		instructions.add("conv i i");
+		instructions.add("ldc i 1");
+		instructions.add("conv i i");
+		instructions.add("add i");
+		instructions.add("conv i a");
+		instructions.add("sto a");
+		instructions.add("lod a 0 5");
+		instructions.add("ind a");
+		instructions.add("lda 0 9");
+		instructions.add("lod i 0 9");
+		instructions.add("conv i i");
+		instructions.add("ldc i 1");
+		instructions.add("conv i i");
+		instructions.add("sub i");
+		instructions.add("sto i");
+		instructions.add("lda 0 9");
+		instructions.add("ind i");
+		instructions.add("ujp " + l3);
+		instructions.add(l4 + ":");
+		instructions.add("lod i 0 6");
+		instructions.add("str i 0 0");
+		instructions.add("retf");
+			
+			return instructions;
+		}
+		
+		private Vector<String> generateChartoint() {
+			Vector<String> instructions = new Vector<String>();
+			
+			instructions.add("chartoint:");
+			instructions.add("ssp 7");
+			instructions.add("lod c 0 5");
+			instructions.add("conv c i");
+			instructions.add("ldc c 48");
+			instructions.add("conv c i");
+			instructions.add("sub i");
+			instructions.add("str i 0 0");
+			instructions.add("retf");
+			
+			return instructions;
+			
+		}
+		
+		private Vector<String> generatePow() {
+			Vector<String> instructions = new Vector<String>();
+			
+			String l1 = CodeGenVisitor.getUniqueLabel();
+			String l2 = CodeGenVisitor.getUniqueLabel();
+			String l3 = CodeGenVisitor.getUniqueLabel();
+			
+			instructions.add("pow:");
+			instructions.add("ssp 11");
+			instructions.add("lod i 0 6");
+			instructions.add("ldc i 0");
+			instructions.add("equ i");
+			instructions.add("conv b i");
+			instructions.add("conv i b");
+			instructions.add("fjp " + l1);
+			instructions.add("ldc i 1");
+			instructions.add("str i 0 0");
+			instructions.add("retf");
+			instructions.add("ujp " + l1);
+			instructions.add(l1 + ":");
+			instructions.add("lod i 0 5");
+			instructions.add("str i 0 7");
+			instructions.add("ldc i 1");
+			instructions.add("str i 0 8");
+			instructions.add(l2 + ":");
+			instructions.add("lod i 0 8");
+			instructions.add("lod i 0 6");
+			instructions.add("les i");
+			instructions.add("conv b i");
+			instructions.add("conv i b");
+			instructions.add("fjp " + l3);
+			instructions.add("lda 0 7");
+			instructions.add("lod i 0 7");
+			instructions.add("lod i 0 5");
+			instructions.add("mul i");
+			instructions.add("sto i");
+			instructions.add("lda 0 7");
+			instructions.add("ind i");
+			instructions.add("lda 0 8");
+			instructions.add("lod i 0 8");
+			instructions.add("ldc i 1");
+			instructions.add("add i");
+			instructions.add("sto i");
+			instructions.add("lda 0 8");
+			instructions.add("ind i");
+			instructions.add("ujp " + l2);
+			instructions.add(l3 + ":");
+			instructions.add("lod i 0 7");
+			instructions.add("str i 0 0");
+			instructions.add("retf");
+		
+			return instructions;
+		}
+			
+			
 		private Vector<String> generatePrintf() {
 			Vector<String> instructions = new Vector<String>();
 			
@@ -1130,7 +1293,13 @@ public class Ast {
 				return generateScanf();
 			} else if(id.equals("isdigit")) {
 				return generateIsdigit();
-			} else {
+			} else if(id.equals("pow")) {
+				return generatePow();
+			} else if(id.equals("chartoint")) {
+				return generateChartoint();
+			} else if(id.equals("readstr")) {
+				return generateReadstr();
+			}  else {
 				Log.fatal("Builtin function not found " + id, line);
 			}
 			
@@ -1630,13 +1799,21 @@ public class Ast {
 			if(pType == null || childPType == null) {
 				Log.fatal("Cant convert type to ptype", line);
 			}
-
+			
+			boolean math = operator.equals("+") || operator.equals("-") || operator.equals("*") || operator.equals("/");
 			if(operator.equals("=")) {
 				instructions.addAll(getLeftChild().codeL());
 				instructions.addAll(getRightChild().codeR());
 			} else {
 				instructions.addAll(getLeftChild().codeR());
+				if(math) {
+					instructions.add("conv " + CodeGenVisitor.typeToPtype(getLeftChild().getType()) + " i");
+				}
+				
 				instructions.addAll(getRightChild().codeR());
+				if(math) {
+					instructions.add("conv " + CodeGenVisitor.typeToPtype(getRightChild().getType()) + " i");
+				}
 			}
 
 			switch(operator) {
@@ -1673,21 +1850,25 @@ public class Ast {
 				instructions.add("conv b " + pType);
 				break;
 			case "+":
-				instructions.add("add " + childPType);
+				instructions.add("add i");
 				break;
 			case "-":
-				instructions.add("sub " + childPType);
+				instructions.add("sub i");
 				break;
 			case "/":
-				instructions.add("div " + childPType);
+				instructions.add("div i");
 				break;
 			case "*":
-				instructions.add("mul " + childPType);
+				instructions.add("mul i");
 				break;
 			default:
 				Log.fatal("Codegen invalid binary operator: " + operator, line);
 			}
 
+			if(math && !(getType() instanceof IntTypeNode)) {
+				instructions.add("conv i " + CodeGenVisitor.typeToPtype(getType()));
+			}
+			
 			return instructions;
 		}
 

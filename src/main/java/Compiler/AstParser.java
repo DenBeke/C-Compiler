@@ -688,6 +688,15 @@ public class AstParser extends CParser {
 		
 		insertNode(0, scanf);
 		
+		// readstr
+		FormalParametersNode fpsReadstr = new FormalParametersNode();
+		fpsReadstr.addParam(0, new FormalParameterNode("dst", charPointerType));
+		fpsReadstr.addParam(1, new FormalParameterNode("nr", new IntTypeNode()));
+		
+		FunctionDeclarationNode readstr = new FunctionDeclarationNode("readstr", new IntTypeNode(), fpsReadstr, new BlockStatementNode());
+
+		insertNode(0, readstr);
+		
 		// isdigit
 		FormalParametersNode fpsIsdigit = new FormalParametersNode();
 		fpsIsdigit.addParam(0, new FormalParameterNode("char", new CharTypeNode()));
@@ -695,6 +704,23 @@ public class AstParser extends CParser {
 		FunctionDeclarationNode isdigit = new FunctionDeclarationNode("isdigit", new IntTypeNode(), fpsIsdigit, new BlockStatementNode());
 
 		insertNode(0, isdigit);
+		
+		// pow
+		FormalParametersNode fpsPow = new FormalParametersNode();
+		fpsPow.addParam(0, new FormalParameterNode("base", new IntTypeNode()));
+		fpsPow.addParam(1, new FormalParameterNode("e", new IntTypeNode()));
+
+		FunctionDeclarationNode pow = new FunctionDeclarationNode("pow", new IntTypeNode(), fpsPow, new BlockStatementNode());
+
+		insertNode(0, pow);
+		
+		// chartoint
+		FormalParametersNode fpsChartoint = new FormalParametersNode();
+		fpsChartoint.addParam(0, new FormalParameterNode("char", new CharTypeNode()));
+		
+		FunctionDeclarationNode chartoint = new FunctionDeclarationNode("chartoint", new IntTypeNode(), fpsChartoint, new BlockStatementNode());
+
+		insertNode(0, chartoint);
 	}
 
 	{
