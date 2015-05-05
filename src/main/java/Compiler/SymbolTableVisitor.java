@@ -526,7 +526,7 @@ public class SymbolTableVisitor extends Visitor {
 		symbol.returnType = node.getReturnType();
 		symbol.id = node.id;
 		symbol.builtin = false;
-		if(node.id.equals("printf") || node.id.equals("print") || node.id.equals("strcmp")) {
+		if(node.id.equals("printf") || node.id.equals("print") || node.id.equals("strcmp") || node.id.equals("scanf") || node.id.equals("isdigit")) {
 			symbol.builtin = true;
 		}
 		symbol.label = node.id;

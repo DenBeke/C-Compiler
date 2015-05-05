@@ -678,6 +678,23 @@ public class AstParser extends CParser {
 		FunctionDeclarationNode strcmp = new FunctionDeclarationNode("strcmp", new IntTypeNode(), fpsStrcmp, new BlockStatementNode());
 		
 		insertNode(0, strcmp);
+		
+		// scanf
+		FormalParametersNode fpsScanf = new FormalParametersNode();
+		fpsScanf.addParam(0, new FormalParameterNode("fmt", charPointerType));
+		fpsScanf.addParam(1, new FormalParameterNode("variadic", new VariadicTypeNode()));
+		
+		FunctionDeclarationNode scanf = new FunctionDeclarationNode("scanf", new VoidTypeNode(), fpsScanf, new BlockStatementNode());
+		
+		insertNode(0, scanf);
+		
+		// isdigit
+		FormalParametersNode fpsIsdigit = new FormalParametersNode();
+		fpsIsdigit.addParam(0, new FormalParameterNode("char", new CharTypeNode()));
+		
+		FunctionDeclarationNode isdigit = new FunctionDeclarationNode("isdigit", new IntTypeNode(), fpsIsdigit, new BlockStatementNode());
+
+		insertNode(0, isdigit);
 	}
 
 	{
