@@ -12,6 +12,7 @@ import Compiler.Ast.CharTypeNode;
 import Compiler.Ast.ConstTypeNode;
 import Compiler.Ast.ContinueStatementNode;
 import Compiler.Ast.DeclarationNode;
+import Compiler.Ast.DereferenceExpressionNode;
 import Compiler.Ast.ExprStatementNode;
 import Compiler.Ast.ExpressionNode;
 import Compiler.Ast.FileNode;
@@ -28,6 +29,7 @@ import Compiler.Ast.Node;
 import Compiler.Ast.NothingNode;
 import Compiler.Ast.ParamNode;
 import Compiler.Ast.PointerTypeNode;
+import Compiler.Ast.ReferenceExpressionNode;
 import Compiler.Ast.ReturnStatementNode;
 import Compiler.Ast.StatementNode;
 import Compiler.Ast.StaticArrayTypeNode;
@@ -36,8 +38,8 @@ import Compiler.Ast.TypeNode;
 import Compiler.Ast.UnaryOperatorNode;
 import Compiler.Ast.VoidTypeNode;
 import Compiler.Ast.WhileStatementNode;
-import Compiler.Ast.ReferenceExpressionNode;
-import Compiler.Ast.DereferenceExpressionNode;
+import Compiler.Ast.VariadicTypeNode;
+
 
 public class AstParser extends CParser {
 
@@ -53,7 +55,7 @@ public class AstParser extends CParser {
 	public void handleDereference() {
 		Log.debug("handleDereference");
 
-		ExpressionNode e = (ExpressionNode)list.removeFirst();
+		ExpressionNode e = (ExpressionNode) list.removeFirst();
 		DereferenceExpressionNode node = new DereferenceExpressionNode(e);
 		insertNode(0, node);
 	}
@@ -62,7 +64,7 @@ public class AstParser extends CParser {
 	public void handleReference() {
 		Log.debug("handleReference");
 
-		ExpressionNode e = (ExpressionNode)list.removeFirst();
+		ExpressionNode e = (ExpressionNode) list.removeFirst();
 		ReferenceExpressionNode node = new ReferenceExpressionNode(e);
 		insertNode(0, node);
 	}
@@ -226,7 +228,7 @@ public class AstParser extends CParser {
 	public void handleChar(String n) {
 		Log.debug("handleChar " + n);
 
-		CharNode node = new CharNode(n.charAt(0));
+		CharNode node = new CharNode(n.charAt(1));
 		insertNode(0, node);
 	}
 
@@ -240,6 +242,37 @@ public class AstParser extends CParser {
 		Log.debug("handleString " + n);
 
 		StringNode node = new StringNode(n.substring(1, n.length() - 1));
+		
+		String str = "";
+		// handle escape chars
+		boolean escape = false;
+		for(int i = 0; i < node.value.length(); i++) {	
+			if(!escape && node.value.charAt(i) == '\\') {
+				escape = true;
+				continue;
+			}
+			
+			if(escape) {
+				switch(node.value.charAt(i)) {
+				case '\\':
+					str += '\\';
+				break;
+				case 'n':
+					str += '\n';
+				break;
+				case 't':
+					str += '\t';
+				break;
+				}
+			} else {
+				str += node.value.charAt(i);
+			}
+			
+			escape = false;
+		}
+		
+		node.value = str;
+		
 		insertNode(0, node);
 	}
 
@@ -257,6 +290,18 @@ public class AstParser extends CParser {
 	}
 
 	/**
+	 * Insert a null on the stack to mark first param.
+	 * Will be used in handleFunctionCall to avoid capturing params from an outer function.
+	 * E.g: test(1, somefunc());
+	 * Without the null, handleFunctionCall would think argument '1' is it's argument.
+	 */
+	@Override
+	public void startParams() {
+		list.add(0, null);
+	};
+
+	
+	/**
 	 * Handle function call
 	 *
 	 * @param n
@@ -269,6 +314,12 @@ public class AstParser extends CParser {
 
 		while(list.peekFirst() instanceof ParamNode) {
 			node.addParam(0, (ParamNode) list.removeFirst());
+		}
+		
+		if(list.peekFirst() == null) {
+			list.removeFirst();
+		} else {
+			Assert.Assert(false, "Should be null, see startParams()");
 		}
 
 		insertNode(0, node);
@@ -479,16 +530,15 @@ public class AstParser extends CParser {
 	public void handleReturnStatement() {
 		Log.debug("handleReturnStatement");
 
-		Assert.Assert(list.peekFirst() instanceof ExpressionNode || list.peekFirst() instanceof NothingNode);
-        ReturnStatementNode node;
-        if(list.peekFirst() instanceof NothingNode) {
-            node = new ReturnStatementNode(new NothingNode());
-            list.removeFirst();
-        }
-        else {
-            node = new ReturnStatementNode(
-                    (ExpressionNode) list.removeFirst());
-        }
+		Assert.Assert(list.peekFirst() instanceof ExpressionNode
+				|| list.peekFirst() instanceof NothingNode);
+		ReturnStatementNode node;
+		if(list.peekFirst() instanceof NothingNode) {
+			node = new ReturnStatementNode(new NothingNode());
+			list.removeFirst();
+		} else {
+			node = new ReturnStatementNode(list.removeFirst());
+		}
 		insertNode(0, node);
 	}
 
@@ -596,17 +646,86 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+	/**
+	 * Handle #include <stdio.h>
+	 */
+	@Override
+	public void handleIncludeIO() {
+		// printf
+		PointerTypeNode charPointerType = new PointerTypeNode();
+		charPointerType.addChild(0, new CharTypeNode());
+		
+		FormalParametersNode fpsPrintf = new FormalParametersNode();
+		fpsPrintf.addParam(0, new FormalParameterNode("fmt", charPointerType));
+		fpsPrintf.addParam(1, new FormalParameterNode("variadic", new VariadicTypeNode()));
+		
+		FunctionDeclarationNode printf = new FunctionDeclarationNode("printf", new VoidTypeNode(), fpsPrintf, new BlockStatementNode());
 
-    /**
-     * Handle
-     *   #include <stdio.h>
-     */
-    @Override
-    public void handleIncludeIO() {} {
-        Log.debug("handleIncludeIO");
-    }
+		insertNode(0, printf);
+		
+		// print
+		FormalParametersNode fpsPrint = new FormalParametersNode();
+		fpsPrint.addParam(0, new FormalParameterNode("str", charPointerType));
+		FunctionDeclarationNode print = new FunctionDeclarationNode("print", new VoidTypeNode(), fpsPrint, new BlockStatementNode());
+		
+		insertNode(0, print);
+		
+		// strcmp
+		FormalParametersNode fpsStrcmp = new FormalParametersNode();
+		fpsStrcmp.addParam(0, new FormalParameterNode("s1", charPointerType));
+		fpsStrcmp.addParam(0, new FormalParameterNode("s2", charPointerType));
 
+		FunctionDeclarationNode strcmp = new FunctionDeclarationNode("strcmp", new IntTypeNode(), fpsStrcmp, new BlockStatementNode());
+		
+		insertNode(0, strcmp);
+		
+		// scanf
+		FormalParametersNode fpsScanf = new FormalParametersNode();
+		fpsScanf.addParam(0, new FormalParameterNode("fmt", charPointerType));
+		fpsScanf.addParam(1, new FormalParameterNode("variadic", new VariadicTypeNode()));
+		
+		FunctionDeclarationNode scanf = new FunctionDeclarationNode("scanf", new VoidTypeNode(), fpsScanf, new BlockStatementNode());
+		
+		insertNode(0, scanf);
+		
+		// readstr
+		FormalParametersNode fpsReadstr = new FormalParametersNode();
+		fpsReadstr.addParam(0, new FormalParameterNode("dst", charPointerType));
+		fpsReadstr.addParam(1, new FormalParameterNode("nr", new IntTypeNode()));
+		
+		FunctionDeclarationNode readstr = new FunctionDeclarationNode("readstr", new IntTypeNode(), fpsReadstr, new BlockStatementNode());
 
+		insertNode(0, readstr);
+		
+		// isdigit
+		FormalParametersNode fpsIsdigit = new FormalParametersNode();
+		fpsIsdigit.addParam(0, new FormalParameterNode("char", new CharTypeNode()));
+		
+		FunctionDeclarationNode isdigit = new FunctionDeclarationNode("isdigit", new IntTypeNode(), fpsIsdigit, new BlockStatementNode());
+
+		insertNode(0, isdigit);
+		
+		// pow
+		FormalParametersNode fpsPow = new FormalParametersNode();
+		fpsPow.addParam(0, new FormalParameterNode("base", new IntTypeNode()));
+		fpsPow.addParam(1, new FormalParameterNode("e", new IntTypeNode()));
+
+		FunctionDeclarationNode pow = new FunctionDeclarationNode("pow", new IntTypeNode(), fpsPow, new BlockStatementNode());
+
+		insertNode(0, pow);
+		
+		// chartoint
+		FormalParametersNode fpsChartoint = new FormalParametersNode();
+		fpsChartoint.addParam(0, new FormalParameterNode("char", new CharTypeNode()));
+		
+		FunctionDeclarationNode chartoint = new FunctionDeclarationNode("chartoint", new IntTypeNode(), fpsChartoint, new BlockStatementNode());
+
+		insertNode(0, chartoint);
+	}
+
+	{
+		Log.debug("handleIncludeIO");
+	}
 
 	@Override
 	public void startScope() {

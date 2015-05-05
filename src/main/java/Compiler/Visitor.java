@@ -134,11 +134,27 @@ public abstract class Visitor {
 		visitChildren(node);
 	};
 
+	public void visit(Ast.IntToPointerExpressionNode node) {
+		visitChildren(node);
+	};
+
+	public void visit(Ast.PointerToIntExpressionNode node) {
+		visitChildren(node);
+	};
+
+	public void visit(Ast.PointerToPointerExpressionNode node) {
+		visitChildren(node);
+	};
+
 	public void visit(Ast.ReferenceExpressionNode node) {
 		visitChildren(node);
 	};
 
 	public void visit(Ast.DereferenceExpressionNode node) {
+		visitChildren(node);
+	};
+	
+	public void visit(Ast.VariadicTypeNode node) {
 		visitChildren(node);
 	};
 

@@ -44,9 +44,9 @@ public class Log {
 	 * @param line
 	 */
 	public static void warning(String message, int line) {
-        if(exception) {
-            throw new FatalException(line + ": " + message);
-        }
+		if(exception) {
+			throw new FatalException(line + ": " + message);
+		}
 		if(!level.equals("NONE") && !level.equals("ERROR")) {
 			System.out.println("[WARNING] line " + line + ": " + message);
 		}

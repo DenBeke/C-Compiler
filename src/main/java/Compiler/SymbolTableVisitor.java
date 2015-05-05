@@ -5,7 +5,14 @@ import java.util.Stack;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import Compiler.Ast.FunctionDeclarationNode;
+
 public class SymbolTableVisitor extends Visitor {
+	private int functionDeclCounter = 0;
+	private int scope = 0;
+	public int stringCounter = 0;
+	
+	private Ast.FileNode file;
 
 	/**
 	 * Generalize two types
@@ -24,7 +31,10 @@ public class SymbolTableVisitor extends Visitor {
 				return new Ast.CharTypeNode();
 			} else if(t2 instanceof Ast.IntTypeNode) {
 				return new Ast.IntTypeNode();
-			}
+			}/*
+			 * else if(t2 instanceof Ast.PointerTypeNode) { return new
+			 * Ast.IntTypeNode(); }
+			 */
 		}
 
 		if(t1 instanceof Ast.IntTypeNode) {
@@ -32,9 +42,19 @@ public class SymbolTableVisitor extends Visitor {
 				return new Ast.IntTypeNode();
 			} else if(t2 instanceof Ast.IntTypeNode) {
 				return new Ast.IntTypeNode();
-			}
+			} /*
+			 * else if(t2 instanceof Ast.PointerTypeNode) { return new
+			 * Ast.IntTypeNode(); }
+			 */
 		}
 
+		/*
+		 * if(t1 instanceof Ast.PointerTypeNode) { if(t2 instanceof
+		 * Ast.CharTypeNode) { return new Ast.IntTypeNode(); } else if(t2
+		 * instanceof Ast.IntTypeNode) { return new Ast.IntTypeNode(); } else
+		 * if(t2 instanceof Ast.PointerTypeNode) { return new Ast.IntTypeNode();
+		 * } }
+		 */
 		return null;
 	}
 
@@ -108,12 +128,15 @@ public class SymbolTableVisitor extends Visitor {
 	public static class Symbol {
 		public String id;
 		public Ast.TypeNode type;
+		public int scope;
+		public int offset = -1;
 	}
 
 	/**
 	 * @brief Class representing a Symbol for a variable
 	 */
 	public static class VarSymbol extends Symbol {
+		public Ast.DeclarationNode declaration;
 	}
 
 	/**
@@ -124,6 +147,11 @@ public class SymbolTableVisitor extends Visitor {
 	public static class FuncSymbol extends Symbol {
 
 		public Vector<Ast.TypeNode> paramTypes = new Vector<>();
+		public Ast.TypeNode returnType;
+		public String label;
+		public Ast.FunctionDeclarationNode declaration;
+		public boolean builtin = false;
+		public boolean variadic = false;
 
 		/**
 		 * Add new parameter type node to the function symbol
@@ -205,8 +233,10 @@ public class SymbolTableVisitor extends Visitor {
 	 */
 	private Symbol findSymbol(String id) {
 		for(int i = 0; i < symbolTableStack.size(); i++) {
-			if(symbolTableStack.get(i).hasSymbol(id)) {
-				return symbolTableStack.get(i).getSymbol(id);
+			if(symbolTableStack.get(symbolTableStack.size() - i - 1).hasSymbol(
+					id)) {
+				return symbolTableStack.get(symbolTableStack.size() - i - 1)
+						.getSymbol(id);
 			}
 		}
 
@@ -221,6 +251,7 @@ public class SymbolTableVisitor extends Visitor {
 	@Override
 	public void visit(Ast.FileNode node) {
 		Log.debug("file");
+		file = node;
 
 		enterNewScope();
 		visitChildren(node);
@@ -243,12 +274,28 @@ public class SymbolTableVisitor extends Visitor {
 					+ ")", node.line);
 		}
 
-		Symbol symbol = new Symbol();
+		VarSymbol symbol = new VarSymbol();
+		symbol.declaration = node;
+		symbol.scope = node.scope;
 		symbol.id = node.id;
 		Assert.Assert(node.children.get(0) instanceof Ast.TypeNode,
 				"Expected TypeNode");
 		symbol.type = (Ast.TypeNode) node.children.get(0);
 		symbolTableStack.peek().addSymbol(symbol);
+
+		node.symbol = symbol;
+
+		Ast.Node n = node;
+		while(n.parent != null) {
+			n = n.parent;
+
+			if(n instanceof FunctionDeclarationNode) {
+				break;
+			}
+		}
+		if(n instanceof FunctionDeclarationNode) {
+			node.function = (FunctionDeclarationNode) n;
+		}
 
 		visitChildren(node);
 		handleCastExpression(node);
@@ -275,11 +322,35 @@ public class SymbolTableVisitor extends Visitor {
 		}
 
 		FuncSymbol funcSymbol = (FuncSymbol) symbol;
+		node.symbol = funcSymbol;
 
-		if(node.children.size() != funcSymbol.paramTypes.size()) {
+		Ast.Node n = node;
+		while(n.parent != null) {
+			n = n.parent;
+
+			if(n instanceof FunctionDeclarationNode) {
+				break;
+			}
+		}
+		if(n instanceof FunctionDeclarationNode) {
+			node.owner = (FunctionDeclarationNode) n;
+		}
+		
+		boolean variadic = false;
+		int nonVariadicArgs = 0;
+		for(int i = 0; i < funcSymbol.paramTypes.size(); i++) {
+			if(funcSymbol.paramTypes.get(i) instanceof Ast.VariadicTypeNode) {
+				variadic = true;
+				break;
+			}
+			
+			nonVariadicArgs += 1;
+		}
+
+		if((!variadic && node.children.size() != nonVariadicArgs) || (variadic && node.children.size() < nonVariadicArgs)) {
 			Log.fatal(
 					"Number of arguments for '" + symbol.id + "': "
-							+ String.valueOf(funcSymbol.paramTypes.size())
+							+ String.valueOf(nonVariadicArgs)
 							+ ", " + String.valueOf(node.children.size())
 							+ " given", node.line);
 		}
@@ -288,7 +359,9 @@ public class SymbolTableVisitor extends Visitor {
 		visitChildren(node);
 
 		for(int i = 0; i < node.children.size(); i++) {
-			convert(node.getParamExpression(i), funcSymbol.paramTypes.get(i));
+			if(i < nonVariadicArgs) {
+				convert(node.getParamExpression(i), funcSymbol.paramTypes.get(i));
+			}
 		}
 
 		handleCastExpression(node);
@@ -319,15 +392,14 @@ public class SymbolTableVisitor extends Visitor {
 					node.line);
 		}
 
-        if(node.getExpression() instanceof Ast.ExpressionNode) {
-            convert((Ast.ExpressionNode)node.getExpression(), func.getReturnType());
-        }
-        else {
-            if(!(func.getReturnType() instanceof Ast.VoidTypeNode)) {
-                Log.fatal("Empty return in non-void function",
-                        node.line);
-            }
-        }
+		if(node.getExpression() instanceof Ast.ExpressionNode) {
+			convert((Ast.ExpressionNode) node.getExpression(),
+					func.getReturnType());
+		} else {
+			if(!(func.getReturnType() instanceof Ast.VoidTypeNode)) {
+				Log.fatal("Empty return in non-void function", node.line);
+			}
+		}
 
 	}
 
@@ -363,6 +435,10 @@ public class SymbolTableVisitor extends Visitor {
 	@Override
 	public void visit(Ast.StringNode node) {
 		visitChildren(node);
+		
+		node.stringPosition = stringCounter;
+		stringCounter += node.value.length() + 1;
+		file.stringLiterals.add(node.value);
 
 		handleCastExpression(node);
 	}
@@ -377,6 +453,18 @@ public class SymbolTableVisitor extends Visitor {
 		Symbol symbol = findSymbol(node.id);
 		if(symbol == null) {
 			Log.fatal("Use of undeclared '" + node.id + "'", node.line);
+		}
+
+		Ast.Node n = node;
+		while(n.parent != null) {
+			n = n.parent;
+
+			if(n instanceof FunctionDeclarationNode) {
+				break;
+			}
+		}
+		if(n instanceof FunctionDeclarationNode) {
+			node.function = (FunctionDeclarationNode) n;
 		}
 
 		node.setSymbol(symbol);
@@ -434,11 +522,35 @@ public class SymbolTableVisitor extends Visitor {
 
 		FuncSymbol symbol = new FuncSymbol();
 
-		// set id
+		symbol.declaration = node;
+		symbol.returnType = node.getReturnType();
 		symbol.id = node.id;
-
-		// set return type
+		symbol.builtin = false;
+		if(node.id.equals("printf") || node.id.equals("print") || node.id.equals("strcmp") || node.id.equals("scanf")
+				|| node.id.equals("readstr") || node.id.equals("isdigit")
+				|| node.id.equals("pow") || node.id.equals("chartoint")) {
+			symbol.builtin = true;
+		}
+		symbol.label = node.id;
+		if(!symbol.builtin) {
+			symbol.label += Integer.toString(functionDeclCounter);
+		}
+		functionDeclCounter += 1;
 		symbol.type = (Ast.TypeNode) node.children.get(0);
+		node.symbol = symbol;
+		symbol.scope = node.scope;
+
+		Ast.Node n = node;
+		while(n.parent != null) {
+			n = n.parent;
+
+			if(n instanceof FunctionDeclarationNode) {
+				break;
+			}
+		}
+		if(n instanceof FunctionDeclarationNode) {
+			node.owner = (FunctionDeclarationNode) n;
+		}
 
 		// add param types
 		for(int i = 0; i < node.children.get(1).children.size(); i++) {
@@ -447,6 +559,10 @@ public class SymbolTableVisitor extends Visitor {
 					"Expected TypeNode");
 			symbol.addParamType(node.children.get(1).children.get(i).children
 					.get(0));
+			
+			if(symbol.paramTypes.lastElement() instanceof Ast.VariadicTypeNode) {
+				symbol.variadic = true;
+			}
 		}
 
 		symbolTableStack.peek().addSymbol(symbol);
@@ -490,12 +606,17 @@ public class SymbolTableVisitor extends Visitor {
 					node.line);
 		}
 
-		Symbol symbol = new Symbol();
+		VarSymbol symbol = new VarSymbol();
+		// AstParser will put parameters in the enclosing scope.
+		// Put it in the same scope as the function's local variables.
+		symbol.scope = node.scope + 1;
 		symbol.id = node.id;
 		Assert.Assert(node.children.get(0) instanceof Ast.TypeNode,
 				"Expected TypeNode");
 		symbol.type = (Ast.TypeNode) node.children.get(0);
 		symbolTableStack.peek().addSymbol(symbol);
+
+		node.symbol = symbol;
 
 		visitChildren(node);
 	}
@@ -536,31 +657,54 @@ public class SymbolTableVisitor extends Visitor {
 	@Override
 	public void visit(Ast.DereferenceExpressionNode node) {
 		Log.debug("DereferenceExpressionNode");
-		
+
 		visitChildren(node);
 
 		if(!(node.getExpression().getType() instanceof Ast.PointerTypeNode)) {
-			Log.fatal("Can't dereference non-pointer type '" + node.getExpression().getType().getStringRepresentation()  + "'", node.line);
+			Log.fatal("Can't dereference non-pointer type '"
+					+ node.getExpression().getType().getStringRepresentation()
+					+ "'", node.line);
 		}
 
-		node.setType((Ast.TypeNode)node.getExpression().getType().children.get(0));
+		if(node.getExpression().getType().children.size() > 0) {
+			node.setType((Ast.TypeNode) node.getExpression().getType().children
+					.get(0));
+		} else {
+			Log.fatal(
+					"Don't go crazy with the casts. Try splitting it up in multiple statements.",
+					node.line);
+		}
+		handleCastExpression(node);
 	}
 
 	@Override
 	public void visit(Ast.ReferenceExpressionNode node) {
 		Log.debug("ReferenceExpressionNode");
-		
+
 		visitChildren(node);
 
 		Ast.PointerTypeNode pointer = new Ast.PointerTypeNode();
 		pointer.addChild(0, node.getExpression().getType());
 		node.setType(pointer);
+
+		handleCastExpression(node);
 	}
 
+	@Override
+	public void visit(Ast.IfStatementNode node) {
+		Log.debug("IfStatementNode");
+
+		visitChildren(node);
+		convert(node.getCondition(), new Ast.IntTypeNode());
+	}
+
+	@Override
 	public void visit(Ast.BinaryOperatorNode node) {
 		Log.debug("BinaryOperatorNode");
 
 		visitChildren(node);
+
+		Ast.TypeNode resultType = null;
 
 		switch(node.operator) {
 		case "=":
@@ -569,18 +713,23 @@ public class SymbolTableVisitor extends Visitor {
 			}
 
 			convert(node.getRightChild(), node.getLeftChild().getType());
+			resultType = node.getLeftChild().getType();
 			break;
 		case "==":
 		case "!=":
-		case "+":
-		case "-":
-		case "/":
-		case "*":
 		case ">":
 		case ">=":
 		case "<":
 		case "<=":
-			if(consistent(node.getLeftChild(), node.getRightChild()) == null) {
+			consistent(node.getLeftChild(), node.getRightChild());
+			resultType = new Ast.IntTypeNode();
+			break;
+		case "+":
+		case "-":
+		case "/":
+		case "*":
+			resultType = consistent(node.getLeftChild(), node.getRightChild());
+			if(resultType == null) {
 				Log.fatal("Operator '"
 						+ node.operator
 						+ "' not supported for types '"
@@ -590,15 +739,15 @@ public class SymbolTableVisitor extends Visitor {
 						+ node.getRightChild().getType()
 								.getStringRepresentation() + "'", node.line);
 			}
-			;
+
 			break;
 
 		default:
 			Log.fatal("Binary operator not implemented: " + node.operator,
 					node.line);
-        }
+		}
 
-        node.setType(consistent(node.getLeftChild(), node.getRightChild()));
+		node.setType(resultType);
 		handleCastExpression(node);
 	}
 

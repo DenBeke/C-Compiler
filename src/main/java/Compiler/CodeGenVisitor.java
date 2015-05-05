@@ -1,37 +1,54 @@
 package Compiler;
 
-import java.util.Map;
-import java.util.Stack;
-import java.util.TreeMap;
 import java.util.Vector;
 
 public class CodeGenVisitor extends Visitor {
 	private Vector<String> instructions = new Vector<String>();
 
-	public void visit(Ast.BinaryOperatorNode node) {
-		System.out.println(instructions.toString());
+	private static int labelCounter = 0;
 
-		switch(node.operator) {
-		case "=":
-		case "==":
-		case "!=":
-		case "+":
-			instructions.addAll(node.getLeftChild().codeR());
-			instructions.addAll(node.getRightChild().codeR());
-			instructions.add("add i");
-			break;
-		case "-":
-		case "/":
-		case "*":
-		case ">":
-		case ">=":
-		case "<":
-		case "<=":
-		default:
-			Log.fatal("Codegen invalid binary operator: " + node.operator,
-					node.line);
-        }
+	public static String getUniqueLabel() {
+		String label = "L" + Integer.toString(labelCounter);
+		labelCounter += 1;
 
-		System.out.println(instructions.toString());
+		return label;
+	}
+
+	public static String typeToPtype(Ast.TypeNode t) {
+		if(t instanceof Ast.IntTypeNode) {
+			return "i";
+		}
+
+		if(t instanceof Ast.CharTypeNode) {
+			return "c";
+		}
+
+		if(t instanceof Ast.PointerTypeNode) {
+			return "a";
+		}
+
+		Log.warning(
+				"Can't convert type to pmachine type: "
+						+ t.getStringRepresentation(), t.line);
+		return "";
+	}
+
+	@Override
+	public void visit(Ast.FileNode node) {
+		instructions.addAll(node.code());
+
+		for(int i = 0; i < instructions.size(); i++) {
+			System.out.println(instructions.get(i));
+		}
+	}
+
+	@Override
+	public void visit(Ast.DeclarationNode node) {
+		instructions.addAll(node.code());
+	}
+
+	@Override
+	public void visit(Ast.FunctionDeclarationNode node) {
+		instructions.addAll(node.code());
 	}
 }

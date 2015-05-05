@@ -35,6 +35,7 @@ grammar C;
 	public void handleIncludeIO() {};
 	public void handleReference() {};
 	public void handleDereference() {};
+	public void startParams() {};
 }
 
 start
@@ -90,7 +91,7 @@ expr
 	| expr '>=' expr {handleBinaryOperator(">=");}
 	| expr '++' {handleUnaryOperator("++");}
 	| expr '--' {handleUnaryOperator("--");}
-	| id=ID '(' (param (',' param)*)? ')' {handleFunctionCall($id.text);}
+	| id=ID '(' {startParams();} (param (',' param)*)? ')' {handleFunctionCall($id.text);}
 	| literal
 	;
 
@@ -99,6 +100,7 @@ param : expr {handleParam();};
 stmt
 	: block
 	| expr ';' {handleExprStatement();}
+	| funcDecl
 	| 'return' (expr|nothing) ';' {handleReturnStatement();}
 	| 'while' '(' expr ')' stmt {handleWhileStatement();}
 	| 'for' '(' (expr|nothing) ';' (expr|nothing) ';' (expr|nothing) ')' stmt {handleForStatement();}
@@ -147,7 +149,7 @@ WHITESPACE : [ \t]+ -> skip;
 ID : [a-zA-Z_][a-zA-Z_0-9]*;
 CHAR : '\'' (ESC|.) '\'';
 STRING : '"' (ESC|.)*? '"';
-ESC : '\\"' | '\\\\';
+ESC : '\\"' | '\\\\' | '\\n' | '\\t';
 INT : [0-9]+ ;
 SINGLELINECOMMENT : '//' .*? NEWLINE -> skip;
 MULTILINECOMMENT : '/*' .*? '*/' -> skip;
