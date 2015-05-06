@@ -1275,6 +1275,50 @@ public class Ast {
 			return (ExpressionNode) children.get(0);
 		}
 
+
+		@Override
+		public Vector<String> code() {
+			Vector<String> instructions = new Vector<String>();
+			instructions.addAll(codeR());
+
+			// TODO: generate pop instruction.
+
+			return instructions;
+		}
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+
+			String pType = CodeGenVisitor.typeToPtype(getType());
+
+			if(pType == null) {
+				Log.fatal("Cant convert type to ptype", line);
+			}
+			
+			switch(operator) {
+			case "++":
+				instructions.addAll(getExpression().codeL());
+				instructions.addAll(getExpression().codeR());
+				instructions.add("inc " + pType + " 1");
+				instructions.add("sto " + pType);
+				instructions.addAll(getExpression().codeR());
+				break;
+			case "--":
+				instructions.addAll(getExpression().codeL());
+				instructions.addAll(getExpression().codeR());
+				instructions.add("dec " + pType + " 1");
+				instructions.add("sto " + pType);
+				instructions.addAll(getExpression().codeR());
+				break;
+			default:
+				Log.fatal("Codegen invalid unary operator: " + operator, line);
+			}
+			
+			return instructions;
+		}
+
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
