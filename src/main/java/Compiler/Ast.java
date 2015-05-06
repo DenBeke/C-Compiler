@@ -1542,7 +1542,7 @@ public class Ast {
 
 	public static class BreakStatementNode extends StatementNode {
 
-        String label;
+        public String label;
 
 		@Override
 		public void visit(Visitor visitor) {
@@ -1561,10 +1561,22 @@ public class Ast {
 	}
 
 	public static class ContinueStatementNode extends StatementNode {
+
+        public String label;
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
 		}
+
+        @Override
+        public Vector<String> code() {
+            Vector<String> instructions = new Vector<String>();
+
+            instructions.add("ujp " + label);
+
+            return instructions;
+        }
 	}
 
 }

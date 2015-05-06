@@ -8,6 +8,7 @@ void main() {
         printf("%d", i);
         i--;
         i++;
+        //continue;
     }
     
     for(;;) {

@@ -8,6 +8,7 @@ void main() {
     while(a >= 99) {
         printf("%d\n", a);
         a = a - 1;
+        continue;
     }
     
     

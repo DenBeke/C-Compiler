@@ -745,6 +745,33 @@ public class SymbolTableVisitor extends Visitor {
     }
 
 
+    @Override
+    public void visit(Ast.ContinueStatementNode node) {
+        Log.debug("ContinueStatementNode");
+
+        Ast.Node search = node;
+        while(true) {
+            if(search.parent instanceof Ast.WhileStatementNode) {
+                node.label = ((Ast.WhileStatementNode)search.parent).beginWhileLabel;
+                break;
+            }
+            if(search.parent instanceof Ast.ForStatementNode) {
+                node.label = ((Ast.ForStatementNode)search.parent).beginForLabel;
+                break;
+            }
+            if(search.parent instanceof Ast.FileNode) {
+                Log.fatal("Continue statement without for or while loop", node.line);
+                break;
+            }
+            search = node.parent;
+        }
+
+        visitChildren(node);
+    }
+
+
+
+
 	@Override
 	public void visit(Ast.BinaryOperatorNode node) {
 		Log.debug("BinaryOperatorNode");
