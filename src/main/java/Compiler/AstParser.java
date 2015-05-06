@@ -212,7 +212,11 @@ public class AstParser extends CParser {
 	 * @param n
 	 */
 	@Override
-	public void handleInt(String n) {
+	public void handleInt(String sign, String n) {
+		if(sign != null) {
+			n = sign + n;
+		}
+
 		Log.debug("handleInt " + n);
 
 		IntNode node = new IntNode(Integer.parseInt(n));
