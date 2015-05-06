@@ -11,13 +11,13 @@ void main() {
         continue;
     }
     
-    for(i = 0; i < 5; i++) {
+    for(int i = 0; i < 5; i++) {
         if(1) {
             continue;
         }
     }
     
-    for(i = 0; i < 5; i++) {
+    for(int i = 0; i < 5; i++) {
         {
             {
                 {
@@ -29,7 +29,7 @@ void main() {
         }
     }
     
-    for(i = 0; i < 5; i++) {
+    for(int i = 0; i < 5; i++) {
         {
             {
                 {
