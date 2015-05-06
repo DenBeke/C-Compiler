@@ -1317,6 +1317,12 @@ public class Ast {
 				instructions.add("not");
 				instructions.add("conv b i");
 				break;
+			case "-":
+				instructions.addAll(getExpression().codeR());
+				instructions.add("conv " + CodeGenVisitor.typeToPtype(getExpression().getType()) + " i");
+				instructions.add("neg i");
+				instructions.add("conv i " + CodeGenVisitor.typeToPtype(getExpression().getType()));
+				break;
 			default:
 				Log.fatal("Codegen invalid unary operator: " + operator, line);
 			}

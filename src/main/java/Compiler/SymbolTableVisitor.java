@@ -662,6 +662,18 @@ public class SymbolTableVisitor extends Visitor {
 			convert(node.getExpression(), new Ast.IntTypeNode());
 			node.setType(new Ast.IntTypeNode());
 			break;
+			
+		case "-":
+			if(!(node.getExpression().getType() instanceof Ast.IntTypeNode)
+					&& !(node.getExpression().getType() instanceof Ast.CharTypeNode)) {
+
+				Log.fatal("Operator '" + node.operator + "' not supported for type '"
+						+ node.getExpression().getType().getStringRepresentation()
+						+ "'", node.line);
+			}
+					
+			node.setType(node.getExpression().getType());
+			break;
 
 		default:
 			Log.fatal("Unary operator not implemented: " + node.operator,

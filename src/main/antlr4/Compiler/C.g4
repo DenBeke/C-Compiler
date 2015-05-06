@@ -78,6 +78,7 @@ expr
 	| '*' expr {handleDereference();}
 	| id=ID {handleID($id.text);}
 	| '!' expr {handleUnaryOperator("!");}
+	| '-' expr {handleUnaryOperator("-");}
 	| expr '/' expr {handleBinaryOperator("/");}
 	| expr '*' expr {handleBinaryOperator("*");}
 	| expr '+' expr {handleBinaryOperator("+");}
