@@ -11,6 +11,38 @@ void main() {
         continue;
     }
     
+    for(i = 0; i < 5; i++) {
+        if(1) {
+            continue;
+        }
+    }
+    
+    for(i = 0; i < 5; i++) {
+        {
+            {
+                {
+                    {
+                        continue;
+                    }
+                }
+            }
+        }
+    }
+    
+    for(i = 0; i < 5; i++) {
+        {
+            {
+                {
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    
+    
     for(;;) {
         // infinite for loop, with break
         break;
