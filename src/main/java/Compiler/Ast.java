@@ -745,6 +745,16 @@ public class Ast {
 		@Override
 		public Vector<String> code() {
 			Vector<String> instructions = new Vector<String>();
+			instructions.addAll(codeR());
+
+			// TODO: generate pop instruction if non void function
+
+			return instructions;
+		}
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
 
 
 			int depth = 0;
@@ -758,7 +768,7 @@ public class Ast {
 					n = n.parent;
 				}
 			}
-
+			
 			instructions.add("mst " + Integer.toString(depth));
 
 			int nrParams = 0;
@@ -772,28 +782,6 @@ public class Ast {
 			}
 
 			instructions.add("cup " + Integer.toString(nrParams) + " "
-					+ symbol.label);
-
-			// TODO: generate pop instruction if non void function
-
-			return instructions;
-		}
-
-		@Override
-		public Vector<String> codeR() {
-			Vector<String> instructions = new Vector<String>();
-
-			if(symbol.returnType instanceof VoidTypeNode) {
-				Log.fatal("Cannot generate rvalue for void function", line);
-			}
-
-			instructions.add("mst 0");
-
-			for(int i = 0; i < children.size(); i++) {
-				instructions.addAll(getParamExpression(i).codeR());
-			}
-
-			instructions.add("cup " + Integer.toString(children.size()) + " "
 					+ symbol.label);
 
 			return instructions;

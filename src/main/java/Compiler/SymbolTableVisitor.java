@@ -740,7 +740,10 @@ public class SymbolTableVisitor extends Visitor {
         Log.debug("WhileStatementNode");
         node.beginWhileLabel = CodeGenVisitor.getUniqueLabel();
         node.endWhileLabel = CodeGenVisitor.getUniqueLabel();
+        
+        enterNewScope();
         visitChildren(node);
+        leaveScope();
     }
 
     @Override
