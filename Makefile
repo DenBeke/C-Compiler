@@ -20,4 +20,4 @@ test-symboltable:
 	mvn test -Dtest=SymbolTableTest
 
 test-codegen:
-	python src/test/python/codegen.py
+	python2 src/test/python/codegen.py

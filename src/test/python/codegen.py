@@ -12,23 +12,21 @@ def runP(filename, outputfile):
 
 
 class TestStringMethods(unittest.TestCase):
-
-  def test_codegen(self):
+	def test_codegen(self):
+		test_files = glob.glob("./src/test/input/codegen/*.c")
 	  
-	  test_files = glob.glob("./src/test/input/codegen/*.c")
+		for filename in test_files:
+			expected_output_file = filename + ".out"
 	  
-	  for filename in test_files:
-		  expected_output_file = filename + ".out"
+			shortname = filename.split('/')[-1]
+			print shortname
 	  
-	  	  shortname = filename.split('/')[-1]
-	  	  print shortname
-	  
-	  	  compileC(filename, "./temp/" + shortname + ".p")
-	  	  runP("./temp/" + shortname + ".p", "./temp/" + shortname + ".out")
-	  	  contents = subprocess.Popen('cat %s' % "./temp/" + shortname + ".out", shell = True, stdout = subprocess.PIPE).communicate()[0]
-	  	  expected_contents = subprocess.Popen('cat %s' % expected_output_file, shell = True, stdout = subprocess.PIPE).communicate()[0]
+			compileC(filename, "./temp/" + shortname + ".p")
+			runP("./temp/" + shortname + ".p", "./temp/" + shortname + ".out")
+			contents = subprocess.Popen('cat %s' % "./temp/" + shortname + ".out", shell = True, stdout = subprocess.PIPE).communicate()[0]
+			expected_contents = subprocess.Popen('cat %s' % expected_output_file, shell = True, stdout = subprocess.PIPE).communicate()[0]
 	  	  
-	  	  self.assertEqual(contents[:contents.rfind('\n--> Execution time')], expected_contents)
+		self.assertEqual(contents[:contents.rfind('\n--> Execution time')], expected_contents)
 	  
 
 if __name__ == '__main__':
