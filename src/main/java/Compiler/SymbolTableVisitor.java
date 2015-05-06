@@ -749,7 +749,10 @@ public class SymbolTableVisitor extends Visitor {
         node.beginForLabel = CodeGenVisitor.getUniqueLabel();
         node.endForLabel = CodeGenVisitor.getUniqueLabel();
         node.continueLabel = CodeGenVisitor.getUniqueLabel();
+        
+		enterNewScope();
         visitChildren(node);
+        leaveScope();
     }
 
 
