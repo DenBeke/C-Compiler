@@ -2,6 +2,7 @@ language: java
 
 install:
   - ./install_pmachine.sh
+  - mvn package
 
 script:
   - mvn test -B
