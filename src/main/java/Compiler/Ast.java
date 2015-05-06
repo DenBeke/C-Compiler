@@ -1801,6 +1801,8 @@ public class Ast {
 			}
 			
 			boolean math = operator.equals("+") || operator.equals("-") || operator.equals("*") || operator.equals("/");
+			boolean logical = operator.equals("&&") || operator.equals("||");
+
 			if(operator.equals("=")) {
 				instructions.addAll(getLeftChild().codeL());
 				instructions.addAll(getRightChild().codeR());
@@ -1808,11 +1810,15 @@ public class Ast {
 				instructions.addAll(getLeftChild().codeR());
 				if(math) {
 					instructions.add("conv " + CodeGenVisitor.typeToPtype(getLeftChild().getType()) + " i");
+				} else if(logical) {
+					instructions.add("conv i b");
 				}
 				
 				instructions.addAll(getRightChild().codeR());
 				if(math) {
 					instructions.add("conv " + CodeGenVisitor.typeToPtype(getRightChild().getType()) + " i");
+				} else if(logical) {
+					instructions.add("conv i b");
 				}
 			}
 
@@ -1860,6 +1866,14 @@ public class Ast {
 				break;
 			case "*":
 				instructions.add("mul i");
+				break;
+			case "&&":
+				instructions.add("and");
+				instructions.add("conv b i");
+				break;
+			case "||":
+				instructions.add("or");
+				instructions.add("conv b i");
 				break;
 			default:
 				Log.fatal("Codegen invalid binary operator: " + operator, line);

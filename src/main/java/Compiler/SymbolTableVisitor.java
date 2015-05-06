@@ -724,6 +724,12 @@ public class SymbolTableVisitor extends Visitor {
 			consistent(node.getLeftChild(), node.getRightChild());
 			resultType = new Ast.IntTypeNode();
 			break;
+		case "&&":
+		case "||":
+			convert(node.getLeftChild(), new Ast.IntTypeNode());
+			convert(node.getRightChild(), new Ast.IntTypeNode());
+			resultType = new Ast.IntTypeNode();
+			break;
 		case "+":
 		case "-":
 		case "/":

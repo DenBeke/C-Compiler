@@ -35,7 +35,7 @@ grammar C;
 	public void handleIncludeIO() {};
 	public void handleReference() {};
 	public void handleDereference() {};
-	public void startParams() {};
+	public void startParams() {};	
 }
 
 start
@@ -92,6 +92,8 @@ expr
 	| expr '++' {handleUnaryOperator("++");}
 	| expr '--' {handleUnaryOperator("--");}
 	| id=ID '(' {startParams();} (param (',' param)*)? ')' {handleFunctionCall($id.text);}
+	| expr '&&' expr {handleBinaryOperator("&&");}
+	| expr '||' expr {handleBinaryOperator("||");}
 	| literal
 	;
 
