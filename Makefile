@@ -8,6 +8,7 @@ run:
 
 test:
 	mvn test
+	python src/test/python/codegen.py
 
 test-ast:
 	mvn test -Dtest=AstTest
@@ -17,3 +18,6 @@ test-grammar:
 
 test-symboltable:
 	mvn test -Dtest=SymbolTableTest
+
+test-codegen:
+	python src/test/python/codegen.py

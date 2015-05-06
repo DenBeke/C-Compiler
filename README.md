@@ -13,13 +13,14 @@ Building
 Testing
 =======
 
-When running `make build` all test are ran immediately. If you wish to run the tests again, do `make test`.
-
+When running `make build` all test are ran immediately, except for the code generation tests. If you wish to run the tests again, do `make test`.  
+*[Pmachine](http://ansymore.uantwerpen.be/sites/ansymo.ua.ac.be/files/uploads/courses/Compilers/pMachine/index.html) must be compiled in `Pmachine` directory for `test-codegen`: `./install_pmachine.sh`*  
 Running individual tests can also be done:
 
 * `make test-grammar`: tests the grammar
 * `make test-ast`: tests the AST
 * `make test-symboltable`: tests the symbol table
+* `make test-codegen`: code generation scenarios
 
 
 Running
