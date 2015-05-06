@@ -273,6 +273,10 @@ public class SymbolTableVisitor extends Visitor {
 					+ symbolTableStack.peek().getSymbol(node.id).type.line
 					+ ")", node.line);
 		}
+		
+		
+		
+		visitChildren(node);
 
 		VarSymbol symbol = new VarSymbol();
 		symbol.declaration = node;
@@ -297,7 +301,6 @@ public class SymbolTableVisitor extends Visitor {
 			node.function = (FunctionDeclarationNode) n;
 		}
 
-		visitChildren(node);
 		handleCastExpression(node);
 
 		if(!(node.getInitializer() instanceof Ast.NothingNode)) {
