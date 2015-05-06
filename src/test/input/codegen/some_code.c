@@ -36,7 +36,7 @@ void main() {
             continue;
         }
 
-        echo(int i);
+        echo(i);
         break;
 
     }
