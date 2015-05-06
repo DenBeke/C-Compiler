@@ -1327,6 +1327,9 @@ public class Ast {
 
 	public static class ForStatementNode extends StatementNode {
 
+        public String beginForLabel;
+        public String endForLabel;
+
 		public ForStatementNode(Node first, Node second, Node third,
 				StatementNode body) {
 			Assert.Assert(first instanceof NothingNode
@@ -1363,26 +1366,26 @@ public class Ast {
                 instructions.addAll(children.get(0).code());
             }
 
-            String beginForLable = CodeGenVisitor.getUniqueLabel();
-            String endForLable = CodeGenVisitor.getUniqueLabel();
+            //String beginForLabel = CodeGenVisitor.getUniqueLabel();
+            //String endForLabel = CodeGenVisitor.getUniqueLabel();
 
-            instructions.add(beginForLable + ":");
+            instructions.add(beginForLabel + ":");
             if(getCondition() instanceof NothingNode) {
                 instructions.add("ldc b t");
             } else {
                 instructions.addAll(getCondition().codeR());
                 instructions.add("conv " + CodeGenVisitor.typeToPtype(((ExpressionNode)getCondition()).getType()) + " b");
             }
-            instructions.add("fjp " + endForLable);
+            instructions.add("fjp " + endForLabel);
             instructions.addAll(getBody().code());
 
             if(!(children.get(2) instanceof NothingNode)) {
                 instructions.addAll(children.get(2).code());
             }
 
-            instructions.add("ujp " + beginForLable);
+            instructions.add("ujp " + beginForLabel);
 
-            instructions.add(endForLable + ":");
+            instructions.add(endForLabel + ":");
 
             return instructions;
         }
@@ -1438,6 +1441,9 @@ public class Ast {
 		private ExpressionNode condition;
 		private StatementNode body;
 
+        public String beginWhileLabel;
+        public String endWhileLabel;
+
 		public WhileStatementNode(ExpressionNode condition, StatementNode body) {
 			addChild(0, body);
 			addChild(0, condition);
@@ -1460,16 +1466,16 @@ public class Ast {
         public Vector<String> code() {
             Vector<String> instructions = new Vector<String>();
 
-            String beginWhileLable = CodeGenVisitor.getUniqueLabel();
-            String endWhileLable = CodeGenVisitor.getUniqueLabel();
+            //String beginWhileLable = CodeGenVisitor.getUniqueLabel();
+            //String endWhileLable = CodeGenVisitor.getUniqueLabel();
 
-            instructions.add(beginWhileLable + ":");
+            instructions.add(beginWhileLabel + ":");
             instructions.addAll(getCondition().codeR());
             instructions.add("conv " + CodeGenVisitor.typeToPtype(getCondition().getType()) + " b");
-            instructions.add("fjp " + endWhileLable);
+            instructions.add("fjp " + endWhileLabel);
             instructions.addAll(getBody().code());
-            instructions.add("ujp " + beginWhileLable);
-            instructions.add(endWhileLable + ":");
+            instructions.add("ujp " + beginWhileLabel);
+            instructions.add(endWhileLabel + ":");
 
             return instructions;
         }
@@ -1485,6 +1491,9 @@ public class Ast {
 			addChild(0, body);
 			addChild(0, condition);
 		}
+
+        public String endIfLabel;
+        public String elseLabel;
 
 		public ExpressionNode getCondition() {
 			return (ExpressionNode) children.get(0);
@@ -1502,8 +1511,8 @@ public class Ast {
 		public Vector<String> code() {
 			Vector<String> instructions = new Vector<String>();
 
-			String endIfLabel = CodeGenVisitor.getUniqueLabel();
-			String elseLabel = CodeGenVisitor.getUniqueLabel();
+			//String endIfLabel = CodeGenVisitor.getUniqueLabel();
+			//String elseLabel = CodeGenVisitor.getUniqueLabel();
 
 			instructions.addAll(getCondition().codeR());
 			instructions.add("conv "
@@ -1532,10 +1541,23 @@ public class Ast {
 	}
 
 	public static class BreakStatementNode extends StatementNode {
+
+        String label;
+
 		@Override
 		public void visit(Visitor visitor) {
 			visitor.visit(this);
 		}
+
+        @Override
+        public Vector<String> code() {
+            Vector<String> instructions = new Vector<String>();
+
+            instructions.add("ujp " + label);
+
+            return instructions;
+        }
+
 	}
 
 	public static class ContinueStatementNode extends StatementNode {

@@ -693,10 +693,57 @@ public class SymbolTableVisitor extends Visitor {
 	@Override
 	public void visit(Ast.IfStatementNode node) {
 		Log.debug("IfStatementNode");
-
+        node.elseLabel = CodeGenVisitor.getUniqueLabel();
+        node.endIfLabel = CodeGenVisitor.getUniqueLabel();
 		visitChildren(node);
 		convert(node.getCondition(), new Ast.IntTypeNode());
 	}
+
+    @Override
+    public void visit(Ast.WhileStatementNode node) {
+        Log.debug("WhileStatementNode");
+        node.beginWhileLabel = CodeGenVisitor.getUniqueLabel();
+        node.endWhileLabel = CodeGenVisitor.getUniqueLabel();
+        visitChildren(node);
+    }
+
+    @Override
+    public void visit(Ast.ForStatementNode node) {
+        Log.debug("ForStatementNode");
+        node.beginForLabel = CodeGenVisitor.getUniqueLabel();
+        node.endForLabel = CodeGenVisitor.getUniqueLabel();
+        visitChildren(node);
+    }
+
+
+    @Override
+    public void visit(Ast.BreakStatementNode node) {
+        Log.debug("BreakStatementNode");
+
+        Ast.Node search = node;
+        while(true) {
+            if(search.parent instanceof Ast.WhileStatementNode) {
+                node.label = ((Ast.WhileStatementNode)search.parent).endWhileLabel;
+                break;
+            }
+            if(search.parent instanceof Ast.ForStatementNode) {
+                node.label = ((Ast.ForStatementNode)search.parent).endForLabel;
+                break;
+            }
+            if(search.parent instanceof Ast.IfStatementNode) {
+                node.label = ((Ast.IfStatementNode)search.parent).endIfLabel;
+                break;
+            }
+            if(search.parent instanceof Ast.FileNode) {
+                Log.fatal("Break statement without for or while loop", node.line);
+                break;
+            }
+            search = node.parent;
+        }
+
+        visitChildren(node);
+    }
+
 
 	@Override
 	public void visit(Ast.BinaryOperatorNode node) {
@@ -727,7 +774,7 @@ public class SymbolTableVisitor extends Visitor {
 		case "&&":
 		case "||":
 			convert(node.getLeftChild(), new Ast.IntTypeNode());
-			convert(node.getRightChild(), new Ast.IntTypeNode());
+            convert(node.getRightChild(), new Ast.IntTypeNode());
 			resultType = new Ast.IntTypeNode();
 			break;
 		case "+":

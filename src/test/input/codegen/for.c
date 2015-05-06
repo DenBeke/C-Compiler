@@ -10,4 +10,9 @@ void main() {
         i++;
     }
     
+    for(;;) {
+        // infinite for loop, with break
+        break;
+    }
+    
 }

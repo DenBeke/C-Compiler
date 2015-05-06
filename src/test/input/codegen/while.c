@@ -10,4 +10,10 @@ void main() {
         a = a - 1;
     }
     
+    
+    while(1) {
+        // infinite while loop with break
+        break;
+    }
+    
 }
