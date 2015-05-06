@@ -712,6 +712,7 @@ public class SymbolTableVisitor extends Visitor {
         Log.debug("ForStatementNode");
         node.beginForLabel = CodeGenVisitor.getUniqueLabel();
         node.endForLabel = CodeGenVisitor.getUniqueLabel();
+        node.continueLabel = CodeGenVisitor.getUniqueLabel();
         visitChildren(node);
     }
 
@@ -756,7 +757,7 @@ public class SymbolTableVisitor extends Visitor {
                 break;
             }
             if(search.parent instanceof Ast.ForStatementNode) {
-                node.label = ((Ast.ForStatementNode)search.parent).beginForLabel;
+                node.label = ((Ast.ForStatementNode)search.parent).continueLabel;
                 break;
             }
             if(search.parent instanceof Ast.FileNode) {
