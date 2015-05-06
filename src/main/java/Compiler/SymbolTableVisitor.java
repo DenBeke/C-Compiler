@@ -633,11 +633,16 @@ public class SymbolTableVisitor extends Visitor {
 		visitChildren(node);
 
 		if(!(node.getExpression().getType() instanceof Ast.IntTypeNode)
-				&& !(node.getExpression().getType() instanceof Ast.CharTypeNode)) {
+				&& !(node.getExpression().getType() instanceof Ast.CharTypeNode)
+				&& !(node.getExpression().getType() instanceof Ast.PointerTypeNode)) {
 
 			Log.fatal("UnaryOperator not supported for type '"
 					+ node.getExpression().getType().getStringRepresentation()
 					+ "'", node.line);
+		}
+		
+		if(node.getExpression().getType().constant) {
+			Log.fatal("Can't use operator '" + node.operator + "' on constant variable", node.line);
 		}
 
 		switch(node.operator) {
