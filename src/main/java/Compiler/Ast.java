@@ -1311,6 +1311,12 @@ public class Ast {
 				instructions.add("sto " + pType);
 				instructions.addAll(getExpression().codeR());
 				break;
+			case "!":
+				instructions.addAll(getExpression().codeR());
+				instructions.add("conv i b");
+				instructions.add("not");
+				instructions.add("conv b i");
+				break;
 			default:
 				Log.fatal("Codegen invalid unary operator: " + operator, line);
 			}

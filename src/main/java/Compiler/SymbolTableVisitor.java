@@ -632,23 +632,35 @@ public class SymbolTableVisitor extends Visitor {
 
 		visitChildren(node);
 
-		if(!(node.getExpression().getType() instanceof Ast.IntTypeNode)
-				&& !(node.getExpression().getType() instanceof Ast.CharTypeNode)
-				&& !(node.getExpression().getType() instanceof Ast.PointerTypeNode)) {
-
-			Log.fatal("UnaryOperator not supported for type '"
-					+ node.getExpression().getType().getStringRepresentation()
-					+ "'", node.line);
-		}
-		
-		if(node.getExpression().getType().constant) {
-			Log.fatal("Can't use operator '" + node.operator + "' on constant variable", node.line);
-		}
-
 		switch(node.operator) {
 		case "++":
 		case "--":
+			if(!(node.getExpression().getType() instanceof Ast.IntTypeNode)
+					&& !(node.getExpression().getType() instanceof Ast.CharTypeNode)
+					&& !(node.getExpression().getType() instanceof Ast.PointerTypeNode)) {
+
+				Log.fatal("Operator '" + node.operator + "' not supported for type '"
+						+ node.getExpression().getType().getStringRepresentation()
+						+ "'", node.line);
+			}
+			
+			if(node.getExpression().getType().constant) {
+				Log.fatal("Can't use operator '" + node.operator + "' on constant variable", node.line);
+			}
+			
 			node.setType(node.getExpression().getType());
+			break;
+		case "!":
+			if(!(node.getExpression().getType() instanceof Ast.IntTypeNode)
+					&& !(node.getExpression().getType() instanceof Ast.CharTypeNode)) {
+
+				Log.fatal("Operator '" + node.operator + "' not supported for type '"
+						+ node.getExpression().getType().getStringRepresentation()
+						+ "'", node.line);
+			}
+					
+			convert(node.getExpression(), new Ast.IntTypeNode());
+			node.setType(new Ast.IntTypeNode());
 			break;
 
 		default:
