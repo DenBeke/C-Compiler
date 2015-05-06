@@ -786,7 +786,7 @@ public class SymbolTableVisitor extends Visitor {
         Log.debug("ContinueStatementNode");
 
         Ast.Node search = node;
-        while(true) {
+        while(true) {       	
             if(search.parent instanceof Ast.WhileStatementNode) {
                 node.label = ((Ast.WhileStatementNode)search.parent).beginWhileLabel;
                 break;
@@ -799,7 +799,7 @@ public class SymbolTableVisitor extends Visitor {
                 Log.fatal("Continue statement without for or while loop", node.line);
                 break;
             }
-            search = node.parent;
+            search = search.parent;
         }
 
         visitChildren(node);

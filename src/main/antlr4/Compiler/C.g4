@@ -88,7 +88,7 @@ expr
 	| expr '==' expr {handleBinaryOperator("==");}
 	| expr '!=' expr {handleBinaryOperator("!=");}
 	| expr '<' expr {handleBinaryOperator("<");}
-	| expr '<=' expr {handleBinaryOperator(">=");}
+	| expr '<=' expr {handleBinaryOperator("<=");}
 	| expr '>' expr {handleBinaryOperator(">");}
 	| expr '>=' expr {handleBinaryOperator(">=");}
 	| expr '++' {handleUnaryOperator("++");}

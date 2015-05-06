@@ -589,7 +589,7 @@ public class Ast {
 		@Override
 		public Vector<String> codeR() {
 			Vector<String> instructions = code();
-			instructions.add("lod " + CodeGenVisitor.typeToPtype(getType()) + 0
+			instructions.add("lod " + CodeGenVisitor.typeToPtype(getType()) + " 0 "
 					+ Integer.toString(symbol.offset));
 
 			return instructions;
