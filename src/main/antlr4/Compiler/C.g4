@@ -8,7 +8,7 @@ grammar C;
 	public void handleBlock() {};
 	public void handleExpr() {};
 	public void handleExprStatement() {};
-	public void handleInt(String n) {};
+	public void handleInt(String sign, String n) {};
 	public void handleChar(String n) {};
 	public void handleString(String n) {};
 	public void handleAssign() {};
@@ -116,9 +116,13 @@ nothing
 	;
 
 literal
-	: i=INT {handleInt($i.text);}
+	: intliteral
 	| c=CHAR {handleChar($c.text);}
 	| s=STRING {handleString($s.text);}
+	;
+
+intliteral
+	: s='-'? i=INT {handleInt($s.text, $i.text);}
 	;
 
 type
@@ -152,6 +156,6 @@ ID : [a-zA-Z_][a-zA-Z_0-9]*;
 CHAR : '\'' (ESC|.) '\'';
 STRING : '"' (ESC|.)*? '"';
 ESC : '\\"' | '\\\\' | '\\n' | '\\t';
-INT : '-'? [0-9]+ ;
+INT :  [0-9]+ ;
 SINGLELINECOMMENT : '//' .*? NEWLINE -> skip;
 MULTILINECOMMENT : '/*' .*? '*/' -> skip;
