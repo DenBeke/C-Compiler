@@ -26,7 +26,7 @@ class TestStringMethods(unittest.TestCase):
 			contents = subprocess.Popen('cat %s' % "./temp/" + shortname + ".out", shell = True, stdout = subprocess.PIPE).communicate()[0]
 			expected_contents = subprocess.Popen('cat %s' % expected_output_file, shell = True, stdout = subprocess.PIPE).communicate()[0]
 	  	  
-		self.assertEqual(contents[:contents.rfind('\n--> Execution time')], expected_contents)
+			self.assertEqual(contents[:contents.rfind('\n--> Execution time')], expected_contents)
 	  
 
 if __name__ == '__main__':
