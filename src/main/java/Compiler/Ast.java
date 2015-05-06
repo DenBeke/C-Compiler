@@ -518,8 +518,8 @@ public class Ast {
 
 			int offset = symbol.offset;
 			instructions.add("lod " + CodeGenVisitor.typeToPtype(getType())
-					+ " " + Integer.toString(depth) + " "
-					+ Integer.toString(offset));
+                    + " " + Integer.toString(depth) + " "
+                    + Integer.toString(offset));
 
 			return instructions;
 		}
@@ -1341,6 +1341,7 @@ public class Ast {
 
         public String beginForLabel;
         public String endForLabel;
+        public String continueLabel;
 
 		public ForStatementNode(Node first, Node second, Node third,
 				StatementNode body) {
@@ -1390,6 +1391,8 @@ public class Ast {
             }
             instructions.add("fjp " + endForLabel);
             instructions.addAll(getBody().code());
+
+            instructions.add(continueLabel + ":");
 
             if(!(children.get(2) instanceof NothingNode)) {
                 instructions.addAll(children.get(2).code());
@@ -1528,7 +1531,7 @@ public class Ast {
 
 			instructions.addAll(getCondition().codeR());
 			instructions.add("conv "
-					+ CodeGenVisitor.typeToPtype(getCondition().getType())
+                    + CodeGenVisitor.typeToPtype(getCondition().getType())
 					+ " b");
 			if(getElse() instanceof NothingNode) {
 				instructions.add("fjp " + endIfLabel);

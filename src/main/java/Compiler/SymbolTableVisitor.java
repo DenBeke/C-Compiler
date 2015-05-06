@@ -748,6 +748,7 @@ public class SymbolTableVisitor extends Visitor {
         Log.debug("ForStatementNode");
         node.beginForLabel = CodeGenVisitor.getUniqueLabel();
         node.endForLabel = CodeGenVisitor.getUniqueLabel();
+        node.continueLabel = CodeGenVisitor.getUniqueLabel();
         visitChildren(node);
     }
 
@@ -757,7 +758,8 @@ public class SymbolTableVisitor extends Visitor {
         Log.debug("BreakStatementNode");
 
         Ast.Node search = node;
-        while(true) {
+        while(search.parent != null) {
+            Assert.Assert(search != search.parent, "Parent == child!");
             if(search.parent instanceof Ast.WhileStatementNode) {
                 node.label = ((Ast.WhileStatementNode)search.parent).endWhileLabel;
                 break;
@@ -774,7 +776,7 @@ public class SymbolTableVisitor extends Visitor {
                 Log.fatal("Break statement without for or while loop", node.line);
                 break;
             }
-            search = node.parent;
+            search = search.parent;
         }
 
         visitChildren(node);
@@ -786,13 +788,14 @@ public class SymbolTableVisitor extends Visitor {
         Log.debug("ContinueStatementNode");
 
         Ast.Node search = node;
-        while(true) {       	
+        while(search.parent != null) {
+            Assert.Assert(search != search.parent, "Parent == child!");
             if(search.parent instanceof Ast.WhileStatementNode) {
                 node.label = ((Ast.WhileStatementNode)search.parent).beginWhileLabel;
                 break;
             }
             if(search.parent instanceof Ast.ForStatementNode) {
-                node.label = ((Ast.ForStatementNode)search.parent).beginForLabel;
+                node.label = ((Ast.ForStatementNode)search.parent).continueLabel;
                 break;
             }
             if(search.parent instanceof Ast.FileNode) {
