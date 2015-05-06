@@ -452,10 +452,14 @@ public class SymbolTableVisitor extends Visitor {
 	 * @param node
 	 */
 	@Override
-	public void visit(Ast.IdNode node) {
+	public void visit(Ast.IdNode node) {	
 		Symbol symbol = findSymbol(node.id);
 		if(symbol == null) {
 			Log.fatal("Use of undeclared '" + node.id + "'", node.line);
+		}
+		
+		if(symbol instanceof FuncSymbol) {
+			Log.fatal("'" + node.id + "' is a function, you can only call a function", node.line);
 		}
 
 		Ast.Node n = node;
