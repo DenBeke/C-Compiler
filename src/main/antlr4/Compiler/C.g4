@@ -36,6 +36,8 @@ grammar C;
 	public void handleReference() {};
 	public void handleDereference() {};
 	public void startParams() {};	
+	public void handleSubscript(String n) {};
+	
 }
 
 start
@@ -74,6 +76,7 @@ block
 expr
 	: '(' type ')' expr {handleTypeCast();}
 	| '(' expr ')'
+	| expr '[' n=INT ']' {handleSubscript($n.text);}
 	| '&' expr {handleReference();}
 	| '*' expr {handleDereference();}
 	| id=ID {handleID($id.text);}

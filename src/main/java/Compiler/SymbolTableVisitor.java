@@ -6,6 +6,7 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import Compiler.Ast.FunctionDeclarationNode;
+import Compiler.Ast.StaticArrayTypeNode;
 
 public class SymbolTableVisitor extends Visitor {
 	private int functionDeclCounter = 0;
@@ -815,7 +816,23 @@ public class SymbolTableVisitor extends Visitor {
     }
 
 
+    @Override
+    public void visit(Ast.SubscriptExpressionNode node) {
+        Log.debug("SubscriptExpressionNode");
 
+        visitChildren(node);
+        
+        if(!(node.getExpression().getType() instanceof StaticArrayTypeNode)) {
+        	Log.fatal("Subscript operator is only supported on arrays", node.line);
+        }
+        
+        if(node.index < 0 || node.index >= ((Ast.StaticArrayTypeNode)node.getExpression().getType()).size) {
+        	Log.fatal("Index out of bound", node.line);
+        }
+        
+        node.setType(((Ast.StaticArrayTypeNode)node.getExpression().getType()).getUnderlyingType());
+        handleCastExpression(node);
+    }
 
 	@Override
 	public void visit(Ast.BinaryOperatorNode node) {

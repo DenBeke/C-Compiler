@@ -34,6 +34,7 @@ import Compiler.Ast.ReturnStatementNode;
 import Compiler.Ast.StatementNode;
 import Compiler.Ast.StaticArrayTypeNode;
 import Compiler.Ast.StringNode;
+import Compiler.Ast.SubscriptExpressionNode;
 import Compiler.Ast.TypeNode;
 import Compiler.Ast.UnaryOperatorNode;
 import Compiler.Ast.VoidTypeNode;
@@ -457,6 +458,21 @@ public class AstParser extends CParser {
 		StaticArrayTypeNode node = new StaticArrayTypeNode(Integer.parseInt(n),
 				(TypeNode) list.removeFirst());
 		node.topLevel = true;
+
+		insertNode(0, node);
+	}
+	
+	/**
+	 * Handle array subscript
+	 *
+	 * @param n
+	 */
+	@Override
+	public void handleSubscript(String n) {
+		Log.debug("handleSubscript: " + n);
+
+		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
+		SubscriptExpressionNode node = new SubscriptExpressionNode(Integer.valueOf(n), (ExpressionNode)list.removeFirst());
 
 		insertNode(0, node);
 	}

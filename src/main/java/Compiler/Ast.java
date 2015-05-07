@@ -140,8 +140,13 @@ public class Ast {
 			int varDecls = 5;
 			for(int i = 0; i < children.size(); i++) {
 				if(children.get(i) instanceof DeclarationNode) {
-					((DeclarationNode) children.get(i)).symbol.offset = varDecls;
-					varDecls += 1;
+					DeclarationNode decl = (DeclarationNode) children.get(i);
+					decl.symbol.offset = varDecls;
+					if(decl.getType() instanceof StaticArrayTypeNode) {
+						varDecls += ((StaticArrayTypeNode)decl.getType()).size;
+					} else {
+						varDecls += 1;
+					}
 				} else if(children.get(i) instanceof FunctionDeclarationNode) {
 					FunctionDeclarationNode fd = (FunctionDeclarationNode) children
 							.get(i);
@@ -366,13 +371,26 @@ public class Ast {
 
 	public static class StaticArrayTypeNode extends TypeNode {
 		public Integer size;
-		private TypeNode type;
 
 		public StaticArrayTypeNode(Integer size, TypeNode type) {
 			this.size = size;
-			this.type = type;
 
 			addChild(0, type);
+		}
+
+		@Override
+		public Node getTypeCastNode(TypeNode t) {
+
+			if(t instanceof PointerTypeNode) {
+				return new ArrayToPointerExpressionNode();
+			}
+
+			return null;
+		}
+
+		
+		public TypeNode getUnderlyingType() {
+			return (TypeNode)children.get(0);
 		}
 
 		@Override
@@ -391,6 +409,46 @@ public class Ast {
 			result += "[" + size.toString() + "]";
 
 			return result;
+		}
+	}
+	
+	public static class SubscriptExpressionNode extends ExpressionNode {
+		public Integer index;
+
+		public SubscriptExpressionNode(Integer index, ExpressionNode e) {
+			this.index = index;
+
+			addChild(0, e);
+		}
+		
+		ExpressionNode getExpression() {
+			return (ExpressionNode)children.get(0);
+		}
+		
+		@Override
+		public Vector<String> codeL() {
+			Vector<String> instructions = new Vector<String>();
+
+			instructions.addAll(children.get(0).codeL());
+			instructions.add("inc a " + Integer.toString(index));
+
+			return instructions;
+		}
+		
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+
+			instructions.addAll(children.get(0).codeL());
+			instructions.add("inc a " + Integer.toString(index));
+			instructions.add("ind " + CodeGenVisitor.typeToPtype(getType()));
+
+			return instructions;
+		}
+
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
 		}
 	}
 
@@ -576,7 +634,7 @@ public class Ast {
 		@Override
 		public Vector<String> code() {
 			Vector<String> instructions = new Vector<String>();
-
+		
 			if(!(getInitializer() instanceof NothingNode)) {
 				instructions.addAll(getInitializer().codeR());
 				instructions.add("str " + CodeGenVisitor.typeToPtype(getType())
@@ -958,8 +1016,7 @@ public class Ast {
 		}
 	}
 
-	public static class PointerToPointerExpressionNode extends
-			CastExpressionNode {
+	public static class PointerToPointerExpressionNode extends CastExpressionNode {
 		public PointerToPointerExpressionNode() {
 			type = new PointerTypeNode();
 		}
@@ -979,6 +1036,25 @@ public class Ast {
 		}
 	}
 
+	public static class ArrayToPointerExpressionNode extends CastExpressionNode {
+		public ArrayToPointerExpressionNode() {
+			type = new PointerTypeNode();
+		}
+
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+			instructions.addAll(children.get(0).codeL());
+
+			return instructions;
+		}
+	}
+	
 	public static class IntToPointerExpressionNode extends CastExpressionNode {
 		public IntToPointerExpressionNode() {
 			type = new PointerTypeNode();
@@ -1007,7 +1083,11 @@ public class Ast {
 				DeclarationNode decl = (DeclarationNode) a.children.get(i);
 				if(decl.symbol.offset == -1) {
 					decl.symbol.offset = pos;
-					pos++;
+					if(decl.getType() instanceof StaticArrayTypeNode) {
+						pos += ((StaticArrayTypeNode)decl.getType()).size;
+					} else {
+						pos++;
+					}
 				}
 			}
 

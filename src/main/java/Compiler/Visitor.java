@@ -145,6 +145,10 @@ public abstract class Visitor {
 	public void visit(Ast.PointerToPointerExpressionNode node) {
 		visitChildren(node);
 	};
+	
+	public void visit(Ast.ArrayToPointerExpressionNode node) {
+		visitChildren(node);
+	};
 
 	public void visit(Ast.ReferenceExpressionNode node) {
 		visitChildren(node);
@@ -155,6 +159,10 @@ public abstract class Visitor {
 	};
 	
 	public void visit(Ast.VariadicTypeNode node) {
+		visitChildren(node);
+	};
+	
+	public void visit(Ast.SubscriptExpressionNode node) {
 		visitChildren(node);
 	};
 
