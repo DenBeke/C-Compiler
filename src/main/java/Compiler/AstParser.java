@@ -468,11 +468,12 @@ public class AstParser extends CParser {
 	 * @param n
 	 */
 	@Override
-	public void handleSubscript(String n) {
-		Log.debug("handleSubscript: " + n);
+	public void handleSubscript() {
+		Log.debug("handleSubscript");
 
-		Assert.Assert(list.peekFirst() instanceof ExpressionNode);
-		SubscriptExpressionNode node = new SubscriptExpressionNode(Integer.valueOf(n), (ExpressionNode)list.removeFirst());
+		Assert.Assert(list.get(0) instanceof ExpressionNode);
+		Assert.Assert(list.get(1) instanceof ExpressionNode);
+		SubscriptExpressionNode node = new SubscriptExpressionNode((ExpressionNode)list.removeFirst(), (ExpressionNode)list.removeFirst());
 
 		insertNode(0, node);
 	}

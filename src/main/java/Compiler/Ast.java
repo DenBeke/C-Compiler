@@ -413,24 +413,28 @@ public class Ast {
 	}
 	
 	public static class SubscriptExpressionNode extends ExpressionNode {
-		public Integer index;
-
-		public SubscriptExpressionNode(Integer index, ExpressionNode e) {
-			this.index = index;
-
-			addChild(0, e);
+		public SubscriptExpressionNode(ExpressionNode index, ExpressionNode array) {
+			addChild(0, index);
+			addChild(0, array);
 		}
 		
-		ExpressionNode getExpression() {
+		ExpressionNode getArray() {
 			return (ExpressionNode)children.get(0);
+		}
+		
+		ExpressionNode getIndex() {
+			return (ExpressionNode)children.get(1);
 		}
 		
 		@Override
 		public Vector<String> codeL() {
 			Vector<String> instructions = new Vector<String>();
 
-			instructions.addAll(children.get(0).codeL());
-			instructions.add("inc a " + Integer.toString(index));
+			instructions.addAll(getArray().codeL());
+			instructions.add("conv a i");
+			instructions.addAll(getIndex().codeR());
+			instructions.add("add i");
+			instructions.add("conv i a");
 
 			return instructions;
 		}
@@ -440,7 +444,10 @@ public class Ast {
 			Vector<String> instructions = new Vector<String>();
 
 			instructions.addAll(children.get(0).codeL());
-			instructions.add("inc a " + Integer.toString(index));
+			instructions.add("conv a i");
+			instructions.addAll(getIndex().codeR());
+			instructions.add("add i");
+			instructions.add("conv i a");
 			instructions.add("ind " + CodeGenVisitor.typeToPtype(getType()));
 
 			return instructions;

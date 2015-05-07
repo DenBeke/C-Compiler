@@ -6,6 +6,8 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import Compiler.Ast.FunctionDeclarationNode;
+import Compiler.Ast.IntNode;
+import Compiler.Ast.IntTypeNode;
 import Compiler.Ast.StaticArrayTypeNode;
 
 public class SymbolTableVisitor extends Visitor {
@@ -822,15 +824,22 @@ public class SymbolTableVisitor extends Visitor {
 
         visitChildren(node);
         
-        if(!(node.getExpression().getType() instanceof StaticArrayTypeNode)) {
+        if(!(node.getArray().getType() instanceof StaticArrayTypeNode)) {
         	Log.fatal("Subscript operator is only supported on arrays", node.line);
         }
         
-        if(node.index < 0 || node.index >= ((Ast.StaticArrayTypeNode)node.getExpression().getType()).size) {
-        	Log.fatal("Index out of bound", node.line);
+        if(!(node.getIndex().getType() instanceof IntTypeNode)) {
+        	Log.fatal("Index should be integer", node.line);
         }
         
-        node.setType(((Ast.StaticArrayTypeNode)node.getExpression().getType()).getUnderlyingType());
+        if(node.getIndex() instanceof IntNode) {
+        	Integer index = ((IntNode)node.getIndex()).value;
+	        if(index < 0 || index >= ((Ast.StaticArrayTypeNode)node.getArray().getType()).size) {
+	        	Log.fatal("Index out of bound", node.line);
+	        }
+        }
+        
+        node.setType(((Ast.StaticArrayTypeNode)node.getArray().getType()).getUnderlyingType());
         handleCastExpression(node);
     }
 
