@@ -2,6 +2,7 @@ package Compiler;
 
 import java.util.Vector;
 
+import Compiler.Ast.TypeNode;
 import Compiler.SymbolTableVisitor.FuncSymbol;
 import Compiler.SymbolTableVisitor.Symbol;
 import Compiler.SymbolTableVisitor.VarSymbol;
@@ -119,6 +120,43 @@ public class Ast {
 		}
 	}
 
+	public static class EndInitializerListNode extends Node {
+		@Override
+		public void visit(Visitor visitor) {
+			Assert.Assert(false, "This is a helper node, should never be in final AST.");
+		}
+
+	}
+	
+	public static class InitializerListNode extends Node {
+		@Override
+		public void visit(Visitor visitor) {
+			visitor.visit(this);
+		}
+
+		public boolean sameType(TypeNode type) {
+			for(int i = 0; i < children.size(); i++) {
+				if(!((ExpressionNode)children.get(i)).getType().getClass().equals(type.getClass())) {
+					return false;
+				}
+			}
+			
+			return true;
+		}
+
+		@Override
+		public Vector<String> codeR() {
+			Vector<String> instructions = new Vector<String>();
+
+			for(int i = 0; i < children.size(); i++) {
+				instructions.addAll(children.get(children.size() - 1 - i).codeR());
+			}
+
+			return instructions;
+		}
+		
+	}
+	
 	public static class FileNode extends Node {
 		private Vector<Node> declarations = new Vector<Node>();
 
@@ -582,9 +620,14 @@ public class Ast {
 			}
 
 			int offset = symbol.offset;
-			instructions.add("lod " + CodeGenVisitor.typeToPtype(getType())
-                    + " " + Integer.toString(depth) + " "
-                    + Integer.toString(offset));
+			if(getType() instanceof StaticArrayTypeNode) {
+				instructions.add("lda " + Integer.toString(depth) + " "
+	                    + Integer.toString(offset));
+			} else {
+				instructions.add("lod " + CodeGenVisitor.typeToPtype(getType())
+	                    + " " + Integer.toString(depth) + " "
+	                    + Integer.toString(offset));
+			}
 
 			return instructions;
 		}
@@ -630,7 +673,7 @@ public class Ast {
 		public DeclarationNode(String id, Ast.TypeNode type,
 				Ast.Node initializer) {
 			Assert.Assert(initializer instanceof NothingNode
-					|| initializer instanceof ExpressionNode);
+					|| initializer instanceof ExpressionNode || initializer instanceof InitializerListNode);
 			this.id = id;
 			this.type = type;
 
@@ -642,10 +685,16 @@ public class Ast {
 		public Vector<String> code() {
 			Vector<String> instructions = new Vector<String>();
 		
-			if(!(getInitializer() instanceof NothingNode)) {
+			if(getInitializer() instanceof ExpressionNode) {
 				instructions.addAll(getInitializer().codeR());
 				instructions.add("str " + CodeGenVisitor.typeToPtype(getType())
 						+ " 0 " + Integer.toString(symbol.offset));
+			} else if(getInitializer() instanceof InitializerListNode) {
+				instructions.addAll(getInitializer().codeR());
+				for(int i = 0; i < ((InitializerListNode)getInitializer()).children.size(); i++) {
+					instructions.add("str " + CodeGenVisitor.typeToPtype(((StaticArrayTypeNode)getType()).getUnderlyingType())
+							+ " 0 " + Integer.toString(symbol.offset + i));
+				}
 			}
 
 			return instructions;

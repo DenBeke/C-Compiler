@@ -23,6 +23,7 @@ import Compiler.Ast.FunctionCallNode;
 import Compiler.Ast.FunctionDeclarationNode;
 import Compiler.Ast.IdNode;
 import Compiler.Ast.IfStatementNode;
+import Compiler.Ast.InitializerListNode;
 import Compiler.Ast.IntNode;
 import Compiler.Ast.IntTypeNode;
 import Compiler.Ast.Node;
@@ -40,6 +41,8 @@ import Compiler.Ast.UnaryOperatorNode;
 import Compiler.Ast.VoidTypeNode;
 import Compiler.Ast.WhileStatementNode;
 import Compiler.Ast.VariadicTypeNode;
+import Compiler.Ast.EndInitializerListNode;
+
 
 
 public class AstParser extends CParser {
@@ -85,6 +88,18 @@ public class AstParser extends CParser {
 		// type
 		Assert.Assert(list.peekFirst() instanceof TypeNode);
 		TypeNode type = (TypeNode) list.removeFirst();
+		
+		// Convert string to initializer list if type is array
+		if(type instanceof StaticArrayTypeNode && initializer instanceof StringNode) {
+			InitializerListNode initializerlist = new InitializerListNode();
+			String str = ((StringNode)initializer).value;
+			for(int i = 0; i < str.length(); i++) {
+				initializerlist.children.add(i, new CharNode(str.charAt(i)));
+			}
+			initializerlist.children.add(new CharNode('\0'));
+			
+			initializer = initializerlist;
+		}
 
 		DeclarationNode node = new DeclarationNode(id, type, initializer);
 		insertNode(0, node);
@@ -452,6 +467,10 @@ public class AstParser extends CParser {
 	 */
 	@Override
 	public void handleStaticArray(String n) {
+		if(n == null) {
+			n = "0";
+		}
+		
 		Log.debug("handleStaticArray: " + n);
 
 		Assert.Assert(list.peekFirst() instanceof TypeNode);
@@ -651,6 +670,25 @@ public class AstParser extends CParser {
 		insertNode(0, node);
 	}
 
+	public void startInitializerList() {
+		list.add(0, new EndInitializerListNode());
+	};
+
+	public void handleInitializerList() {
+		InitializerListNode node = new InitializerListNode();
+		
+		while(!(list.peekFirst() instanceof EndInitializerListNode)) {
+			if(list.peekFirst() instanceof CharNode || list.peekFirst() instanceof IntNode) {
+				node.children.add(0, list.removeFirst());
+			} else {
+				Assert.Assert(false, "Initializer list can only contain CharNode or IntNode.");
+			}
+		}
+		
+		list.removeFirst();
+		insertNode(0, node);
+	};
+	
 	/**
 	 * Handle file
 	 */
