@@ -26,6 +26,10 @@ public class CodeGenVisitor extends Visitor {
 		if(t instanceof Ast.PointerTypeNode) {
 			return "a";
 		}
+		
+		if(t instanceof Ast.StaticArrayTypeNode) {
+			return "a";
+		}
 
 		Log.warning(
 				"Can't convert type to pmachine type: "

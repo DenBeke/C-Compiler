@@ -582,9 +582,14 @@ public class Ast {
 			}
 
 			int offset = symbol.offset;
-			instructions.add("lod " + CodeGenVisitor.typeToPtype(getType())
-                    + " " + Integer.toString(depth) + " "
-                    + Integer.toString(offset));
+			if(getType() instanceof StaticArrayTypeNode) {
+				instructions.add("lda " + Integer.toString(depth) + " "
+	                    + Integer.toString(offset));
+			} else {
+				instructions.add("lod " + CodeGenVisitor.typeToPtype(getType())
+	                    + " " + Integer.toString(depth) + " "
+	                    + Integer.toString(offset));
+			}
 
 			return instructions;
 		}
