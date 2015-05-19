@@ -716,6 +716,18 @@ public class Ast {
 				return BuiltinCode.generateChartoint();
 			} else if(id.equals("readstr")) {
 				return BuiltinCode.generateReadstr();
+			} else if(id.equals("mod")) {
+				return BuiltinCode.generateMod();
+			} else if(id.equals("reverse")) {
+				return BuiltinCode.generateReverse();
+			} else if(id.equals("strlen")) {
+				return BuiltinCode.generateStrlen();
+			} else if(id.equals("readstr")) {
+				return BuiltinCode.generateReadstr();
+			}  else if(id.equals("atoi")) {
+				return BuiltinCode.generateAtoi();
+			}  else if(id.equals("itoa")) {
+				return BuiltinCode.generateItoa();
 			}  else {
 				Log.fatal("Builtin function not found " + id, line);
 			}

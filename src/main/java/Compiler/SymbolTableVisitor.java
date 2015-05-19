@@ -538,7 +538,10 @@ public class SymbolTableVisitor extends Visitor {
 		symbol.builtin = false;
 		if(node.id.equals("printf") || node.id.equals("print") || node.id.equals("strcmp") || node.id.equals("scanf")
 				|| node.id.equals("readstr") || node.id.equals("isdigit")
-				|| node.id.equals("pow") || node.id.equals("chartoint")) {
+				|| node.id.equals("pow") || node.id.equals("chartoint")
+				|| node.id.equals("mod") || node.id.equals("strlen")
+				|| node.id.equals("reverse") || node.id.equals("itoa")
+				|| node.id.equals("atoi")) {
 			symbol.builtin = true;
 		}
 		symbol.label = node.id;

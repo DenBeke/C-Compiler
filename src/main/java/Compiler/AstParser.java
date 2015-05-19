@@ -742,6 +742,49 @@ public class AstParser extends CParser {
 		FunctionDeclarationNode chartoint = new FunctionDeclarationNode("chartoint", new IntTypeNode(), fpsChartoint, new BlockStatementNode());
 
 		insertNode(0, chartoint);
+		
+		// mod
+		FormalParametersNode fpsMod = new FormalParametersNode();
+		fpsMod.addParam(0, new FormalParameterNode("n1", new IntTypeNode()));
+		fpsMod.addParam(0, new FormalParameterNode("n2", new IntTypeNode()));
+
+		FunctionDeclarationNode mod = new FunctionDeclarationNode("mod", new IntTypeNode(), fpsMod, new BlockStatementNode());
+
+		insertNode(0, mod);
+		
+		// strlen
+		FormalParametersNode fpsStrlen = new FormalParametersNode();
+		fpsStrlen.addParam(0, new FormalParameterNode("s", charPointerType));
+
+		FunctionDeclarationNode strlen = new FunctionDeclarationNode("strlen", new IntTypeNode(), fpsStrlen, new BlockStatementNode());
+
+		insertNode(0, strlen);
+		
+		// reverse
+		FormalParametersNode fpsReverse = new FormalParametersNode();
+		fpsReverse.addParam(0, new FormalParameterNode("s", charPointerType));
+
+		FunctionDeclarationNode reverse = new FunctionDeclarationNode("reverse", new IntTypeNode(), fpsReverse, new BlockStatementNode());
+
+		insertNode(0, reverse);
+		
+		// itoa
+		FormalParametersNode fpsItoa = new FormalParametersNode();
+		fpsItoa.addParam(0, new FormalParameterNode("i", new IntTypeNode()));
+		fpsItoa.addParam(1, new FormalParameterNode("s", charPointerType));
+
+		FunctionDeclarationNode itoa = new FunctionDeclarationNode("itoa", new VoidTypeNode(), fpsItoa, new BlockStatementNode());
+
+		insertNode(0, itoa);
+		
+		// atoi
+		FormalParametersNode fpsAtoi = new FormalParametersNode();
+		fpsAtoi.addParam(0, new FormalParameterNode("s", charPointerType));
+
+		FunctionDeclarationNode atoi = new FunctionDeclarationNode("atoi", new IntTypeNode(), fpsAtoi, new BlockStatementNode());
+
+		insertNode(0, atoi);
+		
 	}
 
 	{
