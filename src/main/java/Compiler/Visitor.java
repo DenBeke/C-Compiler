@@ -165,6 +165,10 @@ public abstract class Visitor {
 	public void visit(Ast.SubscriptExpressionNode node) {
 		visitChildren(node);
 	};
+	
+	public void visit(Ast.InitializerListNode node) {
+		visitChildren(node);
+	};
 
 	/*
 	 * Visit all the children of the node.

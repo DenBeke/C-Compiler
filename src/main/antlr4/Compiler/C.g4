@@ -37,6 +37,9 @@ grammar C;
 	public void handleDereference() {};
 	public void startParams() {};	
 	public void handleSubscript() {};
+	public void startInitializerList() {};
+	public void stopInitializerList() {};
+	public void handleInitializerList() {};
 	
 }
 
@@ -49,11 +52,11 @@ file
     ;
 
 varDecl
-	: type id=ID static_array? (('=' expr) | nothing) {handleVarDecl($id.text);}
+	: type id=ID static_array? (('=' (expr | initializerlist)) | nothing) {handleVarDecl($id.text);}
 	;
 
 static_array
-	: '[' n=INT ']' {handleStaticArray($n.text);}
+	: '[' n=INT? ']' {handleStaticArray($n.text);}
 	;
 
 funcDecl
@@ -120,14 +123,23 @@ nothing
 	: {handleNothing();}
 	;
 
+initializerlist
+	: '{' {startInitializerList();} (intliteral | charliteral) (',' (intliteral | charliteral))*  '}' {stopInitializerList(); handleInitializerList();}
+	;
+
 literal
 	: intliteral
-	| c=CHAR {handleChar($c.text);}
+	| charliteral
 	| s=STRING {handleString($s.text);}
 	;
 
 intliteral
 	: s='-'? i=INT {handleInt($s.text, $i.text);}
+	;
+	
+	
+charliteral
+	: c=CHAR {handleChar($c.text);}
 	;
 
 type

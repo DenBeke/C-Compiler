@@ -6,6 +6,7 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import Compiler.Ast.FunctionDeclarationNode;
+import Compiler.Ast.InitializerListNode;
 import Compiler.Ast.IntNode;
 import Compiler.Ast.IntTypeNode;
 import Compiler.Ast.StaticArrayTypeNode;
@@ -306,8 +307,29 @@ public class SymbolTableVisitor extends Visitor {
 
 		handleCastExpression(node);
 
-		if(!(node.getInitializer() instanceof Ast.NothingNode)) {
+		if(node.getInitializer() instanceof Ast.ExpressionNode) {
 			convert((Ast.ExpressionNode) node.getInitializer(), node.getType());
+		} else if(node.getInitializer() instanceof InitializerListNode) {
+			if(!(node.getType() instanceof Ast.StaticArrayTypeNode)) {
+				Log.fatal("Initializer lists only supported for arrays", node.line);
+			}
+			
+			Ast.InitializerListNode initializer = (Ast.InitializerListNode)node.getInitializer();
+			Ast.TypeNode underlyingType = ((Ast.StaticArrayTypeNode)node.getType()).getUnderlyingType();
+			
+			if(((Ast.StaticArrayTypeNode)node.getType()).size == 0) {
+				((Ast.StaticArrayTypeNode)node.getType()).size = initializer.children.size();
+			}
+			
+			if(initializer.children.size() > ((Ast.StaticArrayTypeNode)node.getType()).size) {
+				Log.fatal("Initializer list should be of max size " + ((Ast.StaticArrayTypeNode)node.getType()).size,node.line);
+			}
+			
+			if(!initializer.sameType(underlyingType)) {
+				Log.fatal("Initializer list should contain " + underlyingType.getStringRepresentation(), node.line);
+			}
+			
+			
 		}
 	}
 
