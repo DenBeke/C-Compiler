@@ -35,10 +35,9 @@ public class SymbolTableVisitor extends Visitor {
 				return new Ast.CharTypeNode();
 			} else if(t2 instanceof Ast.IntTypeNode) {
 				return new Ast.IntTypeNode();
-			}/*
-			 * else if(t2 instanceof Ast.PointerTypeNode) { return new
-			 * Ast.IntTypeNode(); }
-			 */
+			} else if(t2 instanceof Ast.PointerTypeNode) {
+				return new Ast.PointerTypeNode();
+			}
 		}
 
 		if(t1 instanceof Ast.IntTypeNode) {
@@ -46,12 +45,20 @@ public class SymbolTableVisitor extends Visitor {
 				return new Ast.IntTypeNode();
 			} else if(t2 instanceof Ast.IntTypeNode) {
 				return new Ast.IntTypeNode();
-			} /*
-			 * else if(t2 instanceof Ast.PointerTypeNode) { return new
-			 * Ast.IntTypeNode(); }
-			 */
+			} else if(t2 instanceof Ast.PointerTypeNode) {
+				return new Ast.PointerTypeNode();
+			}
 		}
 
+		if(t1 instanceof Ast.PointerTypeNode) {
+			if(t2 instanceof Ast.CharTypeNode) {
+				return new Ast.PointerTypeNode();
+			} else if(t2 instanceof Ast.IntTypeNode) {
+				return new Ast.PointerTypeNode();
+			} else if(t2 instanceof Ast.PointerTypeNode) {
+				return new Ast.PointerTypeNode();
+			}
+		}
 		/*
 		 * if(t1 instanceof Ast.PointerTypeNode) { if(t2 instanceof
 		 * Ast.CharTypeNode) { return new Ast.IntTypeNode(); } else if(t2
@@ -308,6 +315,9 @@ public class SymbolTableVisitor extends Visitor {
 		handleCastExpression(node);
 
 		if(node.getInitializer() instanceof Ast.ExpressionNode) {
+			if(node.getType() instanceof Ast.StaticArrayTypeNode) {
+				Log.fatal("Array can only be initialized with initializer list", node.line);
+			}
 			convert((Ast.ExpressionNode) node.getInitializer(), node.getType());
 		} else if(node.getInitializer() instanceof InitializerListNode) {
 			if(!(node.getType() instanceof Ast.StaticArrayTypeNode)) {
@@ -880,6 +890,9 @@ public class SymbolTableVisitor extends Visitor {
 		case "=":
 			if(node.getLeftChild().getType().constant) {
 				Log.fatal("Can't assign to constant variable", node.line);
+			}
+			if(node.getLeftChild().getType() instanceof Ast.StaticArrayTypeNode) {
+				Log.fatal("Can't assign to array", node.line);
 			}
 
 			convert(node.getRightChild(), node.getLeftChild().getType());

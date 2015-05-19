@@ -282,7 +282,7 @@ public class Ast {
 
 		@Override
 		public String getStringRepresentation() {
-			return "TEST";
+			return "";
 		}
 	}
 
@@ -295,6 +295,10 @@ public class Ast {
 		@Override
 		public Node getTypeCastNode(TypeNode t) {
 			if(t instanceof IntTypeNode) {
+				return new PointerToIntExpressionNode();
+			}
+			
+			if(t instanceof CharTypeNode) {
 				return new PointerToIntExpressionNode();
 			}
 

@@ -247,8 +247,31 @@ public class AstParser extends CParser {
 	@Override
 	public void handleChar(String n) {
 		Log.debug("handleChar " + n);
+		
+		n = n.substring(1, n.length() - 1);
+		
+		char c = ' ';
 
-		CharNode node = new CharNode(n.charAt(1));
+		if(n.charAt(0) == '\\') {
+			switch(n.charAt(1)) {
+			case '\\':
+				c = '\\';
+			break;
+			case 'n':
+				c = '\n';
+			break;
+			case 't':
+				c = '\t';
+			break;
+			case '0':
+				c = '\0';
+			break;
+			}
+		} else {
+			c = n.charAt(0);
+		}
+		
+		CharNode node = new CharNode(c);
 		insertNode(0, node);
 	}
 
@@ -282,6 +305,9 @@ public class AstParser extends CParser {
 				break;
 				case 't':
 					str += '\t';
+				break;
+				case '0':
+					str += '\0';
 				break;
 				}
 			} else {
