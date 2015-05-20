@@ -123,8 +123,12 @@ public class AstParser extends CParser {
 		}
 
 		// Block
-		Assert.Assert(list.peekFirst() instanceof BlockStatementNode);
-		BlockStatementNode body = (BlockStatementNode) list.removeFirst();
+		BlockStatementNode body = null;
+		if(list.peekFirst() instanceof BlockStatementNode) {
+			body = (BlockStatementNode) list.removeFirst();;
+		} else {
+			list.removeFirst();
+		}
 
 		// Return type
 		Assert.Assert(list.peekFirst() instanceof TypeNode);

@@ -734,7 +734,11 @@ public class Ast {
 				FormalParametersNode params, BlockStatementNode block) {
 			this.id = id;
 
-			addChild(0, block);
+			if(block != null) {
+				addChild(0, block);
+			} else {
+				children.add(0, null);
+			}
 			addChild(0, params);
 			addChild(0, returnType);
 		}
@@ -791,6 +795,11 @@ public class Ast {
 		@Override
 		public Vector<String> code() {		
 			Vector<String> instructions = new Vector<String>();
+			
+			// forward declaration
+			if(children.get(2) == null) {
+				return instructions;
+			}
 
 			if(symbol.builtin) {
 				instructions.addAll(generateBuiltin());
@@ -824,12 +833,10 @@ public class Ast {
 
 	public static class FormalParameterNode extends Node {
 		public String id;
-		private TypeNode type;
 		public VarSymbol symbol;
 
 		public FormalParameterNode(String id, TypeNode type) {
 			this.id = id;
-			this.type = type;
 
 			addChild(0, type);
 		}

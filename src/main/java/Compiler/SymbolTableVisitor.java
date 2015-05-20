@@ -561,11 +561,40 @@ public class SymbolTableVisitor extends Visitor {
 		Assert.Assert(node.children.get(1) instanceof Ast.FormalParametersNode,
 				"Expected FormalParametersNode");
 
+		boolean hasForwardDeclaration = false;
+		FuncSymbol fwd = null;
 		// Check for multiple declarations
 		if(symbolTableStack.peek().hasSymbol(node.id)) {
-			Log.fatal("Symbol '" + node.id + "' previously declared (on line "
-					+ symbolTableStack.peek().getSymbol(node.id).type.line
-					+ ")", node.line);
+			// Check if it was just a forward declaration
+			Symbol sym = symbolTableStack.peek().getSymbol(node.id);
+			if(sym instanceof FuncSymbol) {
+				FuncSymbol fsym = (FuncSymbol)sym;
+				fwd = fsym;
+				if(fsym.declaration.children.get(2) == null) {
+					// Check if same definition
+					if(fsym.paramTypes.size() != node.getParams().children.size()) {
+						Log.fatal("Forward declaration has not same number of arguments", node.line);
+					}
+					
+					for(int i = 0; i < fsym.paramTypes.size(); i++) {
+						if(!((Ast.TypeNode)node.getParams().children.get(i).children.get(0)).equals(fsym.paramTypes.get(i))) {
+							Log.fatal("Forward declaration has not same paramters", node.line);
+						}
+					}
+					
+					if(!fsym.returnType.equals(node.getReturnType())) {
+						Log.fatal("Forward declaration has different return type", node.line);
+					}
+					
+					hasForwardDeclaration = true;
+				}
+			}
+			
+			if(!hasForwardDeclaration) {
+				Log.fatal("Symbol '" + node.id + "' previously declared (on line "
+						+ symbolTableStack.peek().getSymbol(node.id).type.line
+						+ ")", node.line);
+			}
 		}
 
 		FuncSymbol symbol = new FuncSymbol();
@@ -583,10 +612,13 @@ public class SymbolTableVisitor extends Visitor {
 			symbol.builtin = true;
 		}
 		symbol.label = node.id;
-		if(!symbol.builtin) {
+		if(!symbol.builtin && !hasForwardDeclaration) {
 			symbol.label += Integer.toString(functionDeclCounter);
+			functionDeclCounter += 1;
+		} else if(hasForwardDeclaration) {
+			symbol.label = fwd.label;
 		}
-		functionDeclCounter += 1;
+		
 		symbol.type = (Ast.TypeNode) node.children.get(0);
 		node.symbol = symbol;
 		symbol.scope = node.scope;
@@ -629,9 +661,9 @@ public class SymbolTableVisitor extends Visitor {
 		}
 
 		// visit block
-		Assert.Assert(node.children.get(2) instanceof Ast.BlockStatementNode,
-				"Expected BlockStatementNode");
-		visit((Ast.BlockStatementNode) node.children.get(2), false);
+		if(node.children.get(2) instanceof Ast.BlockStatementNode) {
+			visit((Ast.BlockStatementNode) node.children.get(2), false);
+		}
 
 		leaveScope();
 	}

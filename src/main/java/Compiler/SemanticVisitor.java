@@ -13,7 +13,7 @@ public class SemanticVisitor extends Visitor {
 		if(node.symbol.builtin) {
 			return;
 		}
-		
+			
 		if(!checkReturn(node)
 				&& !(node.getReturnType() instanceof Ast.VoidTypeNode)) {
 			Log.warning("Control may reach end of non-void function '"
@@ -27,9 +27,15 @@ public class SemanticVisitor extends Visitor {
 	 * @param node
 	 * @return
 	 */
-	public static boolean checkReturn(Ast.Node node) {
+	public static boolean checkReturn(Ast.Node node) {	
+		// forward declaration
+		if(node instanceof Ast.FunctionDeclarationNode &&  node.children.get(2) == null) {
+			return true;
+		}
+		
 		int count = 0;
 		for(Ast.Node child : node.children) {
+			
 			if(node instanceof Ast.IfStatementNode) {
 				if(count <= 1) {
 					count++;

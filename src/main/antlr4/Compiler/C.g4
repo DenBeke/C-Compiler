@@ -60,7 +60,7 @@ static_array
 	;
 
 funcDecl
-	: type id=ID '(' formalParameters? ')' block {handleFuncDecl($id.text);}
+	: type id=ID '(' formalParameters? ')' (block | nothing ';') {handleFuncDecl($id.text);}
 	| '#include <stdio.h>' {handleIncludeIO();}
 	;
 
