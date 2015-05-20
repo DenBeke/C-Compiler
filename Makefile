@@ -8,7 +8,8 @@ run:
 
 test:
 	mvn test
-	python src/test/python/codegen.py
+	python2 src/test/python/codegen.py
+	python2 src/test/python/codegen_fail.py
 
 test-ast:
 	mvn test -Dtest=AstTest
@@ -21,3 +22,4 @@ test-symboltable:
 
 test-codegen:
 	python2 src/test/python/codegen.py
+	python2 src/test/python/codegen_fail.py

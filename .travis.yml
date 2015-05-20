@@ -7,6 +7,7 @@ install:
 script:
   - mvn test -B
   - python src/test/python/codegen.py
+  - python src/test/python/codegen_fail.py
 
 jdk:
   - oraclejdk8
