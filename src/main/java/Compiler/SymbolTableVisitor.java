@@ -812,10 +812,6 @@ public class SymbolTableVisitor extends Visitor {
                 node.label = ((Ast.ForStatementNode)search.parent).endForLabel;
                 break;
             }
-            if(search.parent instanceof Ast.IfStatementNode) {
-                node.label = ((Ast.IfStatementNode)search.parent).endIfLabel;
-                break;
-            }
             if(search.parent instanceof Ast.FileNode) {
                 Log.fatal("Break statement without for or while loop", node.line);
                 break;

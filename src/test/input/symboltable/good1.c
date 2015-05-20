@@ -53,7 +53,6 @@ char* funcB(char* abc) {
 		/*
 			return something else
 		*/
-		break;
 		return abc;
 	}
 
