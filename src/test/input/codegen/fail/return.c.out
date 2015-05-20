@@ -1,0 +1,14 @@
+[WARNING] line 7: Control may reach end of non-void function 'a' without return
+mst 0
+cup 0 init
+init:
+ssp 5
+mst 0
+cup 0 main1
+hlt
+a0:
+ssp 5
+retp
+main1:
+ssp 5
+retp
