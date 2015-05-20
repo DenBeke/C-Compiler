@@ -21,9 +21,4 @@ void main() {
         print("Fail\n");
     }
 
-    if(1) {
-        break;
-        print("Fail\n");
-    }
-
 }
