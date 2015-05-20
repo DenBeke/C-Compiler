@@ -498,7 +498,7 @@ public class AstParser extends CParser {
 		}
 		
 		Log.debug("handleStaticArray: " + n);
-
+		
 		Assert.Assert(list.peekFirst() instanceof TypeNode);
 		StaticArrayTypeNode node = new StaticArrayTypeNode(Integer.parseInt(n),
 				(TypeNode) list.removeFirst());

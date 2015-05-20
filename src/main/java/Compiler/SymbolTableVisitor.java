@@ -313,6 +313,12 @@ public class SymbolTableVisitor extends Visitor {
 		}
 
 		handleCastExpression(node);
+		
+		if(node.getType() instanceof Ast.StaticArrayTypeNode) {
+			if(((Ast.StaticArrayTypeNode)node.getType()).size.intValue() <= 0) {
+				Log.fatal("Array size should be > 0", node.line);
+			}
+		}
 
 		if(node.getInitializer() instanceof Ast.ExpressionNode) {
 			if(node.getType() instanceof Ast.StaticArrayTypeNode) {
