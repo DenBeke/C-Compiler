@@ -31,8 +31,7 @@ Running individual tests can also be done:
 * `make test-codegen`: code generation scenarios
 
 
-**Snake**
-
+**Snake**  
 To demonstrate the compiler, we have added a small snake demo C file `demo-snake.c` which you can compile and run.
 
 
@@ -43,10 +42,12 @@ Running the Compiler with custom manual input:
 
     $ ./bin/c2p > compiled_file.p
 
+
 Or compile an input file:
 
     $ ./bin/c2p < my_file.c > compiled_file.p
     
+
 Run the compiled code on the Pmachine:
 
     $ ./Pmachine/Pmachine compiled_file.p 
@@ -67,19 +68,19 @@ Optional features
 * Nested functions
 * Warning when over initializing arrays
 * Support for some built-in functions (when including `stdio.h`):
-    * `print`
-    * `strcmp`
-    * `scanf`
-    * `isdigit`
-    * `pow`
-    * `chartoint`
-    * `readstr`
-    * `mod`
-    * `reverse`
-    * `strlen`
-    * `readstr`
-    * `atoi`
-    * `itoa`
+    * `void printf(char*, ...);`
+    * `void print(char*);`
+    * `int strcmp(char*, char*);`
+    * `void scanf(char*, ...);`
+    * `int isdigit(char);`
+    * `int pow(int, int);`
+    * `int chartoint(char);`
+    * `void readstr(char*);`
+    * `int mod(int, int);`
+    * `void reverse(char*);`
+    * `int strlen(char*);`
+    * `int atoi(char*);`
+    * `void itoa(int, char*);`
 
 Authors
 =======
