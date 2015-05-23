@@ -12,7 +12,7 @@
 		<p class="p3">The project is graded on a scale of 20 points. The table below will be used as a starting point for the grading.&nbsp;</p>
 		<p>	The column <i>ALL</i> describes the basic requirements. If the basic requirements are satisfied, then you will start from a minimum of 10 points.<br>
 			Extra points can be earned by implementing optional features from the column <i>OPT</i>.&nbsp;</p>
-		<p>When you present your work on the exam, the points from the table 
+		<p>When you present your work on the exam, the points from the table
 will be added based on the insights of each individual student.</p>
 		<div>
 			<table style="width: 800px;" align="left" border="1" cellpadding="1" cellspacing="1">
@@ -37,15 +37,15 @@ will be added based on the insights of each individual student.</p>
 					</tr>
 					<tr>
 						<td>basic types: char, int, pointer</td><td>x</td>
-						<td>conversions: explicit and implicit casts</td><td><b>0.25</b></td>
+						<td><b>conversions: explicit and implicit casts</b></td><td><b>0.25</b></td>
 					</tr>
 					<tr>
 						<td>constants, local and global variables</td><td>x</td>
-						<td>error when calling undeclared functions</td><td><b>0.25</b></td>
+						<td><b>error when calling undeclared functions</b></td><td><b>0.25</b></td>
 					</tr>
 					<tr>
 						<td>reserved words: <br> types (char, int, void), control structures (if, else, while, for), control primitives (break, continue, return) and const</td>	<td>x</td>
-						<td>nested functions including proper scoping</td><td>1</td>
+						<td><b>nested functions including proper scoping</b></td><td><b>1</b></td>
 					</tr>
 					<tr>
 						<td>single line comments</td><td>x</td>
@@ -53,7 +53,7 @@ will be added based on the insights of each individual student.</p>
 					</tr>
 					<tr>
 						<td>stdio</td><td>&nbsp;</td>
-						<td>presence of return statements in all branches of function</td><td><b>1</b></td>
+						<td><b>presence of return statements in all branches of function</b></td><td><b>1</b></td>
 					</tr>
 					<tr><td>function/procedure definitions and calls</td><td>x</td>
 						<td>multi-dimensional arrays</td><td>1</td>
@@ -64,11 +64,11 @@ will be added based on the insights of each individual student.</p>
 					</tr>
 					<tr>
 						<td>consistency of the type of the return statement</td><td>x</td>
-						<td>assignment of complete arrays (full rows)</td><td>0.5</td>
+						<td><b>assignment of complete arrays (full rows)</b></td><td><b>0.5</b></td>
 					</tr>
 					<tr>
 						<td>check consistency function definition and its forward declarations</td>	<td>&nbsp;</td>
-						<td>warning when overinitializing arrays</td><td>0.5</td>
+						<td><b>warning when overinitializing arrays</b></td><td><b>0.5</b></td>
 					</tr>
 					<tr>
 						<td>basic support for 1 dimensional (static) arrays</td><td>x</td>
@@ -79,7 +79,7 @@ will be added based on the insights of each individual student.</p>
 						<td>switch statement operating on integer</td><td>1</td>
 					</tr>
 					<tr>
-						<td>read-only access for variables declared const</td><td>x</td>
+						<td>read-only access for variables declared const</td><td><b>x</b></td>
 						<td>inline functions</td><td>1</td>
 					</tr>
 					<tr>
@@ -88,7 +88,7 @@ will be added based on the insights of each individual student.</p>
 					</tr>
 					<tr>
 						<td>&nbsp;</td><td>&nbsp;</td>
-						<td>pointer arithmetic</td><td>1</td>
+						<td><b>pointer arithmetic</b></td><td><b>1</b></td>
 					</tr>
 					<tr>
 						<td>&nbsp;</td><td>&nbsp;</td>
@@ -104,7 +104,32 @@ will be added based on the insights of each individual student.</p>
 					</tr>
 					<tr>
 						<td>Random Optimalizations</td><td>&nbsp;</td>
-						<td>Extras</td>	<td>&nbsp;</td>
+						<td>Extras:
+							<ul>
+								<li>Support for nested pointer/const declarations</li>
+								<li>Error when calling undeclared functions</li>
+								<li>Error when using undeclared variables</li>
+								<li>Error when parameters for a function call don't match</li>
+								<li>Forward declarations</li>
+								<li>Support for built-in functions
+									<ul>
+										<li><code>void printf(char*, ...);</code></li>
+										<li><code>void print(char*);</code></li>
+										<li><code>int strcmp(char*, char*);</code></li>
+										<li><code>void scanf(char*, ...);</code></li>
+										<li><code>int isdigit(char);</code></li>
+										<li><code>int pow(int, int);</code></li>
+										<li><code>int chartoint(char);</code></li>
+										<li><code>void readstr(char*);</code></li>
+										<li><code>int mod(int, int);</code></li>
+										<li><code>void reverse(char*);</code></li>
+										<li><code>int strlen(char*);</code></li>
+										<li><code>int atoi(char*);</code></li>
+										<li><code>void itoa(int, char*);</code></li>
+										</ul>	
+								</li>
+							</ul>
+						</td>	<td>&nbsp;</td>
 					</tr>
 				</tbody>
 			</table>

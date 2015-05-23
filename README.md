@@ -65,7 +65,7 @@ Optional features
 * Error when parameters for a function call don't match
 * Checking for presence of return statements in all branches of function
 * Forward declarations
-* Nested functions
+* Nested functions including proper scoping
 * Warning when over initializing arrays
 * Support for some built-in functions (when including `stdio.h`):
     * `void printf(char*, ...);`
