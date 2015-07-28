@@ -3,6 +3,7 @@ Compiler
 
 [![Build Status](https://magnum.travis-ci.com/DenBeke/Compiler.svg?token=55DZWEWREsf4wvhULGzt&branch=master)](https://magnum.travis-ci.com/DenBeke/Compiler)
 
+C compiler that compiles a subset of C. The compiler, written in Java using ANTLR, compiles to the [Pmachine](http://ansymore.uantwerpen.be/sites/ansymo.ua.ac.be/files/uploads/courses/Compilers/pMachine/index.html).
 
 Building
 ========
