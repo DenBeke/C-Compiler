@@ -85,5 +85,5 @@ Optional features
 Authors
 =======
 
-* Mathias Beke
-* Timo Truyts
+* [Mathias Beke](http://denbeke.be)
+* tnt
