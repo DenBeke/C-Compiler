@@ -87,4 +87,4 @@ Authors
 =======
 
 * [Mathias Beke](http://denbeke.be)
-* tnt
+* Timo Truyts
